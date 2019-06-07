@@ -10,7 +10,13 @@ Add the ability to save favorite folders to JupyterLab for quicker browsing
 ## Installation
 
 ```bash
+# the client part
 jupyter labextension install jupyterlab-favorites
+# the server part
+pip install jupyter_favorites
+# enabling the server part (should be automatic, but here just in case)
+# omit `--sys-prefix` if you're not using conda
+jupyter serverextension enable --py jupyter_favorites --sys-prefix
 ```
 
 ## Development
