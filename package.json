@@ -30,7 +30,8 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@jupyterlab/application": "^0.19.1"
+    "@jupyterlab/application": "^0.19.1",
+    "@jupyterlab/filebrowser": "^0.19.4"
   },
   "devDependencies": {
     "rimraf": "^2.6.1",

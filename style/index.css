@@ -1,0 +1,46 @@
+.jp-Favorites-header {
+  margin-top: 20px;
+  padding: 8px 0 8px 12px;
+  color: var(--jp-ui-font-color1);
+  font-size: var(--jp-ui-font-size0);
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: solid var(--jp-border-width) var(--jp-border-color2);
+  letter-spacing: 1px;
+}
+
+.jp-Favorites-container {
+  /* padding: 8px 0 8px 0; */
+  /* margin: 4px 12px; */
+}
+
+.jp-Favorites {
+  flex: 0 0 auto;
+}
+
+.jp-Favorites-item {
+  display: flex;
+  flex-direction: row;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.jp-Favorites-item:hover {
+  background-color: var(--jp-layout-color2);
+}
+
+.jp-Favorites-itemIcon {
+  flex: 0 0 20px;
+  margin-right: 4px;
+}
+
+.jp-Favorites-itemText {
+  flex: 1 0 64px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
