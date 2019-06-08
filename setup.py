@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from jupyterlab_resuse import __version__
+from jupyterlab_favorites import __version__
 
 
 long_description = (
@@ -29,5 +29,5 @@ setup(
     url='https://github.com/tslaton/jupyterlab-favorites',
     keywords=['Jupyter', 'Jupyterlab', 'NERSC'],
     python_requires='>=3.6',
-    install_requires=['notebook']
+    install_requires=['jupyterlab']
 )

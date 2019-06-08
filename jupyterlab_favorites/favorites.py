@@ -1,3 +1,4 @@
+from jupyterlab import labapp
 from notebook.base.handlers import IPythonHandler
 
 class FavoritesHandler(IPythonHandler):
@@ -5,4 +6,5 @@ class FavoritesHandler(IPythonHandler):
         """
         Get a list a favorites from data on disk.
         """
+        print('labapp', labapp)
         pass
