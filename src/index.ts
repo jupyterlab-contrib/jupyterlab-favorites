@@ -9,6 +9,14 @@ import {
   IFileBrowserFactory,
 } from '@jupyterlab/filebrowser';
 
+import {
+  ServerConnection
+} from '@jupyterlab/services';
+
+import {
+  ArrayExt
+} from '@phosphor/algorithm';
+
 import '../style/index.css';
 
 import {
@@ -84,15 +92,28 @@ class Favorites extends Widget {
     super();
     this._model = options.model;
     this.addClass(FAVORITES_CLASS);
-    this._favorites_items = Private.createFavoritesItems();
-    this._favorites = Private.createFavorites(this._favorites_items);
-    this.node.appendChild(this._favorites);
-    this._model.refreshed.connect(this.update, this);
+    this.hide();
+    this._favorites_header = Private.createFavoritesHeader();
+    this.node.appendChild(this._favorites_header);
+    this._favorites_container = Private.createFavoritesContainer();
+    this.node.appendChild(this._favorites_container);
+    this._favorites_data = [];
+    this._favorites_items = [];
   }
 
   private _model: FileBrowserModel;
-  private _favorites: HTMLElement;
+  private _favorites_data: Array<Favorites.ItemData>;
+  private _favorites_header: HTMLElement;
+  private _favorites_container: HTMLElement;
   private _favorites_items: ReadonlyArray<HTMLElement>;
+
+  /**
+   * Set backing data according to server.
+   */
+  public setFavoritesData(favoritesData: Array<Favorites.ItemData>): void {
+    this._favorites_data = favoritesData;
+    this.update();
+  }
 
   /**
    * Handle the DOM events for the favorites.
@@ -133,6 +154,26 @@ class Favorites extends Widget {
   }
 
   /**
+   * A handler invoked on an `'update-request'` message.
+   */
+  protected onUpdateRequest(msg: Message): void {
+    // Update the favorites rendered.
+    while (this._favorites_container.firstChild) {
+      this._favorites_container.firstChild.remove();
+    }
+    this._favorites_items = Private.createFavoritesItems(this._favorites_data);
+    if (this._favorites_items.length > 0) {
+      this._favorites_items.forEach(favorites_item => {
+        this._favorites_container.appendChild(favorites_item);
+      })
+      this.show();
+    }
+    else {
+      this.hide();
+    }
+  }
+
+  /**
    * Handle the `'click'` event for the widget.
    */
   private _evtClick(event: MouseEvent): void {
@@ -147,14 +188,14 @@ class Favorites extends Widget {
     console.log(`looking at node with class list: ${node.classList}`);
     while (node && node !== this.node) {
       if (node.classList.contains(FAVORITES_ITEM_CLASS)) {
-        // let index = ArrayExt.findFirstIndex(
-        //   this._favorites_items,
-        //   value => value === node
-        // );
-        // TODO: Make this path actually dependent on the favorite
-        console.log('trying to cd...');
+        let index = ArrayExt.findFirstIndex(
+          this._favorites_items,
+          value => value === node
+        );
+        let path = this._favorites_data[index].path;
+        console.log('trying to cd to: ', path);
         this._model
-          .cd('~/')
+          .cd(path)
           .catch(error => showErrorMessage('Open Error', error));
 
         // Stop the event propagation.
@@ -180,6 +221,12 @@ namespace Favorites {
      */
     model: FileBrowserModel;
   }
+
+  export interface ItemData {
+    title: string;
+    iconClass: string;
+    path: string;
+  }
 }
 
 /**
@@ -189,38 +236,41 @@ namespace Private {
   /**
    * Create the favorites items nodes.
    */
-  export function createFavoritesItems(): ReadonlyArray<HTMLElement> {
-    let home = document.createElement('div');
-    home.className = FAVORITES_ITEM_CLASS;
-    home.title = 'Home';
-    let homeIcon = document.createElement('span');
-    homeIcon.className = `${MATERIAL_CLASS} ${FAVORITES_HOME_CLASS} ${FAVORITES_ITEM_ICON_CLASS}`;
-    home.appendChild(homeIcon);
-    let homeText = document.createElement('span');
-    homeText.className = FAVORITES_ITEM_TEXT_CLASS;
-    homeText.innerHTML = '~/';
-    home.appendChild(homeText);
-    return [home];
+  export function createFavoritesItems(favoritesData: ReadonlyArray<Favorites.ItemData>): ReadonlyArray<HTMLElement> {
+    let favoritesItems: Array<HTMLElement> = [];
+    favoritesData.forEach(({ title, iconClass, path }) => {
+      let favorite = document.createElement('div');
+      favorite.className = FAVORITES_ITEM_CLASS;
+      favorite.title = path;
+      let icon = document.createElement('span');
+      icon.className = `${MATERIAL_CLASS} ${iconClass} ${FAVORITES_ITEM_ICON_CLASS}`;
+      favorite.appendChild(icon);
+      let text = document.createElement('span');
+      text.className = FAVORITES_ITEM_TEXT_CLASS;
+      text.innerHTML = title;
+      favorite.append(text);
+      favoritesItems.push(favorite);
+    })
+    return favoritesItems;
   }
 
   /**
-   * Create the favorites node.
+   * Create the favorites header node.
    */
-  export function createFavorites(
-    favorites_items: ReadonlyArray<HTMLElement>
-  ): HTMLElement {
-    let favorites = document.createElement('div');
+  export function createFavoritesHeader(): HTMLElement {
     let favorites_header = document.createElement('div');
     favorites_header.innerHTML = 'Favorites';
     favorites_header.className = FAVORITES_HEADER_CLASS;
-    favorites.appendChild(favorites_header);
+    return favorites_header;
+  }
+
+  /**
+   * Create the favorites container node.
+   */
+  export function createFavoritesContainer(): HTMLElement {
     let favorites_container = document.createElement('div');
     favorites_container.className = FAVORITES_CONTAINER_CLASS;
-    favorites.appendChild(favorites_container);
-    favorites_items.forEach(favorites_item => {
-      favorites_container.appendChild(favorites_item);
-    });
-    return favorites;
+    return favorites_container;
   }
 }
 
@@ -251,6 +301,24 @@ const extension: JupyterLabPlugin<void> = {
     }
     // Insert the Favorites widget just ahead of the BreadCrumbs
     layout.insertWidget(breadCrumbsIndex, favorites);
+    // Request favorites from the server
+    let settings = ServerConnection.makeSettings();
+    let init = {
+      method: 'GET',
+    }
+    let url = `${settings.baseUrl}favorites`;
+    console.log('url: ', url);
+    ServerConnection.makeRequest(url, init, settings).then(response => {
+      if (response.status !== 200) {
+        throw Error(response.statusText);
+      }
+      return response.json();
+    }).then(data => {
+      console.log('received favorites: ', data);
+      favorites.setFavoritesData(data.favorites || []);
+    }).catch(error => {
+      console.log(error);
+    });
     // let { commands } = app;
     // commands.execute('filebrowser:navigate', { path: '/nersc/jupyterlab-favorites' })
   }
