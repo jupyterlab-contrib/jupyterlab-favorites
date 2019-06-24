@@ -19,23 +19,24 @@
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "style": "style/index.css",
   "repository": {
     "type": "git",
     "url": "https://github.com/tslaton/jupyterlab-favorites.git"
   },
   "scripts": {
     "build": "tsc",
-    "clean": "rimraf lib",
+    "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
     "prepare": "npm run clean && npm run build",
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@jupyterlab/application": "^0.19.1",
-    "@jupyterlab/filebrowser": "^0.19.4"
+    "@jupyterlab/application": "^1.0.0-rc.0",
+    "@jupyterlab/filebrowser": "^1.0.0-rc.0"
   },
   "devDependencies": {
     "rimraf": "^2.6.1",
-    "typescript": "~3.1.1"
+    "typescript": "~3.5.2"
   },
   "jupyterlab": {
     "extension": true
