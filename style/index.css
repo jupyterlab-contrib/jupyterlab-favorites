@@ -1,3 +1,15 @@
+:root {
+  --jp-icon-favorite: url('icons/md/baseline-star-24px.svg');
+}
+
+.jp-FavoritesIcon {
+  background-image: var(--jp-icon-favorite);
+  min-width: 16px;
+  min-height: 16px;
+  background-size: 16px;
+  vertical-align: sub;
+}
+
 .jp-Favorites-header {
   margin-top: 20px;
   padding: 8px 0 8px 12px;

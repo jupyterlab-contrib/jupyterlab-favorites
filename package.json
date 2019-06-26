@@ -15,7 +15,8 @@
   "author": "Trevor Slaton",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
-    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
+    "schema/*.json"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -32,13 +33,25 @@
   },
   "dependencies": {
     "@jupyterlab/application": "^1.0.0-rc.0",
-    "@jupyterlab/filebrowser": "^1.0.0-rc.0"
+    "@jupyterlab/filebrowser": "^1.0.0-rc.0",
+    "@jupyterlab/mainmenu": "^1.0.0-rc.0"
   },
   "devDependencies": {
     "rimraf": "^2.6.1",
     "typescript": "~3.5.2"
   },
   "jupyterlab": {
-    "extension": true
+    "extension": true,
+    "schemaDir": "schema",
+    "discovery": {
+      "server": {
+        "base": {
+          "name": "jupyterlab_favorites"
+        }
+      },
+      "managers": [
+        "pip"
+      ]
+    }
   }
 }

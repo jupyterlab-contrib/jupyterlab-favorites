@@ -1,0 +1,28 @@
+{
+  "jupyter.lab.setting-icon-class": "jp-FavoritesIcon",
+  "jupyter.lab.setting-icon-label": "Favorites",
+  "title": "Favorites",
+  "description": "Favorites settings.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "favorites": {
+      "title": "Favorites",
+      "description": "The list of favorites.",
+      "items": { "$ref": "#/definitions/favorite" },
+      "type": "array",
+      "default": []
+    }
+  },
+  "definitions": {
+    "favorite": {
+      "properties": {
+        "title": { "type": "string" },
+        "iconClass": { "type": "string" },
+        "path": { "type": "string" }
+      },
+      "required": ["title", "iconClass", "path"],
+      "type": "object"
+    }
+  }
+}

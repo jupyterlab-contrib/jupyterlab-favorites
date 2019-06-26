@@ -4,11 +4,24 @@ import {
 } from '@jupyterlab/application';
 
 import {
+  ISettingRegistry,
+  IStateDB,
+} from '@jupyterlab/coreutils';
+
+import {
+  IDocumentManager,
+} from '@jupyterlab/docmanager';
+
+import {
+  IMainMenu
+} from '@jupyterlab/mainmenu';
+
+import {
   IFileBrowserFactory,
 } from '@jupyterlab/filebrowser';
 
 import {
-  ServerConnection
+  ServerConnection,
 } from '@jupyterlab/services';
 
 import '../style/index.css';
@@ -24,6 +37,8 @@ import {
 import React from 'react';
 
 namespace Favorites {
+  export const id = 'jupyterlab-favorites';
+
   export interface IItem {
     title: string;
     iconClass: string;
@@ -175,10 +190,27 @@ export class FavoritesComponent extends React.Component {
  * Initialization data for the jupyterlab-favorites extension.
  */
 const favorites: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-favorites',
+  id: Favorites.id,
   autoStart: true,
-  requires: [IFileBrowserFactory],
-  activate: (app: JupyterFrontEnd, factory: IFileBrowserFactory) => {
+  requires: [
+    IFileBrowserFactory,
+    ISettingRegistry,
+    IStateDB,
+    IDocumentManager,
+    IMainMenu,
+  ],
+  activate: (
+    app: JupyterFrontEnd,
+    factory: IFileBrowserFactory,
+    // read/write favorites here
+    settings: ISettingRegistry,
+    // write recent files here
+    state: IStateDB,
+    // open favorites with this?
+    manager: IDocumentManager,
+    // add command to open recents
+    menu: IMainMenu
+  ) => {
     console.log('JupyterLab extension jupyterlab-favorites is activated (with React)!');
     const filebrowser = factory.defaultBrowser;
     const layout = filebrowser.layout as PanelLayout;
@@ -191,6 +223,11 @@ const favorites: JupyterFrontEndPlugin<void> = {
     })
     // Insert the Favorites widget just ahead of the BreadCrumbs
     layout.insertWidget(breadCrumbsIndex, favorites);
+    console.log('settings: ', settings);
+    const loading = `${Favorites.id}:favorites`
+    console.log('loading recent: ', loading);
+    settings.load(loading)
+      .then(favoritesSettings => console.log('favoritesSettings: ', favoritesSettings));
   }
 };
 
