@@ -36,6 +36,12 @@ import {
 } from '@phosphor/widgets';
 
 import {
+  ISignal,
+  Signal,
+} from '@phosphor/signaling';
+
+import {
+  UseSignal,
   ReactWidget,
 } from '@jupyterlab/apputils';
 
@@ -58,43 +64,33 @@ namespace Favorites {
     favorites: Array<IItem>;
   }
 
-  export interface IWidgetState {
+  export interface IFavorites {
     default: Array<any>;
     valid: Array<any> | undefined;
     invalid: Array<any> | undefined;
   }
 }
 
-function FavoritesComponent(props: Favorites.IProps) {
-  return (
-    <div className="jp-Favorites">
-      <div className="jp-Favorites-header">
-        {"Favorites"}
-      </div>
-      <div className="jp-Favorites-container">
-        {props.favorites.map(f =>
-          <div className="jp-Favorites-item" title={f.path} key={`favorites-item-${f.path}`}>
-            <span className={`jp-MaterialIcon jp-Favorites-itemIcon ${f.iconClass}`}></span>
-            <span className="jp-Favorites-itemText">{f.title}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-class FavoritesWidget extends ReactWidget {
+class FavoritesManager {
   settingsID = `${Favorites.id}:favorites`;
   settingsRegistry: ISettingRegistry;
-  favorites: Favorites.IWidgetState;
+  favoritesChanged = new Signal<this, Favorites.IFavorites>(this);
+  private _favorites: Favorites.IFavorites;
 
   constructor(settingsRegistry: ISettingRegistry) {
-    super();
     this.settingsRegistry = settingsRegistry;
   }
 
+  get favorites(): Favorites.IFavorites {
+    return this._favorites;
+  }
+
+  set favorites(favorites: Favorites.IFavorites) {
+    this._favorites = favorites;
+  }
+
   async init() {
-    await this.getFavorites();
+    await this.fetchFavorites();
     // Transform the plugin object to return different schema than the default.
     this.settingsRegistry.transform(this.settingsID, {
       fetch: plugin => {
@@ -116,7 +112,7 @@ class FavoritesWidget extends ReactWidget {
     });
   }
 
-  async getFavorites() {
+  async fetchFavorites() {
     const serverSettings = ServerConnection.makeSettings();
     try {
       const response = await ServerConnection.makeRequest(
@@ -129,6 +125,7 @@ class FavoritesWidget extends ReactWidget {
       }
       else {
         this.favorites = await response.json();
+        this.favoritesChanged.emit(this.favorites);
       }
     }
     catch (error) {
@@ -136,19 +133,54 @@ class FavoritesWidget extends ReactWidget {
     }
   }
 
-  addFavorite(favorite: Favorites.IItem) {
-    console.log('adding favorite (just to client): ', favorite);
+  async addFavorite(favorite: Favorites.IItem) {
+    console.log('adding favorite: ', favorite);
     const valid = this.favorites.valid || [];
     valid.push(favorite);
-    this.favorites.valid = valid;
-    console.log('forcing render with favorites: ', this.favorites.valid);
-    this.render();
+    const newSettings = JSON.stringify({ favorites: valid });
+    await this.settingsRegistry.upload(this.settingsID, newSettings);
+    await this.fetchFavorites();
   }
+}
 
-  render() {
-    const favorites = this.favorites.valid || this.favorites.default;
-    return <FavoritesComponent favorites={favorites} />;
+// return (
+//   <UseSignal
+//     signal={props.manager.runningChanged}
+//     initialArgs={initialModels}
+//   >
+//     {(sender: any, args: Array<M>) => render(args)}
+// </UseSignal>
+
+type FavoritesProps = {
+  manager: {
+    favoritesChanged: ISignal<FavoritesManager, Favorites.IFavorites>;
+    favorites: Favorites.IFavorites;
   }
+};
+
+function FavoritesComponent(props: FavoritesProps) {
+  return (
+    <UseSignal
+      signal={props.manager.favoritesChanged}
+      initialArgs={props.manager.favorites}
+    >
+      {(sender: FavoritesManager, favorites: Favorites.IFavorites) => (
+        <div className="jp-Favorites">
+          <div className="jp-Favorites-header">
+            {"Favorites"}
+          </div>
+          <div className="jp-Favorites-container">
+            {((favorites.valid || favorites.default) as Array<Favorites.IItem>).map(f =>
+              <div className="jp-Favorites-item" title={f.path} key={`favorites-item-${f.path}`}>
+                <span className={`jp-MaterialIcon jp-Favorites-itemIcon ${f.iconClass}`}></span>
+                <span className="jp-Favorites-itemText">{f.title}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </UseSignal>
+  );
 }
 
 /**
@@ -187,8 +219,12 @@ const favorites: JupyterFrontEndPlugin<void> = {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
     const filebrowser = factory.defaultBrowser;
     const layout = filebrowser.layout as PanelLayout;
-    const favoritesWidget = new FavoritesWidget(settingsRegistry);
-    await favoritesWidget.init();
+    const favoritesManager = new FavoritesManager(settingsRegistry);
+    favoritesManager.init();
+    const favoritesWidget = ReactWidget.create(
+      <FavoritesComponent manager={favoritesManager}/>
+    );
+
     let breadCrumbsIndex = 0;
     layout.widgets.forEach((widget, index) => {
       if (widget.node.className.includes('jp-BreadCrumbs')) {
@@ -207,7 +243,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
           return;
         }
         const selectedItem = widget.selectedItems().next();
-        favoritesWidget.addFavorite({
+        favoritesManager.addFavorite({
           title: selectedItem.name,
           path: selectedItem.path,
           iconClass: 'jp-FolderIcon',
