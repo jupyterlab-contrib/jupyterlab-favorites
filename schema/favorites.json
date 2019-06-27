@@ -1,6 +1,7 @@
 {
   "jupyter.lab.setting-icon-class": "jp-FavoritesIcon",
   "jupyter.lab.setting-icon-label": "Favorites",
+  "jupyter.lab.transform": true,
   "title": "Favorites",
   "description": "Favorites settings.",
   "type": "object",
