@@ -29,27 +29,30 @@ import {
   ServerConnection,
 } from '@jupyterlab/services';
 
-import '../style/index.css';
-
-import {
-  PanelLayout,
-} from '@phosphor/widgets';
-
-import {
-  ISignal,
-  Signal,
-} from '@phosphor/signaling';
-
 import {
   UseSignal,
   ReactWidget,
 } from '@jupyterlab/apputils';
 
 import {
+  ReadonlyJSONObject
+} from '@phosphor/coreutils';
+
+import {
+  Signal,
+} from '@phosphor/signaling';
+
+import {
+  PanelLayout,
+} from '@phosphor/widgets';
+
+import {
   toArray,
 } from '@phosphor/algorithm';
 
 import React from 'react';
+
+import '../style/index.css';
 
 namespace Favorites {
   export const id = 'jupyterlab-favorites';
@@ -76,9 +79,14 @@ class FavoritesManager {
   settingsRegistry: ISettingRegistry;
   favoritesChanged = new Signal<this, Favorites.IFavorites>(this);
   private _favorites: Favorites.IFavorites;
+  private _openPath: (args?: ReadonlyJSONObject) => Promise<any>;
 
-  constructor(settingsRegistry: ISettingRegistry) {
+  constructor(openPath: (args?: ReadonlyJSONObject) => Promise<any>, settingsRegistry: ISettingRegistry) {
+    this._openPath = openPath;
     this.settingsRegistry = settingsRegistry;
+    // this.handleClick = this.handleClick.bind(this);
+    // console.log('this: ', this);
+    // console.log('handleClick: ', this.handleClick);
   }
 
   get favorites(): Favorites.IFavorites {
@@ -141,6 +149,11 @@ class FavoritesManager {
     await this.settingsRegistry.upload(this.settingsID, newSettings);
     await this.fetchFavorites();
   }
+
+  handleClick(favorite: Favorites.IItem) {//}, event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    console.log('inside handleClick for: ', favorite);
+    this._openPath({ path: favorite.path });
+  }
 }
 
 // return (
@@ -152,10 +165,7 @@ class FavoritesManager {
 // </UseSignal>
 
 type FavoritesProps = {
-  manager: {
-    favoritesChanged: ISignal<FavoritesManager, Favorites.IFavorites>;
-    favorites: Favorites.IFavorites;
-  }
+  manager: FavoritesManager;
 };
 
 function FavoritesComponent(props: FavoritesProps) {
@@ -163,6 +173,7 @@ function FavoritesComponent(props: FavoritesProps) {
     <UseSignal
       signal={props.manager.favoritesChanged}
       initialArgs={props.manager.favorites}
+      initialSender={props.manager}
     >
       {(sender: FavoritesManager, favorites: Favorites.IFavorites) => (
         <div className="jp-Favorites">
@@ -171,7 +182,15 @@ function FavoritesComponent(props: FavoritesProps) {
           </div>
           <div className="jp-Favorites-container">
             {((favorites.valid || favorites.default) as Array<Favorites.IItem>).map(f =>
-              <div className="jp-Favorites-item" title={f.path} key={`favorites-item-${f.path}`}>
+              <div
+                className="jp-Favorites-item"
+                title={f.path}
+                onClick={e => {
+                  console.log('manager: ', props.manager);
+                  props.manager.handleClick(f);
+                }}
+                key={`favorites-item-${f.path}`}
+              >
                 <span className={`jp-MaterialIcon jp-Favorites-itemIcon ${f.iconClass}`}></span>
                 <span className="jp-Favorites-itemText">{f.title}</span>
               </div>
@@ -219,7 +238,9 @@ const favorites: JupyterFrontEndPlugin<void> = {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
     const filebrowser = factory.defaultBrowser;
     const layout = filebrowser.layout as PanelLayout;
-    const favoritesManager = new FavoritesManager(settingsRegistry);
+    const { commands } = app;
+    const openPath = commands.execute.bind(commands, 'filebrowser:open-path');
+    const favoritesManager = new FavoritesManager(openPath, settingsRegistry);
     favoritesManager.init();
     const favoritesWidget = ReactWidget.create(
       <FavoritesComponent manager={favoritesManager}/>
@@ -233,8 +254,6 @@ const favorites: JupyterFrontEndPlugin<void> = {
     })
     // Insert the Favorites widget just ahead of the BreadCrumbs
     layout.insertWidget(breadCrumbsIndex, favoritesWidget);
-    // Commands
-    const { commands } = app;
     const { tracker } = factory;
     commands.addCommand(CommandIDs.addFavorite, {
       execute: () => {
