@@ -190,50 +190,48 @@ class FavoritesManager {
   }
 }
 
-// return (
-//   <UseSignal
-//     signal={props.manager.runningChanged}
-//     initialArgs={initialModels}
-//   >
-//     {(sender: any, args: Array<M>) => render(args)}
-// </UseSignal>
+class FavoritesWidget extends ReactWidget {
+  public manager: FavoritesManager;
 
-type FavoritesProps = {
-  manager: FavoritesManager;
-};
+  constructor(favoritesManager: FavoritesManager) {
+    super();
+    this.manager = favoritesManager;
+    this.addClass('jp-Favorites');
+  }
 
-function FavoritesComponent(props: FavoritesProps) {
-  return (
-    <UseSignal
-      signal={props.manager.favoritesChanged}
-      initialArgs={props.manager.favorites}
-      initialSender={props.manager}
-    >
-      {(sender: FavoritesManager, favorites: Favorites.IFavorites) => (
-        <div>
-          <div className="jp-Favorites-header">
-            {"Favorites"}
+  render() {
+    return (
+      <UseSignal
+        signal={this.manager.favoritesChanged}
+        initialArgs={this.manager.favorites}
+        initialSender={this.manager}
+      >
+        {(sender: FavoritesManager, favorites: Favorites.IFavorites) => (
+          <div>
+            <div className="jp-Favorites-header">
+              {"Favorites"}
+            </div>
+            <div className="jp-Favorites-container">
+              {((favorites.valid || favorites.default) as Array<Favorites.IItem>).map(f =>
+                <div
+                  className="jp-Favorites-item"
+                  title={f.path}
+                  onClick={e => {
+                    console.log('manager: ', this.manager);
+                    this.manager.handleClick(f);
+                  }}
+                  key={`favorites-item-${f.path}`}
+                >
+                  <span className={`jp-MaterialIcon jp-Favorites-itemIcon ${f.iconClass}`}></span>
+                  <span className="jp-Favorites-itemText">{f.title}</span>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="jp-Favorites-container">
-            {((favorites.valid || favorites.default) as Array<Favorites.IItem>).map(f =>
-              <div
-                className="jp-Favorites-item"
-                title={f.path}
-                onClick={e => {
-                  console.log('manager: ', props.manager);
-                  props.manager.handleClick(f);
-                }}
-                key={`favorites-item-${f.path}`}
-              >
-                <span className={`jp-MaterialIcon jp-Favorites-itemIcon ${f.iconClass}`}></span>
-                <span className="jp-Favorites-itemText">{f.title}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </UseSignal>
-  );
+        )}
+      </UseSignal>
+    )
+  }
 }
 
 /**
@@ -276,10 +274,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
     const openPath = commands.execute.bind(commands, 'filebrowser:open-path');
     const favoritesManager = new FavoritesManager(openPath, settingsRegistry);
     favoritesManager.init();
-    const favoritesWidget = ReactWidget.create(
-      <FavoritesComponent manager={favoritesManager}/>
-    );
-    favoritesWidget.addClass('jp-Favorites');
+    const favoritesWidget = new FavoritesWidget(favoritesManager);
 
     let breadCrumbsIndex = 0;
     layout.widgets.forEach((widget, index) => {
