@@ -1,9 +1,10 @@
 :root {
-  --jp-icon-favorite: url('icons/md/baseline-star-24px.svg');
+  --jp-icon-favorite-filled: url('icons/md/light/baseline-star-24px.svg');
+  --jp-icon-favorite-unfilled-light: url('/icons/md/light/baseline-star_border-24px.svg');
 }
 
 .jp-FavoritesIcon {
-  background-image: var(--jp-icon-favorite);
+  background-image: var(--jp-icon-favorite-filled);
   min-width: 16px;
   min-height: 16px;
   background-size: 16px;

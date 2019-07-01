@@ -141,18 +141,52 @@ class FavoritesManager {
     }
   }
 
-  async addFavorite(favorite: Favorites.IItem) {
-    console.log('adding favorite: ', favorite);
-    const valid = this.favorites.valid || [];
-    valid.push(favorite);
-    const newSettings = JSON.stringify({ favorites: valid });
+  validFavorites() {
+    return this.favorites.valid || [];
+  }
+
+  private async saveFavorites(favorites: Array<Favorites.IItem>) {
+    const newSettings = JSON.stringify({ favorites });
     await this.settingsRegistry.upload(this.settingsID, newSettings);
     await this.fetchFavorites();
+  }
+
+  async addFavorite(favorite: Favorites.IItem) {
+    if (this.has(favorite.path)) {
+      return;
+    }
+    console.log('adding favorite: ', favorite);
+    const valid = this.validFavorites();
+    valid.push(favorite);
+    this.saveFavorites(valid);
+  }
+
+  async removeFavorite(path: string) {
+    console.log('removing favorite with path: ', path);
+    const valid = this.validFavorites();
+    const index = valid.findIndex(favorite => favorite.path === path);
+    valid.splice(index, 1);
+    this.saveFavorites(valid);
   }
 
   handleClick(favorite: Favorites.IItem) {//}, event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     console.log('inside handleClick for: ', favorite);
     this._openPath({ path: favorite.path });
+  }
+
+  has(path: string) {
+    return this.validFavorites().filter(favorite => favorite.path === path).length > 0;
+  }
+
+  async updateIconThemes() {
+    const themeSetting = await this.settingsRegistry.get('@jupyterlab/apputils-extension:themes', 'theme');
+    const theme = (themeSetting.composite as string).split(' ')[1].toLowerCase();
+    console.log('theme: ', theme);
+    const favoritesIcons = document.getElementsByClassName('jp-FavoritesIcon');
+    for (let element of favoritesIcons) {
+      (element as HTMLElement).style.backgroundImage = `icons/md/${theme}/baseline-star-24px.svg`;
+      console.log('element: ', element);
+    }
   }
 }
 
@@ -176,7 +210,7 @@ function FavoritesComponent(props: FavoritesProps) {
       initialSender={props.manager}
     >
       {(sender: FavoritesManager, favorites: Favorites.IFavorites) => (
-        <div className="jp-Favorites">
+        <div>
           <div className="jp-Favorites-header">
             {"Favorites"}
           </div>
@@ -245,6 +279,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
     const favoritesWidget = ReactWidget.create(
       <FavoritesComponent manager={favoritesManager}/>
     );
+    favoritesWidget.addClass('jp-Favorites');
 
     let breadCrumbsIndex = 0;
     layout.widgets.forEach((widget, index) => {
@@ -254,37 +289,65 @@ const favorites: JupyterFrontEndPlugin<void> = {
     })
     // Insert the Favorites widget just ahead of the BreadCrumbs
     layout.insertWidget(breadCrumbsIndex, favoritesWidget);
+    // Context Menu commands
+    const getSelectedItems = () => {
+      const widget = tracker.currentWidget;
+      if (!widget) {
+        return [];
+      }
+      return toArray(widget.selectedItems());
+    }
     const { tracker } = factory;
     commands.addCommand(CommandIDs.addFavorite, {
       execute: () => {
-        const widget = tracker.currentWidget;
-        if (!widget) {
-          return;
+        const selectedItems = getSelectedItems();
+        if (selectedItems.length > 0) {
+          const selectedItem = selectedItems[0];
+          favoritesManager.addFavorite({
+            title: selectedItem.name,
+            path: selectedItem.path,
+            iconClass: 'jp-FolderIcon',
+          });
         }
-        const selectedItem = widget.selectedItems().next();
-        favoritesManager.addFavorite({
-          title: selectedItem.name,
-          path: selectedItem.path,
-          iconClass: 'jp-FolderIcon',
-        });
         // selectedItem.mimetype;
       },
-      isVisible: () =>
-        tracker.currentWidget &&
-        toArray(tracker.currentWidget.selectedItems()).length === 1,
+      isVisible: () => {
+        const selectedItems = getSelectedItems();
+        return selectedItems.length === 1 && !favoritesManager.has(selectedItems[0].path);
+      },
       iconClass: 'jp-MaterialIcon jp-FavoritesIcon',
       label: 'Add Favorite',
-    })
-    // matches all filebrowser items
-    const selectorItem = '.jp-DirListing-item[data-isdir]';
+    });
     // // matches only non-directory items
     // const selectorNotDir = '.jp-DirListing-item[data-isdir="false"]';
     app.contextMenu.addItem({
       command: CommandIDs.addFavorite,
-      selector: selectorItem,
+      selector: '.jp-DirListing-item[data-isdir]',
       rank: 3
     });
-
+    commands.addCommand(CommandIDs.removeFavorite, {
+      execute: () => {
+        // TODO: Fix this
+        // This only removes the item last selected in the filebrowser
+        const selectedItems = getSelectedItems();
+        if (selectedItems.length > 0) {
+          const selectedItem = selectedItems[0];
+          favoritesManager.removeFavorite(selectedItem.path);
+        };
+      },
+      // isVisible: () => {
+      //   const selectedItems = getSelectedItems();
+      //   return selectedItems.length === 1 && favoritesManager.has(selectedItems[0].path);
+      // },
+      isVisible: () => true,
+      iconClass: 'jp-MaterialIcon jp-FavoritesIcon',
+      label: 'Remove Favorite',
+    });
+    app.contextMenu.addItem({
+      command: CommandIDs.removeFavorite,
+      selector: '.jp-Favorites-item',
+      rank: 3,
+    });
   },
 };
 
