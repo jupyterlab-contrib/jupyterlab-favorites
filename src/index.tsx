@@ -35,8 +35,8 @@ import {
 } from '@jupyterlab/apputils';
 
 import {
-  ReadonlyJSONObject
-} from '@phosphor/coreutils';
+  CommandRegistry,
+} from '@phosphor/commands';
 
 import {
   Signal,
@@ -50,50 +50,61 @@ import {
   toArray,
 } from '@phosphor/algorithm';
 
-import React from 'react';
+import * as React from 'react';
 
 import '../style/index.css';
 
-namespace Favorites {
-  export const id = 'jupyterlab-favorites';
+namespace PluginIDs {
+  export const favorites = 'jupyterlab-favorites';
+}
 
-  export interface IItem {
+namespace SettingIDs {
+  export const themes = '@jupyterlab/apputils-extension:themes';
+  export const favorites = 'jupyterlab-favorites:favorites';
+}
+
+namespace CommandIDs {
+  export const addFavorite = 'jupyterlab-favorites:add-favorite';
+  export const removeFavorite = 'jupyterlab-favorites:remove-favorite';
+}
+
+namespace types {
+  export type Favorite = {
     title: string;
     iconClass: string;
     path: string;
   }
 
-  export interface IProps {
-    favorites: Array<IItem>;
-  }
-
-  export interface IFavorites {
-    default: Array<any>;
-    valid: Array<any> | undefined;
-    invalid: Array<any> | undefined;
+  export type FavoritesStore = {
+    default: Array<Favorite>;
+    valid: Array<Favorite> | undefined;
+    invalid: Array<Favorite> | undefined;
   }
 }
 
 class FavoritesManager {
-  settingsID = `${Favorites.id}:favorites`;
-  settingsRegistry: ISettingRegistry;
-  favoritesChanged = new Signal<this, Favorites.IFavorites>(this);
-  private _favorites: Favorites.IFavorites;
-  private _openPath: (args?: ReadonlyJSONObject) => Promise<any>;
+  public settingsID = SettingIDs.favorites;
+  public favoritesChanged = new Signal<this, types.FavoritesStore>(this);
+  private settingsRegistry: ISettingRegistry;
+  private commandRegistry: CommandRegistry;
+  private _favorites: types.FavoritesStore;
 
-  constructor(openPath: (args?: ReadonlyJSONObject) => Promise<any>, settingsRegistry: ISettingRegistry) {
-    this._openPath = openPath;
-    this.settingsRegistry = settingsRegistry;
-    // this.handleClick = this.handleClick.bind(this);
-    // console.log('this: ', this);
-    // console.log('handleClick: ', this.handleClick);
+  constructor(commands: CommandRegistry, settings: ISettingRegistry) {
+    this.commandRegistry = commands;
+    this.settingsRegistry = settings;
+    this.settingsRegistry.pluginChanged.connect((_, pluginName) => {
+      console.log('pluginName: ', pluginName);
+      if (pluginName === SettingIDs.themes) {
+        this.refreshIcons();
+      }
+    });
   }
 
-  get favorites(): Favorites.IFavorites {
+  get favorites(): types.FavoritesStore {
     return this._favorites;
   }
 
-  set favorites(favorites: Favorites.IFavorites) {
+  set favorites(favorites: types.FavoritesStore) {
     this._favorites = favorites;
   }
 
@@ -118,6 +129,7 @@ class FavoritesManager {
         return transformed;
       }
     });
+    await this.refreshIcons();
   }
 
   async fetchFavorites() {
@@ -145,13 +157,17 @@ class FavoritesManager {
     return this.favorites.valid || [];
   }
 
-  private async saveFavorites(favorites: Array<Favorites.IItem>) {
+  composedFavorites() {
+    return this.favorites.valid || this.favorites.default || [];
+  }
+
+  private async saveFavorites(favorites: Array<types.Favorite>) {
     const newSettings = JSON.stringify({ favorites });
     await this.settingsRegistry.upload(this.settingsID, newSettings);
     await this.fetchFavorites();
   }
 
-  async addFavorite(favorite: Favorites.IItem) {
+  async addFavorite(favorite: types.Favorite) {
     if (this.has(favorite.path)) {
       return;
     }
@@ -169,33 +185,30 @@ class FavoritesManager {
     this.saveFavorites(valid);
   }
 
-  handleClick(favorite: Favorites.IItem) {//}, event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-    console.log('inside handleClick for: ', favorite);
-    this._openPath({ path: favorite.path });
+  handleClick(favorite: types.Favorite) {
+    console.log('inside new handleClick for: ', favorite);
+    this.commandRegistry.execute('filebrowser:open-path', { path: favorite.path });
   }
 
   has(path: string) {
     return this.validFavorites().filter(favorite => favorite.path === path).length > 0;
   }
 
-  async updateIconThemes() {
-    const themeSetting = await this.settingsRegistry.get('@jupyterlab/apputils-extension:themes', 'theme');
+  async refreshIcons() {
+    const themeSetting = await this.settingsRegistry.get(SettingIDs.themes, 'theme');
     const theme = (themeSetting.composite as string).split(' ')[1].toLowerCase();
-    console.log('theme: ', theme);
-    const favoritesIcons = document.getElementsByClassName('jp-FavoritesIcon');
-    for (let element of favoritesIcons) {
-      (element as HTMLElement).style.backgroundImage = `icons/md/${theme}/baseline-star-24px.svg`;
-      console.log('element: ', element);
-    }
+    const root = document.documentElement;
+    root.style.setProperty('--jp-icon-favorite-filled', `var(--jp-icon-favorite-filled-${theme})`);
+    root.style.setProperty('--jp-icon-favorite-unfilled', `var(--jp-icon-favorite-unfilled-${theme})`);
   }
 }
 
 class FavoritesWidget extends ReactWidget {
-  public manager: FavoritesManager;
+  private manager: FavoritesManager;
 
-  constructor(favoritesManager: FavoritesManager) {
+  constructor(manager: FavoritesManager) {
     super();
-    this.manager = favoritesManager;
+    this.manager = manager;
     this.addClass('jp-Favorites');
   }
 
@@ -206,20 +219,17 @@ class FavoritesWidget extends ReactWidget {
         initialArgs={this.manager.favorites}
         initialSender={this.manager}
       >
-        {(sender: FavoritesManager, favorites: Favorites.IFavorites) => (
+        {(sender: FavoritesManager, favorites: types.FavoritesStore) => (
           <div>
             <div className="jp-Favorites-header">
               {"Favorites"}
             </div>
             <div className="jp-Favorites-container">
-              {((favorites.valid || favorites.default) as Array<Favorites.IItem>).map(f =>
+              {this.manager.composedFavorites().map(f =>
                 <div
                   className="jp-Favorites-item"
                   title={f.path}
-                  onClick={e => {
-                    console.log('manager: ', this.manager);
-                    this.manager.handleClick(f);
-                  }}
+                  onClick={e => { this.manager.handleClick(f); }}
                   key={`favorites-item-${f.path}`}
                 >
                   <span className={`jp-MaterialIcon jp-Favorites-itemIcon ${f.iconClass}`}></span>
@@ -235,18 +245,10 @@ class FavoritesWidget extends ReactWidget {
 }
 
 /**
- * The command IDs used by the favorites plugin.
- */
-namespace CommandIDs {
-  export const addFavorite = 'jupyterlab-favorites:add-favorite';
-  export const removeFavorite = 'jupyterlab-favorites:remove-favorite';
-}
-
-/**
  * Initialization data for the jupyterlab-favorites extension.
  */
 const favorites: JupyterFrontEndPlugin<void> = {
-  id: Favorites.id,
+  id: PluginIDs.favorites,
   autoStart: true,
   requires: [
     IFileBrowserFactory,
@@ -271,8 +273,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
     const filebrowser = factory.defaultBrowser;
     const layout = filebrowser.layout as PanelLayout;
     const { commands } = app;
-    const openPath = commands.execute.bind(commands, 'filebrowser:open-path');
-    const favoritesManager = new FavoritesManager(openPath, settingsRegistry);
+    const favoritesManager = new FavoritesManager(commands, settingsRegistry);
     favoritesManager.init();
     const favoritesWidget = new FavoritesWidget(favoritesManager);
 
@@ -310,7 +311,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
         const selectedItems = getSelectedItems();
         return selectedItems.length === 1 && !favoritesManager.has(selectedItems[0].path);
       },
-      iconClass: 'jp-MaterialIcon jp-FavoritesIcon',
+      iconClass: 'jp-MaterialIcon jp-FavoritesIcon-filled',
       label: 'Add Favorite',
     });
     // // matches only non-directory items
@@ -335,7 +336,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
       //   return selectedItems.length === 1 && favoritesManager.has(selectedItems[0].path);
       // },
       isVisible: () => true,
-      iconClass: 'jp-MaterialIcon jp-FavoritesIcon',
+      iconClass: 'jp-MaterialIcon jp-FavoritesIcon-unfilled',
       label: 'Remove Favorite',
     });
     app.contextMenu.addItem({

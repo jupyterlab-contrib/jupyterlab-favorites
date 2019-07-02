@@ -1,14 +1,28 @@
 :root {
-  --jp-icon-favorite-filled: url('icons/md/light/baseline-star-24px.svg');
-  --jp-icon-favorite-unfilled-light: url('/icons/md/light/baseline-star_border-24px.svg');
+  /* All of the avaialble icons */
+  --jp-icon-favorite-filled-light: url('icons/md/light/baseline-star-24px.svg');
+  --jp-icon-favorite-unfilled-light: url('icons/md/light/baseline-star_border-24px.svg');
+  --jp-icon-favorite-filled-dark: url('icons/md/dark/baseline-star-24px.svg');
+  --jp-icon-favorite-unfilled-dark: url('icons/md/dark/baseline-star_border-24px.svg');
+  /* The icons chosen, based on current theme */
+  --jp-icon-favorite-filled: var(--jp-icon-favorite-filled-light);
+  --jp-icon-favorite-unfilled: var(--jp-icon-favorite-unfilled-light);
 }
 
-.jp-FavoritesIcon {
-  background-image: var(--jp-icon-favorite-filled);
+.jp-FavoritesIcon-filled,
+.jp-FavoritesIcon-unfilled {
   min-width: 16px;
   min-height: 16px;
   background-size: 16px;
   vertical-align: sub;
+}
+
+.jp-FavoritesIcon-filled {
+  background-image: var(--jp-icon-favorite-filled);
+}
+
+.jp-FavoritesIcon-unfilled {
+  background-image: var(--jp-icon-favorite-unfilled);
 }
 
 .jp-Favorites-header {
@@ -20,11 +34,6 @@
   text-transform: uppercase;
   border-bottom: solid var(--jp-border-width) var(--jp-border-color2);
   letter-spacing: 1px;
-}
-
-.jp-Favorites-container {
-  /* padding: 8px 0 8px 0; */
-  /* margin: 4px 12px; */
 }
 
 .jp-Favorites {
