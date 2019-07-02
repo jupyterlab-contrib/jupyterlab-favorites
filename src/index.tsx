@@ -5,12 +5,8 @@ import {
 
 import {
   ISettingRegistry,
-  IStateDB,
+  PageConfig,
 } from '@jupyterlab/coreutils';
-
-import {
-  IDocumentManager,
-} from '@jupyterlab/docmanager';
 
 // Can possibly use these to grab the appropriate icons by mimeType
 // import {
@@ -60,12 +56,12 @@ namespace PluginIDs {
 
 namespace SettingIDs {
   export const themes = '@jupyterlab/apputils-extension:themes';
-  export const favorites = 'jupyterlab-favorites:favorites';
+  export const favorites = `${PluginIDs.favorites}:favorites`;
 }
 
 namespace CommandIDs {
-  export const addFavorite = 'jupyterlab-favorites:add-favorite';
-  export const removeFavorite = 'jupyterlab-favorites:remove-favorite';
+  export const addFavorite = `${PluginIDs.favorites}:add-favorite`;
+  export const removeFavorite = `${PluginIDs}:remove-favorite`;
 }
 
 namespace types {
@@ -87,17 +83,18 @@ class FavoritesManager {
   public favoritesChanged = new Signal<this, types.FavoritesStore>(this);
   private settingsRegistry: ISettingRegistry;
   private commandRegistry: CommandRegistry;
+  private serverRoot: string;
   private _favorites: types.FavoritesStore;
 
   constructor(commands: CommandRegistry, settings: ISettingRegistry) {
     this.commandRegistry = commands;
     this.settingsRegistry = settings;
     this.settingsRegistry.pluginChanged.connect((_, pluginName) => {
-      console.log('pluginName: ', pluginName);
       if (pluginName === SettingIDs.themes) {
         this.refreshIcons();
       }
     });
+    this.serverRoot = PageConfig.getOption('serverRoot');
   }
 
   get favorites(): types.FavoritesStore {
@@ -253,21 +250,13 @@ const favorites: JupyterFrontEndPlugin<void> = {
   requires: [
     IFileBrowserFactory,
     ISettingRegistry,
-    IStateDB,
-    IDocumentManager,
     IMainMenu,
   ],
   activate: async (
     app: JupyterFrontEnd,
     factory: IFileBrowserFactory,
-    // read/write favorites here
     settingsRegistry: ISettingRegistry,
-    // write recent files here
-    stateDB: IStateDB,
-    // open favorites with this?
-    docManager: IDocumentManager,
-    // add command to open recents
-    menu: IMainMenu
+    mainMenu: IMainMenu
   ) => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
     const filebrowser = factory.defaultBrowser;
@@ -276,14 +265,13 @@ const favorites: JupyterFrontEndPlugin<void> = {
     const favoritesManager = new FavoritesManager(commands, settingsRegistry);
     favoritesManager.init();
     const favoritesWidget = new FavoritesWidget(favoritesManager);
-
+    // Insert the Favorites widget just ahead of the BreadCrumbs
     let breadCrumbsIndex = 0;
     layout.widgets.forEach((widget, index) => {
       if (widget.node.className.includes('jp-BreadCrumbs')) {
         breadCrumbsIndex = index;
       }
     })
-    // Insert the Favorites widget just ahead of the BreadCrumbs
     layout.insertWidget(breadCrumbsIndex, favoritesWidget);
     // Context Menu commands
     const getSelectedItems = () => {
