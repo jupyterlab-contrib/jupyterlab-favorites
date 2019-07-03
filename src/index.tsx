@@ -22,10 +22,6 @@ import {
 } from '@jupyterlab/filebrowser';
 
 import {
-  ServerConnection,
-} from '@jupyterlab/services';
-
-import {
   UseSignal,
   ReactWidget,
 } from '@jupyterlab/apputils';
@@ -66,129 +62,46 @@ namespace CommandIDs {
 
 namespace types {
   export type Favorite = {
-    title: string;
-    iconClass: string;
+    root: string;
     path: string;
+    iconClass: string;
+    name?: string;
+    default?: boolean;
+    hidden?: boolean;
   }
 
-  export type FavoritesStore = {
-    default: Array<Favorite>;
-    valid: Array<Favorite> | undefined;
-    invalid: Array<Favorite> | undefined;
+  export type FavoriteComponentProps = {
+    favorite: Favorite;
+    handleClick: (favorite: Favorite) => void;
   }
 }
 
 class FavoritesManager {
-  public settingsID = SettingIDs.favorites;
-  public favoritesChanged = new Signal<this, types.FavoritesStore>(this);
+  public serverRoot: string;
+  public favoritesChanged = new Signal<this, Array<types.Favorite>>(this);
   private settingsRegistry: ISettingRegistry;
   private commandRegistry: CommandRegistry;
-  private serverRoot: string;
-  private _favorites: types.FavoritesStore;
+  private _favorites: Array<types.Favorite>;
 
   constructor(commands: CommandRegistry, settings: ISettingRegistry) {
+    this.serverRoot = PageConfig.getOption('serverRoot');
     this.commandRegistry = commands;
     this.settingsRegistry = settings;
-    this.settingsRegistry.pluginChanged.connect((_, pluginName) => {
+    this._favorites = [];
+    // Listen for updates to settings
+    this.settingsRegistry.pluginChanged.connect(async (_, pluginName) => {
       if (pluginName === SettingIDs.themes) {
         this.refreshIcons();
       }
+      if (pluginName === SettingIDs.favorites) {
+        this.loadFavorites();
+      }
     });
-    this.serverRoot = PageConfig.getOption('serverRoot');
-  }
-
-  get favorites(): types.FavoritesStore {
-    return this._favorites;
-  }
-
-  set favorites(favorites: types.FavoritesStore) {
-    this._favorites = favorites;
   }
 
   async init() {
-    await this.fetchFavorites();
-    // Transform the plugin object to return different schema than the default.
-    this.settingsRegistry.transform(this.settingsID, {
-      fetch: plugin => {
-        const transformed = {
-          ...plugin,
-          schema: {
-            ...plugin.schema,
-            properties: {
-              ...plugin.schema.properties,
-              favorites: {
-                ...plugin.schema.properties.favorites,
-                default: this.favorites.default,
-              }
-            }
-          }
-        }
-        return transformed;
-      }
-    });
     await this.refreshIcons();
-  }
-
-  async fetchFavorites() {
-    const serverSettings = ServerConnection.makeSettings();
-    try {
-      const response = await ServerConnection.makeRequest(
-        `${serverSettings.baseUrl}favorites`,
-        { method: 'GET' },
-        serverSettings,
-      );
-      if (response.status !== 200) {
-        throw Error(response.statusText);
-      }
-      else {
-        this.favorites = await response.json();
-        this.favoritesChanged.emit(this.favorites);
-      }
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
-
-  validFavorites() {
-    return this.favorites.valid || [];
-  }
-
-  composedFavorites() {
-    return this.favorites.valid || this.favorites.default || [];
-  }
-
-  private async saveFavorites(favorites: Array<types.Favorite>) {
-    const newSettings = JSON.stringify({ favorites });
-    await this.settingsRegistry.upload(this.settingsID, newSettings);
-    await this.fetchFavorites();
-  }
-
-  async addFavorite(favorite: types.Favorite) {
-    if (this.has(favorite.path)) {
-      return;
-    }
-    console.log('adding favorite: ', favorite);
-    const valid = this.validFavorites();
-    valid.push(favorite);
-    this.saveFavorites(valid);
-  }
-
-  async removeFavorite(path: string) {
-    console.log('removing favorite with path: ', path);
-    const valid = this.validFavorites();
-    const index = valid.findIndex(favorite => favorite.path === path);
-    valid.splice(index, 1);
-    this.saveFavorites(valid);
-  }
-
-  handleClick(favorite: types.Favorite) {
-    console.log('inside new handleClick for: ', favorite);
-    this.commandRegistry.execute('filebrowser:open-path', { path: favorite.path });
-  }
-
-  has(path: string) {
-    return this.validFavorites().filter(favorite => favorite.path === path).length > 0;
+    await this.loadFavorites();
   }
 
   async refreshIcons() {
@@ -198,6 +111,74 @@ class FavoritesManager {
     root.style.setProperty('--jp-icon-favorite-filled', `var(--jp-icon-favorite-filled-${theme})`);
     root.style.setProperty('--jp-icon-favorite-unfilled', `var(--jp-icon-favorite-unfilled-${theme})`);
   }
+
+  get favorites(): Array<types.Favorite> {
+    return this._favorites.filter(f => f.root === this.serverRoot);
+  }
+
+  set favorites(favorites: Array<types.Favorite>) {
+    this._favorites = favorites;
+  }
+
+  has(path: string) {
+    return this.favorites.findIndex(f => f.path === path) >= 0;
+  }
+
+  visibleFavorites() {
+    return this.favorites.filter(f => !f.hidden);
+  }
+
+  private async loadFavorites() {
+    const favorites = await this.settingsRegistry.get(SettingIDs.favorites, 'favorites');
+    this._favorites =  favorites.composite as Array<types.Favorite>;
+    this.favoritesChanged.emit(this.favorites);
+  }
+
+  private async saveFavorites(favorites: Array<types.Favorite>) {
+    const newSettings = JSON.stringify({ favorites });
+    return this.settingsRegistry.upload(SettingIDs.favorites, newSettings);
+  }
+
+  async addFavorite(favorite: types.Favorite) {
+    if (this.has(favorite.path)) {
+      return;
+    }
+    this.saveFavorites(this._favorites.slice().concat([favorite]));
+  }
+
+  async removeFavorite(path: string) {
+    const favorites = this._favorites.slice();
+    const index = favorites.findIndex(f => f.root === this.serverRoot && f.path === path);
+    favorites.splice(index, 1);
+    this.saveFavorites(favorites);
+  }
+
+  handleClick(favorite: types.Favorite) {
+    this.commandRegistry.execute('filebrowser:open-path', { path: favorite.path });
+  }
+}
+
+const FavoriteComponent = (props: types.FavoriteComponentProps) => {
+  const { favorite, handleClick } = props;
+  let displayName = '';
+  if (favorite.name) {
+    displayName = favorite.name;
+  }
+  const parts = favorite.path.split('/');
+  if (parts.length > 0) {
+    displayName = parts[parts.length - 1];
+  }
+
+  return (
+    <div
+      className="jp-Favorites-item"
+      title={favorite.path}
+      onClick={e => { handleClick(favorite); }}
+    >
+      <span className={`jp-MaterialIcon jp-Favorites-itemIcon ${favorite.iconClass}`}></span>
+      <span className="jp-Favorites-itemText">{displayName}</span>
+    </div>
+  )
 }
 
 class FavoritesWidget extends ReactWidget {
@@ -211,27 +192,19 @@ class FavoritesWidget extends ReactWidget {
 
   render() {
     return (
-      <UseSignal
-        signal={this.manager.favoritesChanged}
-        initialArgs={this.manager.favorites}
-        initialSender={this.manager}
-      >
-        {(sender: FavoritesManager, favorites: types.FavoritesStore) => (
+      <UseSignal signal={this.manager.favoritesChanged}>
+        {(sender: FavoritesManager, favorites: Array<types.Favorite>) => (
           <div>
             <div className="jp-Favorites-header">
               {"Favorites"}
             </div>
             <div className="jp-Favorites-container">
-              {this.manager.composedFavorites().map(f =>
-                <div
-                  className="jp-Favorites-item"
-                  title={f.path}
-                  onClick={e => { this.manager.handleClick(f); }}
+              {this.manager.visibleFavorites().map(f =>
+                <FavoriteComponent
                   key={`favorites-item-${f.path}`}
-                >
-                  <span className={`jp-MaterialIcon jp-Favorites-itemIcon ${f.iconClass}`}></span>
-                  <span className="jp-Favorites-itemText">{f.title}</span>
-                </div>
+                  favorite={f}
+                  handleClick={this.manager.handleClick.bind(this.manager)}
+                />
               )}
             </div>
           </div>
@@ -288,7 +261,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
         if (selectedItems.length > 0) {
           const selectedItem = selectedItems[0];
           favoritesManager.addFavorite({
-            title: selectedItem.name,
+            root: favoritesManager.serverRoot,
             path: selectedItem.path,
             iconClass: 'jp-FolderIcon',
           });
@@ -311,13 +284,16 @@ const favorites: JupyterFrontEndPlugin<void> = {
     });
     commands.addCommand(CommandIDs.removeFavorite, {
       execute: () => {
-        // TODO: Fix this
-        // This only removes the item last selected in the filebrowser
-        const selectedItems = getSelectedItems();
-        if (selectedItems.length > 0) {
-          const selectedItem = selectedItems[0];
-          favoritesManager.removeFavorite(selectedItem.path);
-        };
+        const contextNode: HTMLElement = app.contextMenuHitTest(
+          node => node.classList.contains('jp-Favorites-item')
+        );
+        const path = contextNode.getAttribute('title');
+        favoritesManager.removeFavorite(path);
+        // const selectedItems = getSelectedItems();
+        // if (selectedItems.length > 0) {
+        //   const selectedItem = selectedItems[0];
+        //   favoritesManager.removeFavorite(selectedItem.path);
+        // };
       },
       // isVisible: () => {
       //   const selectedItems = getSelectedItems();
@@ -335,8 +311,4 @@ const favorites: JupyterFrontEndPlugin<void> = {
   },
 };
 
-const plugins: JupyterFrontEndPlugin<any>[] = [
-  favorites,
-];
-
-export default plugins;
+export default favorites;

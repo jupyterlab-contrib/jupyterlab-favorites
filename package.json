@@ -42,16 +42,6 @@
   },
   "jupyterlab": {
     "extension": true,
-    "schemaDir": "schema",
-    "discovery": {
-      "server": {
-        "base": {
-          "name": "jupyterlab_favorites"
-        }
-      },
-      "managers": [
-        "pip"
-      ]
-    }
+    "schemaDir": "schema"
   }
 }

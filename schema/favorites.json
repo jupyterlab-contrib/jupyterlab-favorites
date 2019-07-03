@@ -1,7 +1,6 @@
 {
   "jupyter.lab.setting-icon-class": "jp-FavoritesIcon-filled",
   "jupyter.lab.setting-icon-label": "Favorites",
-  "jupyter.lab.transform": true,
   "title": "Favorites",
   "description": "Favorites settings.",
   "type": "object",
@@ -13,16 +12,25 @@
       "items": { "$ref": "#/definitions/favorite" },
       "type": "array",
       "default": []
+    },
+    "showWidget": {
+      "title": "Show Widget",
+      "description": "Toggles the favorites widget above the filebrowser breadcrumbs.",
+      "type": "boolean",
+      "default": true
     }
   },
   "definitions": {
     "favorite": {
       "properties": {
-        "title": { "type": "string" },
+        "root": { "type": "string" },
+        "path": { "type": "string" },
         "iconClass": { "type": "string" },
-        "path": { "type": "string" }
+        "name": { "type": "string" },
+        "default": { "type": "boolean" },
+        "hidden": { "type": "boolean" }
       },
-      "required": ["title", "iconClass", "path"],
+      "required": ["root", "path", "iconClass"],
       "type": "object"
     }
   }
