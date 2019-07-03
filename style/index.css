@@ -25,8 +25,8 @@
   background-image: var(--jp-icon-favorite-unfilled);
 }
 
-.jp-Favorites-header {
-  margin-top: 20px;
+.jp-Favorites-header,
+.jp-FileBrowser-header {
   padding: 8px 0 8px 12px;
   color: var(--jp-ui-font-color1);
   font-size: var(--jp-ui-font-size0);
@@ -34,6 +34,11 @@
   text-transform: uppercase;
   border-bottom: solid var(--jp-border-width) var(--jp-border-color2);
   letter-spacing: 1px;
+}
+
+.jp-Favorites-container {
+  overflow: auto;
+  max-height: 120px;
 }
 
 .jp-Favorites {

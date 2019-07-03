@@ -25,6 +25,7 @@
       "properties": {
         "root": { "type": "string" },
         "path": { "type": "string" },
+        "contentType": { "type": "string" },
         "iconClass": { "type": "string" },
         "name": { "type": "string" },
         "default": { "type": "boolean" },

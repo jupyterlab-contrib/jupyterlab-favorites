@@ -8,10 +8,9 @@ import {
   PageConfig,
 } from '@jupyterlab/coreutils';
 
-// Can possibly use these to grab the appropriate icons by mimeType
-// import {
-//   defaultFileTypes,
-// } from '@jupyterlab/docregistry';
+import {
+  IDocumentManager,
+} from '@jupyterlab/docmanager';
 
 import {
   IMainMenu
@@ -56,7 +55,7 @@ namespace SettingIDs {
 }
 
 namespace CommandIDs {
-  export const addFavorite = `${PluginIDs.favorites}:add-favorite`;
+  export const addOrRemoveFavorite = `${PluginIDs.favorites}:add-or-remove-favorite`;
   export const removeFavorite = `${PluginIDs}:remove-favorite`;
 }
 
@@ -64,6 +63,7 @@ namespace types {
   export type Favorite = {
     root: string;
     path: string;
+    contentType: string;
     iconClass: string;
     name?: string;
     default?: boolean;
@@ -76,9 +76,21 @@ namespace types {
   }
 }
 
+namespace utils {
+  export function getName(path: string) {
+    let name = '';
+    const parts = path.split('/');
+    if (parts.length > 0) {
+      name = parts[parts.length - 1];
+    }
+    return name;
+  }
+}
+
 class FavoritesManager {
   public serverRoot: string;
   public favoritesChanged = new Signal<this, Array<types.Favorite>>(this);
+  public visibilityChanged = new Signal<this, boolean>(this);
   private settingsRegistry: ISettingRegistry;
   private commandRegistry: CommandRegistry;
   private _favorites: Array<types.Favorite>;
@@ -87,7 +99,7 @@ class FavoritesManager {
     this.serverRoot = PageConfig.getOption('serverRoot');
     this.commandRegistry = commands;
     this.settingsRegistry = settings;
-    this._favorites = [];
+    this.favorites = [];
     // Listen for updates to settings
     this.settingsRegistry.pluginChanged.connect(async (_, pluginName) => {
       if (pluginName === SettingIDs.themes) {
@@ -97,6 +109,10 @@ class FavoritesManager {
         this.loadFavorites();
       }
     });
+    // Listen for update to own favorites
+    this.favoritesChanged.connect(async (_, ) => {
+      this.checkVisibility();
+    });
   }
 
   async init() {
@@ -104,7 +120,7 @@ class FavoritesManager {
     await this.loadFavorites();
   }
 
-  async refreshIcons() {
+  private async refreshIcons() {
     const themeSetting = await this.settingsRegistry.get(SettingIDs.themes, 'theme');
     const theme = (themeSetting.composite as string).split(' ')[1].toLowerCase();
     const root = document.documentElement;
@@ -118,20 +134,27 @@ class FavoritesManager {
 
   set favorites(favorites: Array<types.Favorite>) {
     this._favorites = favorites;
+    this.favoritesChanged.emit(this.visibleFavorites());
   }
 
-  has(path: string) {
+  hasFavorite(path: string) {
     return this.favorites.findIndex(f => f.path === path) >= 0;
   }
 
   visibleFavorites() {
-    return this.favorites.filter(f => !f.hidden);
+    return this.favorites.filter(f => !f.hidden).sort((a, b) => {
+      if (a.contentType === b.contentType) {
+        return utils.getName(a.path) <= utils.getName(b.path) ? -1 : 1;
+      }
+      else {
+        return a.contentType < b.contentType ? -1 : 1;
+      }
+    });
   }
 
   private async loadFavorites() {
     const favorites = await this.settingsRegistry.get(SettingIDs.favorites, 'favorites');
-    this._favorites =  favorites.composite as Array<types.Favorite>;
-    this.favoritesChanged.emit(this.favorites);
+    this.favorites = favorites.composite as Array<types.Favorite>;
   }
 
   private async saveFavorites(favorites: Array<types.Favorite>) {
@@ -139,18 +162,46 @@ class FavoritesManager {
     return this.settingsRegistry.upload(SettingIDs.favorites, newSettings);
   }
 
-  async addFavorite(favorite: types.Favorite) {
-    if (this.has(favorite.path)) {
-      return;
+  private async checkVisibility() {
+    let isVisible = this.visibleFavorites().length > 0;
+    if (isVisible) {
+      const showWidgetSettings = await this.settingsRegistry.get(SettingIDs.favorites, 'showWidget');
+      const showWidget = showWidgetSettings.composite;
+      if (showWidget !== undefined) {
+        isVisible = isVisible && (showWidget as boolean);
+      }
     }
-    this.saveFavorites(this._favorites.slice().concat([favorite]));
+    this.visibilityChanged.emit(isVisible);
+  }
+
+  async addFavorite(favorite: types.Favorite) {
+    const favorites = this._favorites.slice();
+    const index = favorites.findIndex(f => f.root === this.serverRoot && f.path === favorite.path);
+    const existing = favorites[index];
+    if (existing) {
+      if (existing.hidden) {
+        existing.hidden = false;
+        this.saveFavorites(favorites);
+      }
+    }
+    else {
+      this.saveFavorites(favorites.concat([favorite]));
+    }
   }
 
   async removeFavorite(path: string) {
     const favorites = this._favorites.slice();
     const index = favorites.findIndex(f => f.root === this.serverRoot && f.path === path);
-    favorites.splice(index, 1);
-    this.saveFavorites(favorites);
+    const existing = favorites[index];
+    if (existing) {
+      if (existing.default) {
+        existing.hidden = true;
+      }
+      else {
+        favorites.splice(index, 1);
+      }
+      this.saveFavorites(favorites);
+    }
   }
 
   handleClick(favorite: types.Favorite) {
@@ -160,13 +211,9 @@ class FavoritesManager {
 
 const FavoriteComponent = (props: types.FavoriteComponentProps) => {
   const { favorite, handleClick } = props;
-  let displayName = '';
+  let displayName = utils.getName(favorite.path);
   if (favorite.name) {
     displayName = favorite.name;
-  }
-  const parts = favorite.path.split('/');
-  if (parts.length > 0) {
-    displayName = parts[parts.length - 1];
   }
 
   return (
@@ -175,7 +222,7 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
       title={favorite.path}
       onClick={e => { handleClick(favorite); }}
     >
-      <span className={`jp-MaterialIcon jp-Favorites-itemIcon ${favorite.iconClass}`}></span>
+      <span className={`jp-Favorites-itemIcon ${favorite.iconClass}`}></span>
       <span className="jp-Favorites-itemText">{displayName}</span>
     </div>
   )
@@ -188,25 +235,38 @@ class FavoritesWidget extends ReactWidget {
     super();
     this.manager = manager;
     this.addClass('jp-Favorites');
+
+    this.manager.visibilityChanged.connect((_, isVisible) => {
+      if (isVisible) {
+        this.show();
+      }
+      else {
+        this.hide();
+      }
+    });
   }
 
   render() {
     return (
-      <UseSignal signal={this.manager.favoritesChanged}>
-        {(sender: FavoritesManager, favorites: Array<types.Favorite>) => (
+      <UseSignal
+        signal={this.manager.favoritesChanged}
+        initialSender={this.manager}
+        initialArgs={this.manager.visibleFavorites()}
+      >
+        {(sender: FavoritesManager, visibleFavorites: Array<types.Favorite>) => (
           <div>
-            <div className="jp-Favorites-header">
-              {"Favorites"}
-            </div>
+            <div style={{ height: '20px' }}></div>
+            <div className="jp-Favorites-header">Favorites</div>
             <div className="jp-Favorites-container">
-              {this.manager.visibleFavorites().map(f =>
+              {visibleFavorites.map(f =>
                 <FavoriteComponent
                   key={`favorites-item-${f.path}`}
                   favorite={f}
-                  handleClick={this.manager.handleClick.bind(this.manager)}
+                  handleClick={sender.handleClick.bind(sender)}
                 />
               )}
             </div>
+            <div className="jp-FileBrowser-header">File Browser</div>
           </div>
         )}
       </UseSignal>
@@ -221,17 +281,20 @@ const favorites: JupyterFrontEndPlugin<void> = {
   id: PluginIDs.favorites,
   autoStart: true,
   requires: [
+    IDocumentManager,
     IFileBrowserFactory,
     ISettingRegistry,
     IMainMenu,
   ],
   activate: async (
     app: JupyterFrontEnd,
+    docManager: IDocumentManager,
     factory: IFileBrowserFactory,
     settingsRegistry: ISettingRegistry,
     mainMenu: IMainMenu
   ) => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
+    const docRegistry = docManager.registry;
     const filebrowser = factory.defaultBrowser;
     const layout = filebrowser.layout as PanelLayout;
     const { commands } = app;
@@ -255,30 +318,46 @@ const favorites: JupyterFrontEndPlugin<void> = {
       return toArray(widget.selectedItems());
     }
     const { tracker } = factory;
-    commands.addCommand(CommandIDs.addFavorite, {
+    commands.addCommand(CommandIDs.addOrRemoveFavorite, {
       execute: () => {
         const selectedItems = getSelectedItems();
         if (selectedItems.length > 0) {
           const selectedItem = selectedItems[0];
-          favoritesManager.addFavorite({
-            root: favoritesManager.serverRoot,
-            path: selectedItem.path,
-            iconClass: 'jp-FolderIcon',
-          });
+          const shouldRemove = favoritesManager.hasFavorite(selectedItem.path);
+          if (shouldRemove) {
+            favoritesManager.removeFavorite(selectedItem.path);
+          }
+          else {
+            const fileType = docRegistry.getFileTypeForModel(selectedItem);
+            favoritesManager.addFavorite({
+              root: favoritesManager.serverRoot,
+              path: selectedItem.path,
+              contentType: fileType.contentType,
+              iconClass: fileType.iconClass,
+            });
+          }
         }
         // selectedItem.mimetype;
       },
       isVisible: () => {
         const selectedItems = getSelectedItems();
-        return selectedItems.length === 1 && !favoritesManager.has(selectedItems[0].path);
+        return selectedItems.length === 1;
       },
-      iconClass: 'jp-MaterialIcon jp-FavoritesIcon-filled',
-      label: 'Add Favorite',
+      iconClass: () => {
+        const selectedItems = getSelectedItems();
+        const selectedItem = selectedItems[0];
+        const showFilled = !favoritesManager.hasFavorite(selectedItem.path);
+        return `jp-MaterialIcon jp-FavoritesIcon-${showFilled ? 'filled' : 'unfilled'}`;
+      },
+      label: () => {
+        const selectedItems = getSelectedItems();
+        const selectedItem = selectedItems[0];
+        const showRemove = favoritesManager.hasFavorite(selectedItem.path);
+        return `${showRemove ? 'Remove' : 'Add'} Favorite`;
+      },
     });
-    // // matches only non-directory items
-    // const selectorNotDir = '.jp-DirListing-item[data-isdir="false"]';
     app.contextMenu.addItem({
-      command: CommandIDs.addFavorite,
+      command: CommandIDs.addOrRemoveFavorite,
       selector: '.jp-DirListing-item[data-isdir]',
       rank: 3
     });
@@ -289,16 +368,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
         );
         const path = contextNode.getAttribute('title');
         favoritesManager.removeFavorite(path);
-        // const selectedItems = getSelectedItems();
-        // if (selectedItems.length > 0) {
-        //   const selectedItem = selectedItems[0];
-        //   favoritesManager.removeFavorite(selectedItem.path);
-        // };
       },
-      // isVisible: () => {
-      //   const selectedItems = getSelectedItems();
-      //   return selectedItems.length === 1 && favoritesManager.has(selectedItems[0].path);
-      // },
       isVisible: () => true,
       iconClass: 'jp-MaterialIcon jp-FavoritesIcon-unfilled',
       label: 'Remove Favorite',
@@ -306,7 +376,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
     app.contextMenu.addItem({
       command: CommandIDs.removeFavorite,
       selector: '.jp-Favorites-item',
-      rank: 3,
+      rank: 0,
     });
   },
 };
