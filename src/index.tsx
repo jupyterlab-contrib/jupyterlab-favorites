@@ -163,6 +163,16 @@ class FavoritesManager {
   visibleFavorites() {
     return this.favorites.filter(f => !f.hidden).sort((a, b) => {
       if (a.contentType === b.contentType) {
+        const aIsHome = a.iconClass.includes('jp-HomeIcon');
+        const bIsHome = b.iconClass.includes('jp-HomeIcon');
+        if (!(aIsHome && bIsHome)) {
+          if (aIsHome) {
+            return -1;
+          }
+          if (bIsHome) {
+            return 1;
+          }
+        }
         return utils.getName(a.path) <= utils.getName(b.path) ? -1 : 1;
       }
       else {
@@ -191,7 +201,7 @@ class FavoritesManager {
   }
 
   public async overwriteSettings(settings: types.FavoritesSettings) {
-    const newSettings = JSON.stringify(settings);
+    const newSettings = JSON.stringify(settings, null, 4);
     await this.settingsRegistry.upload(SettingIDs.favorites, newSettings);
   }
 
