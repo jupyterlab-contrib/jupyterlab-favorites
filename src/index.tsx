@@ -13,7 +13,7 @@ import {
 } from '@jupyterlab/docmanager';
 
 import {
-  IMainMenu
+  IMainMenu,
 } from '@jupyterlab/mainmenu';
 
 import {
@@ -35,6 +35,7 @@ import {
 
 import {
   PanelLayout,
+  Menu,
 } from '@phosphor/widgets';
 
 import {
@@ -56,7 +57,11 @@ namespace SettingIDs {
 
 namespace CommandIDs {
   export const addOrRemoveFavorite = `${PluginIDs.favorites}:add-or-remove-favorite`;
-  export const removeFavorite = `${PluginIDs}:remove-favorite`;
+  export const removeFavorite = `${PluginIDs.favorites}:remove-favorite`;
+  export const openFavorite = `${PluginIDs.favorites}:open-favorite`;
+  export const toggleFavoritesWidget = `${PluginIDs.favorites}:toggle-favorites-widget`;
+  export const restoreDefaults = `${PluginIDs.favorites}:restore-defaults`;
+  export const clearFavorites = `${PluginIDs.favorites}:clear-favorites`;
 }
 
 namespace types {
@@ -74,6 +79,11 @@ namespace types {
     favorite: Favorite;
     handleClick: (favorite: Favorite) => void;
   }
+
+  export type FavoritesSettings = {
+    favorites?: Array<Favorite>;
+    showWidget?: boolean;
+  }
 }
 
 namespace utils {
@@ -89,30 +99,38 @@ namespace utils {
 
 class FavoritesManager {
   public serverRoot: string;
+  public favoritesMenu: Menu;
   public favoritesChanged = new Signal<this, Array<types.Favorite>>(this);
   public visibilityChanged = new Signal<this, boolean>(this);
   private settingsRegistry: ISettingRegistry;
   private commandRegistry: CommandRegistry;
   private _favorites: Array<types.Favorite>;
+  private showWidget: boolean;
 
   constructor(commands: CommandRegistry, settings: ISettingRegistry) {
     this.serverRoot = PageConfig.getOption('serverRoot');
     this.commandRegistry = commands;
     this.settingsRegistry = settings;
-    this.favorites = [];
+    this.favoritesMenu = new Menu({ commands: this.commandRegistry });
     // Listen for updates to settings
     this.settingsRegistry.pluginChanged.connect(async (_, pluginName) => {
       if (pluginName === SettingIDs.themes) {
         this.refreshIcons();
       }
       if (pluginName === SettingIDs.favorites) {
+        // Triggers favoritesChanged, so showWidget will also get loaded
         this.loadFavorites();
       }
     });
     // Listen for update to own favorites
-    this.favoritesChanged.connect(async (_, ) => {
-      this.checkVisibility();
+    this.favoritesChanged.connect(async (_, visibleFavorites) => {
+      this.showWidget = await this.loadShowWidget();
+      this.syncFavoritesMenu();
+      const isVisible = this.showWidget && visibleFavorites.length > 0;
+      this.visibilityChanged.emit(isVisible);
     });
+    // This menu will appear in the File menu
+    this.favoritesMenu.title.label = 'Favorites';
   }
 
   async init() {
@@ -129,7 +147,8 @@ class FavoritesManager {
   }
 
   get favorites(): Array<types.Favorite> {
-    return this._favorites.filter(f => f.root === this.serverRoot);
+    const favorites = this._favorites || [];
+    return favorites.filter(f => f.root === this.serverRoot);
   }
 
   set favorites(favorites: Array<types.Favorite>) {
@@ -152,26 +171,28 @@ class FavoritesManager {
     });
   }
 
+  private async loadShowWidget() {
+    const showWidgetSettings = await this.settingsRegistry.get(SettingIDs.favorites, 'showWidget');
+    return showWidgetSettings.composite as boolean;
+  }
+
   private async loadFavorites() {
     const favorites = await this.settingsRegistry.get(SettingIDs.favorites, 'favorites');
     this.favorites = favorites.composite as Array<types.Favorite>;
   }
 
-  private async saveFavorites(favorites: Array<types.Favorite>) {
-    const newSettings = JSON.stringify({ favorites });
-    return this.settingsRegistry.upload(SettingIDs.favorites, newSettings);
+  public async saveSettings(settings: types.FavoritesSettings) {
+    if (settings.favorites !== undefined) {
+      await this.settingsRegistry.set(SettingIDs.favorites, 'favorites', settings.favorites);
+    }
+    if (settings.showWidget !== undefined) {
+      await this.settingsRegistry.set(SettingIDs.favorites, 'showWidget', settings.showWidget);
+    }
   }
 
-  private async checkVisibility() {
-    let isVisible = this.visibleFavorites().length > 0;
-    if (isVisible) {
-      const showWidgetSettings = await this.settingsRegistry.get(SettingIDs.favorites, 'showWidget');
-      const showWidget = showWidgetSettings.composite;
-      if (showWidget !== undefined) {
-        isVisible = isVisible && (showWidget as boolean);
-      }
-    }
-    this.visibilityChanged.emit(isVisible);
+  public async overwriteSettings(settings: types.FavoritesSettings) {
+    const newSettings = JSON.stringify(settings);
+    await this.settingsRegistry.upload(SettingIDs.favorites, newSettings);
   }
 
   async addFavorite(favorite: types.Favorite) {
@@ -181,11 +202,11 @@ class FavoritesManager {
     if (existing) {
       if (existing.hidden) {
         existing.hidden = false;
-        this.saveFavorites(favorites);
+        this.saveSettings({ favorites });
       }
     }
     else {
-      this.saveFavorites(favorites.concat([favorite]));
+      this.saveSettings({ favorites: favorites.concat([favorite]) });
     }
   }
 
@@ -200,8 +221,53 @@ class FavoritesManager {
       else {
         favorites.splice(index, 1);
       }
-      this.saveFavorites(favorites);
+      this.saveSettings({ favorites });
     }
+  }
+
+  private clearFavoritesOrRestoreDefaults(hidden: boolean) {
+    const favorites = this._favorites;
+    const defaultFavorites: Array<types.Favorite> = [];
+    favorites.forEach(favorite => {
+      if (favorite.default) {
+        favorite.hidden = hidden;
+        defaultFavorites.push(favorite);
+      }
+    });
+    this.overwriteSettings({ favorites: defaultFavorites });
+  }
+
+  restoreDefaults() {
+    this.clearFavoritesOrRestoreDefaults(false);
+  }
+
+  clearFavorites() {
+    this.clearFavoritesOrRestoreDefaults(true);
+  }
+
+  private syncFavoritesMenu() {
+    this.favoritesMenu.clearItems();
+    const visibleFavorites = this.visibleFavorites();
+    if (visibleFavorites.length > 0) {
+      visibleFavorites.forEach(f => {
+        this.favoritesMenu.addItem({
+          command: CommandIDs.openFavorite,
+          args: { favorite: f },
+        });
+      });
+      this.favoritesMenu.addItem({ type: 'separator' });
+    }
+    const showWidget = this.showWidget;
+    this.favoritesMenu.addItem({
+      command: CommandIDs.toggleFavoritesWidget,
+      args: { showWidget },
+    });
+    this.favoritesMenu.addItem({
+      command: CommandIDs.restoreDefaults,
+    });
+    this.favoritesMenu.addItem({
+      command: CommandIDs.clearFavorites,
+    });
   }
 
   handleClick(favorite: types.Favorite) {
@@ -284,8 +350,8 @@ const favorites: JupyterFrontEndPlugin<void> = {
     IDocumentManager,
     IFileBrowserFactory,
     ISettingRegistry,
-    IMainMenu,
   ],
+  optional: [IMainMenu],
   activate: async (
     app: JupyterFrontEnd,
     docManager: IDocumentManager,
@@ -337,7 +403,6 @@ const favorites: JupyterFrontEndPlugin<void> = {
             });
           }
         }
-        // selectedItem.mimetype;
       },
       isVisible: () => {
         const selectedItems = getSelectedItems();
@@ -377,6 +442,44 @@ const favorites: JupyterFrontEndPlugin<void> = {
       command: CommandIDs.removeFavorite,
       selector: '.jp-Favorites-item',
       rank: 0,
+    });
+    // Main Menu
+    if (mainMenu) {
+      mainMenu.fileMenu.addGroup([{
+        type: 'submenu' as Menu.ItemType,
+        submenu: favoritesManager.favoritesMenu,
+      }], 0);
+    }
+    commands.addCommand(CommandIDs.openFavorite, {
+      execute: args => {
+        const favorite = args.favorite as types.Favorite;
+        const path = favorite.path;
+        commands.execute('filebrowser:open-path', { path });
+      },
+      label: args => {
+        const favorite = args.favorite as types.Favorite;
+        const prefix = favorite.root === '/' ? '/' : `${favorite.root}/`;
+        return `${prefix}${favorite.path}`;
+      },
+    });
+    commands.addCommand(CommandIDs.toggleFavoritesWidget, {
+      execute: async args => {
+        const showWidget = args.showWidget as boolean;
+        await favoritesManager.saveSettings({ showWidget: !showWidget });
+      },
+      label: args => {
+        const showWidget = args.showWidget as boolean;
+        return `${showWidget ? 'Hide' : 'Show'} Favorites Widget`;
+      },
+      isVisible: () => favoritesManager.visibleFavorites().length > 0,
+    });
+    commands.addCommand(CommandIDs.restoreDefaults, {
+      execute: () => favoritesManager.restoreDefaults(),
+      label: 'Restore Defaults',
+    })
+    commands.addCommand(CommandIDs.clearFavorites, {
+      execute: () => favoritesManager.clearFavorites(),
+      label: 'Clear Favorites',
     });
   },
 };
