@@ -100,6 +100,16 @@ namespace utils {
   export function getPinnerActionDescription(showRemove: boolean) {
     return `${showRemove ? 'Remove' : 'Add'} Favorite`;
   }
+
+  export function mergePaths(root:string, path: string) {
+    if (root.endsWith('/')) {
+      root = root.slice(0, -1);
+    }
+    if (path.endsWith('/')) {
+      path = path.slice(1);
+    }
+    return `${root}/${path}`;
+  }
 }
 
 class FavoritesManager {
@@ -289,7 +299,7 @@ class FavoritesManager {
   }
 
   handleClick(favorite: types.Favorite) {
-    this.commandRegistry.execute('filebrowser:open-path', { path: favorite.path });
+    this.commandRegistry.execute(CommandIDs.openFavorite, { favorite });
   }
 }
 
@@ -303,7 +313,7 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
   return (
     <div
       className="jp-Favorites-item"
-      title={favorite.path}
+      title={utils.mergePaths(favorite.root, favorite.path)}
       onClick={e => { handleClick(favorite); }}
     >
       <span className={`jp-Favorites-itemIcon ${favorite.iconClass}`}></span>
@@ -551,13 +561,12 @@ const favorites: JupyterFrontEndPlugin<void> = {
     commands.addCommand(CommandIDs.openFavorite, {
       execute: args => {
         const favorite = args.favorite as types.Favorite;
-        const path = favorite.path;
+        const path = favorite.path === '' ? '/' : favorite.path;
         commands.execute('filebrowser:open-path', { path });
       },
       label: args => {
         const favorite = args.favorite as types.Favorite;
-        const prefix = favorite.root === '/' ? '/' : `${favorite.root}/`;
-        return `${prefix}${favorite.path}`;
+        return utils.mergePaths(favorite.root, favorite.path);
       },
     });
     commands.addCommand(CommandIDs.toggleFavoritesWidget, {
