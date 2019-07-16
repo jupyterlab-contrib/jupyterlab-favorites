@@ -15,33 +15,17 @@ jupyter labextension install jupyterlab-favorites
 
 ## Development
 
-For a development install, do the following in the repository directory:
+For a development install (requires npm version 4 or later), do the following in the repository directory:
 
-```{bash}
-jlpm install
-jupyter labextension install . --no-build
+```bash
+npm install
+npm run build
+jupyter labextension link .
 ```
 
-To check the extension is enabled run:
-```{bash}
-jupyter labextension list
-```
+To rebuild the package and the JupyterLab app:
 
-In another terminal, run:
-```{bash}
-jupyter lab --watch
-```
-
-Sometimes the above command doesn't seem to catch all the necessary changes, and you might need to run those below as well.
-
-To build or rebuild the package:
-
-```{bash}
-jlpm run build
-```
-
-To build or rebuild the lab:
-
-```{bash}
+```bash
+npm run build
 jupyter lab build
 ```

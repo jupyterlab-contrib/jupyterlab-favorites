@@ -101,7 +101,7 @@ namespace utils {
     return `${showRemove ? 'Remove' : 'Add'} Favorite`;
   }
 
-  export function mergePaths(root:string, path: string) {
+  export function mergePaths(root: string, path: string) {
     if (root.endsWith('/')) {
       root = root.slice(0, -1);
     }
@@ -499,7 +499,11 @@ const favorites: JupyterFrontEndPlugin<void> = {
         const contextNode: HTMLElement = app.contextMenuHitTest(
           node => node.classList.contains('jp-Favorites-item')
         );
-        const path = contextNode.getAttribute('title');
+        const fullPath = contextNode.getAttribute('title');
+        let path = fullPath.replace(favoritesManager.serverRoot, '');
+        if (path.startsWith('/')) {
+          path = path.slice(1);
+        }
         favoritesManager.removeFavorite(path);
       },
       isVisible: () => true,
