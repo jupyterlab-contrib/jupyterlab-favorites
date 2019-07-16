@@ -9,15 +9,12 @@ import {
 } from '@jupyterlab/coreutils';
 
 import {
-  IDocumentManager,
-} from '@jupyterlab/docmanager';
-
-import {
   IMainMenu,
 } from '@jupyterlab/mainmenu';
 
 import {
   IFileBrowserFactory,
+  FileBrowser,
 } from '@jupyterlab/filebrowser';
 
 import {
@@ -95,6 +92,14 @@ namespace utils {
     }
     return name;
   }
+
+  export function getFavoritesIconClass(filled: boolean) {
+    return `jp-MaterialIcon jp-FavoritesIcon-${filled ? 'filled' : 'unfilled'}`;
+  }
+
+  export function getPinnerActionDescription(showRemove: boolean) {
+    return `${showRemove ? 'Remove' : 'Add'} Favorite`;
+  }
 }
 
 class FavoritesManager {
@@ -111,7 +116,9 @@ class FavoritesManager {
     this.serverRoot = PageConfig.getOption('serverRoot');
     this.commandRegistry = commands;
     this.settingsRegistry = settings;
+    // This menu will appear in the File menu
     this.favoritesMenu = new Menu({ commands: this.commandRegistry });
+    this.favoritesMenu.title.label = 'Favorites';
     // Listen for updates to settings
     this.settingsRegistry.pluginChanged.connect(async (_, pluginName) => {
       if (pluginName === SettingIDs.themes) {
@@ -123,19 +130,20 @@ class FavoritesManager {
       }
     });
     // Listen for update to own favorites
-    this.favoritesChanged.connect(async (_, visibleFavorites) => {
+    this.favoritesChanged.connect(async (_, ) => {
       this.showWidget = await this.loadShowWidget();
       this.syncFavoritesMenu();
-      const isVisible = this.showWidget && visibleFavorites.length > 0;
-      this.visibilityChanged.emit(isVisible);
+      this.visibilityChanged.emit(this.isVisible());
     });
-    // This menu will appear in the File menu
-    this.favoritesMenu.title.label = 'Favorites';
   }
 
   async init() {
     await this.refreshIcons();
     await this.loadFavorites();
+  }
+
+  public isVisible() {
+    return this.showWidget && this.visibleFavorites().length > 0;
   }
 
   private async refreshIcons() {
@@ -157,7 +165,7 @@ class FavoritesManager {
   }
 
   hasFavorite(path: string) {
-    return this.favorites.findIndex(f => f.path === path) >= 0;
+    return this.visibleFavorites().findIndex(f => f.path === path) >= 0;
   }
 
   visibleFavorites() {
@@ -259,10 +267,10 @@ class FavoritesManager {
     this.favoritesMenu.clearItems();
     const visibleFavorites = this.visibleFavorites();
     if (visibleFavorites.length > 0) {
-      visibleFavorites.forEach(f => {
+      visibleFavorites.forEach(favorite => {
         this.favoritesMenu.addItem({
           command: CommandIDs.openFavorite,
-          args: { favorite: f },
+          args: { favorite },
         });
       });
       this.favoritesMenu.addItem({ type: 'separator' });
@@ -306,20 +314,35 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
 
 class FavoritesWidget extends ReactWidget {
   private manager: FavoritesManager;
+  private filebrowser: FileBrowser;
+  private pathChanged = new Signal<this, string>(this);
 
-  constructor(manager: FavoritesManager) {
+  constructor(manager: FavoritesManager, filebrowser: FileBrowser) {
     super();
     this.manager = manager;
+    this.filebrowser = filebrowser;
     this.addClass('jp-Favorites');
 
-    this.manager.visibilityChanged.connect((_, isVisible) => {
-      if (isVisible) {
-        this.show();
-      }
-      else {
-        this.hide();
-      }
+    this.filebrowser.model.pathChanged.connect((_, changedArgs) => {
+      const path = changedArgs.newValue;
+      this.pathChanged.emit(path);
     });
+  }
+
+  handlePinnerClick(path: string) {
+    const shouldRemove = this.manager.hasFavorite(path);
+    if (shouldRemove) {
+      this.manager.removeFavorite(path);
+    }
+    else {
+      const favorite = {
+        root: this.manager.serverRoot,
+        contentType: 'directory',
+        iconClass: 'jp-MaterialIcon jp-FolderIcon',
+        path,
+      } as types.Favorite;
+      this.manager.addFavorite(favorite);
+    }
   }
 
   render() {
@@ -329,20 +352,47 @@ class FavoritesWidget extends ReactWidget {
         initialSender={this.manager}
         initialArgs={this.manager.visibleFavorites()}
       >
-        {(sender: FavoritesManager, visibleFavorites: Array<types.Favorite>) => (
+        {(manager: FavoritesManager, visibleFavorites: Array<types.Favorite>) => (
           <div>
-            <div style={{ height: '20px' }}></div>
-            <div className="jp-Favorites-header">Favorites</div>
-            <div className="jp-Favorites-container">
-              {visibleFavorites.map(f =>
-                <FavoriteComponent
-                  key={`favorites-item-${f.path}`}
-                  favorite={f}
-                  handleClick={sender.handleClick.bind(sender)}
-                />
+            <UseSignal
+              signal={manager.visibilityChanged}
+              initialSender={manager}
+              initialArgs={manager.isVisible()}
+            >
+              {(manager: FavoritesManager, isVisible: boolean) => (
+                isVisible &&
+                <div>
+                  <div style={{ height: '20px' }}></div>
+                  <div className="jp-Favorites-header">Favorites</div>
+                  <div className="jp-Favorites-container">
+                    {visibleFavorites.map(f =>
+                      <FavoriteComponent
+                        key={`favorites-item-${f.path}`}
+                        favorite={f}
+                        handleClick={manager.handleClick.bind(manager)}
+                      />
+                    )}
+                  </div>
+                  <div className="jp-FileBrowser-header">File Browser</div>
+                </div>
               )}
-            </div>
-            <div className="jp-FileBrowser-header">File Browser</div>
+            </UseSignal>
+            <UseSignal
+              signal={this.pathChanged}
+              initialSender={this}
+              initialArgs={this.filebrowser.model.path}
+            >
+              {(widget: FavoritesWidget, currentPath: string) => (
+                currentPath &&
+                <div className="jp-Favorites-pinner">
+                  <span
+                    className={utils.getFavoritesIconClass(widget.manager.hasFavorite(currentPath))}
+                    title={utils.getPinnerActionDescription(widget.manager.hasFavorite(currentPath))}
+                    onClick={e => widget.handlePinnerClick(currentPath)}
+                  ></span>
+                </div>
+              )}
+            </UseSignal>
           </div>
         )}
       </UseSignal>
@@ -357,26 +407,24 @@ const favorites: JupyterFrontEndPlugin<void> = {
   id: PluginIDs.favorites,
   autoStart: true,
   requires: [
-    IDocumentManager,
     IFileBrowserFactory,
     ISettingRegistry,
   ],
   optional: [IMainMenu],
   activate: async (
     app: JupyterFrontEnd,
-    docManager: IDocumentManager,
     factory: IFileBrowserFactory,
     settingsRegistry: ISettingRegistry,
     mainMenu: IMainMenu
   ) => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
-    const docRegistry = docManager.registry;
+    const docRegistry = app.docRegistry;
     const filebrowser = factory.defaultBrowser;
     const layout = filebrowser.layout as PanelLayout;
     const { commands } = app;
     const favoritesManager = new FavoritesManager(commands, settingsRegistry);
     favoritesManager.init();
-    const favoritesWidget = new FavoritesWidget(favoritesManager);
+    const favoritesWidget = new FavoritesWidget(favoritesManager, filebrowser);
     // Insert the Favorites widget just ahead of the BreadCrumbs
     let breadCrumbsIndex = 0;
     layout.widgets.forEach((widget, index) => {
@@ -422,13 +470,13 @@ const favorites: JupyterFrontEndPlugin<void> = {
         const selectedItems = getSelectedItems();
         const selectedItem = selectedItems[0];
         const showFilled = !favoritesManager.hasFavorite(selectedItem.path);
-        return `jp-MaterialIcon jp-FavoritesIcon-${showFilled ? 'filled' : 'unfilled'}`;
+        return utils.getFavoritesIconClass(showFilled);
       },
       label: () => {
         const selectedItems = getSelectedItems();
         const selectedItem = selectedItems[0];
         const showRemove = favoritesManager.hasFavorite(selectedItem.path);
-        return `${showRemove ? 'Remove' : 'Add'} Favorite`;
+        return utils.getPinnerActionDescription(showRemove);
       },
     });
     app.contextMenu.addItem({
@@ -458,8 +506,48 @@ const favorites: JupyterFrontEndPlugin<void> = {
       mainMenu.fileMenu.addGroup([{
         type: 'submenu' as Menu.ItemType,
         submenu: favoritesManager.favoritesMenu,
-      }], 0);
+      }], 1);
     }
+    // Try to merge with existing Group 1
+    try {
+      const groups = (mainMenu.fileMenu as any)._groups;
+      let numRankOneGroups = 0;
+      let openGroupIndex = -1;
+      for (let i = 0; i < groups.length; i++) {
+        const group = groups[i];
+        if (group.rank === 1) {
+          numRankOneGroups += 1;
+          if (openGroupIndex < 0) {
+            openGroupIndex = i;
+          }
+        }
+      }
+      if (numRankOneGroups === 2) {
+        const openGroup = groups[openGroupIndex];
+        openGroup.size = openGroup.size + 1;
+        groups.splice(openGroupIndex + 1, 1);
+        const fileMenu = (mainMenu.fileMenu as any).menu;
+        const fileMenuItems = fileMenu._items;
+        let removeSeparators = false;
+        for (let i = fileMenuItems.length - 1; i > 0; i--) {
+          const fileMenuItem = fileMenuItems[i];
+          if (fileMenuItem.command === 'filebrowser:open-path') {
+            break;
+          }
+          if (removeSeparators && fileMenuItem.type === 'separator') {
+            fileMenu.removeItemAt(i);
+          }
+          else if (fileMenuItem.type === 'submenu') {
+            const label = fileMenuItem.submenu.title.label;
+            if (label === 'Favorites') {
+              removeSeparators = true;
+            }
+          }
+        }
+      }
+    }
+    catch (e) {}
+    // Commands
     commands.addCommand(CommandIDs.openFavorite, {
       execute: args => {
         const favorite = args.favorite as types.Favorite;

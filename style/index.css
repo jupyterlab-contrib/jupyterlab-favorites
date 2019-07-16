@@ -17,6 +17,18 @@
   vertical-align: sub;
 }
 
+.jp-Favorites-pinner {
+  position: absolute;
+  right: 6px;
+  bottom: -21px;
+  cursor: pointer;
+}
+
+/* Increase the right margin from 12px to allow room for pinner */
+.jp-BreadCrumbs.jp-FileBrowser-crumbs {
+  margin: 4px 26px 4px 12px;
+}
+
 .jp-FavoritesIcon-filled {
   background-image: var(--jp-icon-favorite-filled);
 }
@@ -43,6 +55,7 @@
 
 .jp-Favorites {
   flex: 0 0 auto;
+  overflow: visible;
 }
 
 .jp-Favorites-item {
