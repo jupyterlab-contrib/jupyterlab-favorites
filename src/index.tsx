@@ -9,6 +9,10 @@ import {
 } from '@jupyterlab/coreutils';
 
 import {
+  ContentsManager,
+} from '@jupyterlab/services';
+
+import {
   IMainMenu,
 } from '@jupyterlab/mainmenu';
 
@@ -119,13 +123,19 @@ class FavoritesManager {
   public visibilityChanged = new Signal<this, boolean>(this);
   private settingsRegistry: ISettingRegistry;
   private commandRegistry: CommandRegistry;
+  private contentsManager: ContentsManager;
   private _favorites: Array<types.Favorite>;
   private showWidget: boolean;
 
-  constructor(commands: CommandRegistry, settings: ISettingRegistry) {
+  constructor(
+    commands: CommandRegistry,
+    settings: ISettingRegistry,
+    contents: ContentsManager
+  ) {
     this.serverRoot = PageConfig.getOption('serverRoot');
     this.commandRegistry = commands;
     this.settingsRegistry = settings;
+    this.contentsManager = contents;
     // This menu will appear in the File menu
     this.favoritesMenu = new Menu({ commands: this.commandRegistry });
     this.favoritesMenu.title.label = 'Favorites';
@@ -149,10 +159,18 @@ class FavoritesManager {
 
   async init() {
     await this.refreshIcons();
-    await this.loadFavorites();
+    this.loadFavorites();
   }
 
-  public isVisible() {
+  async removeFavoriteIfInvalid(favorite: types.Favorite) {
+    this.contentsManager.get(favorite.path, { content: false}).catch(error => {
+      if (error.response.status === 404) {
+        this.removeFavorite(favorite.path);
+      }
+    });
+  }
+
+  isVisible() {
     return this.showWidget && this.visibleFavorites().length > 0;
   }
 
@@ -209,18 +227,18 @@ class FavoritesManager {
     this.favorites = favorites.composite as Array<types.Favorite>;
   }
 
-  public async saveSettings(settings: types.FavoritesSettings) {
+  async saveSettings(settings: types.FavoritesSettings) {
     if (settings.favorites !== undefined) {
       await this.settingsRegistry.set(SettingIDs.favorites, 'favorites', settings.favorites);
     }
     if (settings.showWidget !== undefined) {
-      await this.settingsRegistry.set(SettingIDs.favorites, 'showWidget', settings.showWidget);
+      this.settingsRegistry.set(SettingIDs.favorites, 'showWidget', settings.showWidget);
     }
   }
 
-  public async overwriteSettings(settings: types.FavoritesSettings) {
+  async overwriteSettings(settings: types.FavoritesSettings) {
     const newSettings = JSON.stringify(settings, null, 4);
-    await this.settingsRegistry.upload(SettingIDs.favorites, newSettings);
+    this.settingsRegistry.upload(SettingIDs.favorites, newSettings);
   }
 
   async addFavorite(favorite: types.Favorite) {
@@ -431,8 +449,12 @@ const favorites: JupyterFrontEndPlugin<void> = {
     const docRegistry = app.docRegistry;
     const filebrowser = factory.defaultBrowser;
     const layout = filebrowser.layout as PanelLayout;
-    const { commands } = app;
-    const favoritesManager = new FavoritesManager(commands, settingsRegistry);
+    const { commands, serviceManager } = app;
+    const favoritesManager = new FavoritesManager(
+      commands,
+      settingsRegistry,
+      serviceManager.contents,
+    );
     favoritesManager.init();
     const favoritesWidget = new FavoritesWidget(favoritesManager, filebrowser);
     // Insert the Favorites widget just ahead of the BreadCrumbs
@@ -563,10 +585,11 @@ const favorites: JupyterFrontEndPlugin<void> = {
     catch (e) {}
     // Commands
     commands.addCommand(CommandIDs.openFavorite, {
-      execute: args => {
+      execute: async args => {
         const favorite = args.favorite as types.Favorite;
         const path = favorite.path === '' ? '/' : favorite.path;
-        commands.execute('filebrowser:open-path', { path });
+        await commands.execute('filebrowser:open-path', { path });
+        favoritesManager.removeFavoriteIfInvalid(favorite);
       },
       label: args => {
         const favorite = args.favorite as types.Favorite;
@@ -576,7 +599,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
     commands.addCommand(CommandIDs.toggleFavoritesWidget, {
       execute: async args => {
         const showWidget = args.showWidget as boolean;
-        await favoritesManager.saveSettings({ showWidget: !showWidget });
+        favoritesManager.saveSettings({ showWidget: !showWidget });
       },
       label: args => {
         const showWidget = args.showWidget as boolean;
