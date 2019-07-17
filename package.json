@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab-favorites",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Add the ability to save favorite folders to JupyterLab for quicker browsing",
   "keywords": [
     "jupyter",
