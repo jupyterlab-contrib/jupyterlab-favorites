@@ -1,5 +1,5 @@
 {
-  "jupyter.lab.setting-icon-class": "jp-FavoritesIcon-filled",
+  "jupyter.lab.setting-icon": "jupyterlab-favorites:filledStar",
   "jupyter.lab.setting-icon-label": "Favorites",
   "title": "Favorites",
   "description": "Favorites settings.",
@@ -26,12 +26,12 @@
         "root": { "type": "string" },
         "path": { "type": "string" },
         "contentType": { "type": "string" },
-        "iconClass": { "type": "string" },
+        "iconLabel": { "type": "string" },
         "name": { "type": "string" },
         "default": { "type": "boolean" },
         "hidden": { "type": "boolean" }
       },
-      "required": ["root", "path", "iconClass"],
+      "required": ["root", "path"],
       "type": "object"
     }
   }
