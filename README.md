@@ -39,3 +39,15 @@ jupyter labextension install jupyterlab-favorites@1.0.0
 
 Or use the tagged 1.0.0 release at:
 https://github.com/NERSC/jupyterlab-favorites/tree/v1.0.0
+
+## Testing 
+
+Download Selenium:
+```bash
+conda install -c conda-forge selenium
+```
+Download Pytest:
+```bash
+conda install -c anaconda pytest
+```
+
