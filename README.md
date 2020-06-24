@@ -50,4 +50,10 @@ Download Pytest:
 ```bash
 conda install -c anaconda pytest
 ```
-
+Change directory to this repo after cloning and run:
+```bash
+pytest test_folder.py
+```
+```bash
+pytest test_file.py
+```
