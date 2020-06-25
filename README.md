@@ -41,6 +41,7 @@ Or use the tagged 1.0.0 release at:
 https://github.com/NERSC/jupyterlab-favorites/tree/v1.0.0
 
 ## Testing 
+Download Firefox browser if not already installed: https://www.mozilla.org/en-US/firefox/new/
 
 Download Selenium:
 ```bash
