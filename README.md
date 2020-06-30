@@ -51,6 +51,10 @@ Download Pytest:
 ```bash
 conda install -c anaconda pytest
 ```
+Start JupyterLab on port 8889:
+```bash
+jupyter lab --NotebookApp.token=''
+```
 Change directory to this repo after cloning and run:
 ```bash
 pytest test_folder.py
