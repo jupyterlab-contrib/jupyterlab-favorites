@@ -26,7 +26,7 @@ class TestAddfavs():
         # actions.double_click(src_file).perform() #works
         tests = self.driver.find_element(By.XPATH, "//span[contains(text(),'tests')]")
         actions = ActionChains(self.driver)
-        self.driver.implicitly_wait(30)
+        WebDriverWait(self.driver, 200)
         actions.double_click(tests).perform()
         self.driver.implicitly_wait(15)
 
@@ -35,7 +35,9 @@ class TestAddfavs():
         actions.double_click(test_folder).perform()
         self.driver.implicitly_wait(15)
         
-        test_folder_fav = self.driver.find_element(By.XPATH,"/html/body/div/div[3]/div[2]/div[1]/div[6]/div[2]/div/div/span") 
+        #test_folder_fav = self.driver.find_element(By.XPATH,"/html/body/div/div[3]/div[2]/div[1]/div[6]/div[2]/div/div/span") 
+        test_folder_fav = self.driver.find_element(By.XPATH,"/html/body/div/div[3]/div[2]/div[1]/div[6]/div[2]/div/div/span/svg")
+        #test_folder_fav = self.driver.find_elements_by_class_name("jp-Favorites-BreadCrumbs-Icon")
         actions = ActionChains(self.driver)
         actions.click(test_folder_fav).perform()
 
