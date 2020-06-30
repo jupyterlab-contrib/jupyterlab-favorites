@@ -39,3 +39,22 @@ jupyter labextension install jupyterlab-favorites@1.0.0
 
 Or use the tagged 1.0.0 release at:
 https://github.com/NERSC/jupyterlab-favorites/tree/v1.0.0
+
+## Testing 
+Download Firefox browser if not already installed: https://www.mozilla.org/en-US/firefox/new/
+
+Download Selenium:
+```bash
+conda install -c conda-forge selenium
+```
+Download Pytest:
+```bash
+conda install -c anaconda pytest
+```
+Change directory to this repo after cloning and run:
+```bash
+pytest test_folder.py
+```
+```bash
+pytest test_file.py
+```
