@@ -58,17 +58,20 @@ class TestAddfavs():
         # actions.send_keys(Keys.ARROW_DOWN).perform()
         # actions.send_keys(Keys.ENTER).perform()
 
-        file_fav = self.driver.find_element(By.XPATH, "/html/body/div/div[3]/div[2]/div[1]/div[5]/div[2]/div/div[2]/div")
+        #file_fav = self.driver.find_element(By.XPATH, "/html/body/div/div[3]/div[2]/div[1]/div[5]/div[2]/div/div[2]/div")
+        file_fav = self.driver.find_element(By.XPATH, "//span[contains(text(),'test_file.rtf')]")
         assert file_fav.text == "test_file.rtf"
 
-        file_removefav = self.driver.find_element(By.XPATH, "/html/body/div/div[3]/div[2]/div[1]/div[5]/div[2]/div/div[2]")
+        #file_removefav = self.driver.find_element(By.XPATH, "/html/body/div/div[3]/div[2]/div[1]/div[5]/div[2]/div/div[2]")
+        file_removefav = self.driver.find_element(By.XPATH, "//span[contains(text(),'test_file.rtf')]")
         self.driver.implicitly_wait(15)
         actions = ActionChains(self.driver)
         actions.context_click(file_removefav).perform()
         actions.send_keys(Keys.ARROW_DOWN).perform()
         actions.send_keys(Keys.ENTER).perform()
 
-        home_folder = self.driver.find_element(By.XPATH, "/html/body/div/div[3]/div[2]/div[1]/div[5]/div[3]/span[1]")
+        #home_folder = self.driver.find_element(By.XPATH, "/html/body/div/div[3]/div[2]/div[1]/div[5]/div[3]/span[1]")
+        home_folder = self.driver.find_element(By.XPATH, "/html/body/div/div[3]/div[2]/div[1]/div[6]/div[3]/span[1]")
         self.driver.implicitly_wait(15)
         actions = ActionChains(self.driver)
         actions.click(home_folder).perform() 

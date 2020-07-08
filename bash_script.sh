@@ -1,3 +1,7 @@
-jupyter lab --ip=127.0.0.1 --port=8889 --NotebookApp.token='' &
-pytest test_folder.py
-Purest test_file.py
+#!/bin/sh 
+#jupyter lab --port=8889 --NotebookApp.token=''
+jupyter lab --port=8889 --NotebookApp.token='' &
+child_pid=$!
+pytest tests/test_folder.py
+pytest tests/test_file.py
+kill $child_pid
