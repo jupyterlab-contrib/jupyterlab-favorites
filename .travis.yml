@@ -2,7 +2,17 @@ sudo: false
 language: python
 # command to run tests
 cache: pip
-install: "pip install -r requirements.txt"
+addons:
+  firefox: "78.0.1"
+before_install:
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-macos.tar.gz
+  - mkdir geckodriver
+  - tar -xzf geckodriver-v0.26.0-macos.tar.gz -C geckodriver
+  - export PATH=$PATH:$PWD/geckodriver
+install: 
+  - "pip install -r requirements.txt"
+  - npm install selenium-webdriver@^3.0.0
+  - npm install
 script: 
   - pytest tests/test_folder.py
   - pytest tests/test_file.py
