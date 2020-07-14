@@ -1,18 +1,27 @@
-sudo: false
+
 language: python
 # command to run tests
 cache: pip
 addons:
   firefox: "78.0.1"
+sudo: required
 before_install:
+  - sudo apt-get install xvfb
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-macos.tar.gz
-  - mkdir geckodriver
-  - tar -xzf geckodriver-v0.26.0-macos.tar.gz -C geckodriver
-  - export PATH=$PATH:$PWD/geckodriver
+  # - mkdir geckodriver
+  # - tar -xzf geckodriver-v0.26.0-macos.tar.gz -C geckodriver
+  # - export PATH=$PATH:$PWD/geckodriver
+  - sudo tar -xzf geckodriver-v0.26.0-macos.tar.gz -C /usr/bin
+  - sudo chmod a+x /usr/bin/geckodriver
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - sleep 5 # give xvfb some time to start
 install: 
   - "pip install -r requirements.txt"
   - npm install selenium-webdriver@^3.0.0
   - npm install
+
 script: 
-  - pytest tests/test_folder.py
-  - pytest tests/test_file.py
+  - jupyter lab --port=8889 --NotebookApp.token='' &
+  - pytest
+  
