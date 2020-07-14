@@ -1,7 +1,11 @@
 
 language: python
+os: osx
 # command to run tests
 cache: pip
+env:
+  global:
+    - MOZ_HEADLESS=1
 addons:
   firefox: "78.0.1"
 sudo: required
@@ -13,15 +17,16 @@ before_install:
   # - export PATH=$PATH:$PWD/geckodriver
   - sudo tar -xzf geckodriver-v0.26.0-macos.tar.gz -C /usr/bin
   - sudo chmod a+x /usr/bin/geckodriver
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - sleep 5 # give xvfb some time to start
+  # - export DISPLAY=:99.0
+  # - sh -e /etc/init.d/xvfb start
+  # - sleep 5 # give xvfb some time to start
 install: 
   - "pip install -r requirements.txt"
   - npm install selenium-webdriver@^3.0.0
   - npm install
 
 script: 
+  - xvfb-run --server-args="-screen 0 1024x768x24" make test
   - jupyter lab --port=8889 --NotebookApp.token='' &
   - pytest
   
