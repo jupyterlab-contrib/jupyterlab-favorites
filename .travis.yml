@@ -1,5 +1,9 @@
 
 language: python
+python:
+  - '3.6'
+  - '3.7'
+
 os: osx
 # command to run tests
 cache: pip
