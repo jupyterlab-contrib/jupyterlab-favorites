@@ -4,7 +4,8 @@ dist: xenial
 # python:
 #   - '3.6'
 #   - '3.7'
-
+nodejs:
+  - 10.0.0
 # os: osx
 # command to run tests
 cache: pip
@@ -30,6 +31,7 @@ before_install:
 install: 
   - "pip install -r requirements.txt"
   - npm install selenium-webdriver@^3.0.0
+  - node --version
   - npm install
   - npm run build
   - jupyter labextension install .
