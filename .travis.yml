@@ -33,6 +33,7 @@ install:
   - npm install
 
 script: 
+  - jupyter labextension list
   - jupyter lab --port=8889 --NotebookApp.token='' &
   - pytest
   
