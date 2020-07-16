@@ -1,5 +1,6 @@
 
 language: python
+dist: xenial
 # python:
 #   - '3.6'
 #   - '3.7'
@@ -13,6 +14,8 @@ env:
 addons:
   firefox: "78.0.1"
 sudo: required
+services:
+  - xvfb
 before_install:
   - sudo apt-get install xvfb
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-macos.tar.gz
@@ -30,7 +33,6 @@ install:
   - npm install
 
 script: 
-  - xvfb-run --server-args="-screen 0 1024x768x24" make test
   - jupyter lab --port=8889 --NotebookApp.token='' &
   - pytest
   
