@@ -1,11 +1,11 @@
 
 language: python
-dist: xenial
+dist: bionic
 # python:
 #   - '3.6'
 #   - '3.7'
-nodejs:
-  - 10.0.0
+# nodejs:
+#   - 10.0.0
 # os: osx
 # command to run tests
 cache: pip
