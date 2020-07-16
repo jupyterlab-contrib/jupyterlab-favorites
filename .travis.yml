@@ -18,11 +18,11 @@ services:
   - xvfb
 before_install:
   - sudo apt-get install xvfb
-  - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-macos.tar.gz
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
   # - mkdir geckodriver
   # - tar -xzf geckodriver-v0.26.0-macos.tar.gz -C geckodriver
   # - export PATH=$PATH:$PWD/geckodriver
-  - sudo tar -xzf geckodriver-v0.26.0-macos.tar.gz -C /usr/bin
+  - sudo tar -xzf geckodriver-v0.26.0-linux64.tar.gz -C /usr/bin
   - sudo chmod a+x /usr/bin/geckodriver
   # - export DISPLAY=:99.0
   # - sh -e /etc/init.d/xvfb start
