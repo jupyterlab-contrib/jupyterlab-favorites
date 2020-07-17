@@ -68,7 +68,7 @@ class TestAddfavs():
         self.driver.implicitly_wait(100)
 
         #home_folder = self.driver.find_element(By.XPATH, "/html/body/div/div[3]/div[2]/div[1]/div[6]/div[3]/span[1]")
-        home_folder = self.driver.find_element_by_css_selector(.jp-BreadCrumbs-home > svg:nth-child(1))
+        home_folder = self.driver.find_element_by_css_selector(".jp-BreadCrumbs-home > svg:nth-child(1)")
         self.driver.implicitly_wait(100)
         actions = ActionChains(self.driver)
         actions.click(home_folder).perform() 
