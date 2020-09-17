@@ -58,9 +58,6 @@ cd yourfolder/jupyterlab-favorites
 ```
 Running test script:
 ```bash
-chmod u+x bash_script.sh
-```
-```bash
-./bash_script.sh
+./run_tests.sh
 ```
 This will open jupyter lab and run both available tests. 

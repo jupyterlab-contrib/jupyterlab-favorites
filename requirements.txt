@@ -1,1 +1,4 @@
-jupyterjupyterlab >= 2.0.0seleniumpytest
+jupyter
+jupyterlab >= 2.0.0
+selenium
+pytest

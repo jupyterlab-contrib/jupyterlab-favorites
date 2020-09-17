@@ -8,3 +8,4 @@ build/
 dist/
 *.pyc
 tsconfig.tsbuildinfo
+geckodriver.log
