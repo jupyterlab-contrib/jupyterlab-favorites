@@ -60,4 +60,4 @@ Running test script:
 ```bash
 ./run_tests.sh
 ```
-This will open jupyter lab and run both available tests. 
+This will open jupyter lab and run available tests. 
