@@ -11,8 +11,16 @@ Add the ability to save favorite folders to JupyterLab for quicker browsing
 
 ## Installation
 
+Install via NPM
 ```{bash}
 jupyter labextension install jupyterlab-favorites
+```
+
+Install via git
+```
+git clone https://github.com/NERSC/jupyterlab-favorites.git
+cd jupyterlab-favorites
+jupyter labextension install .
 ```
 
 ## Development
