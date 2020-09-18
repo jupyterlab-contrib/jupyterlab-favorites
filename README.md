@@ -70,5 +70,5 @@ Running test script:
 ```bash
 ./run_tests.sh
 ```
-This will open jupyter lab and run available tests. You will need to run in a clean jupyter environment (without
-existing favorites files) 
+This will open jupyter lab and run available tests. 
+Note: You will need to run in a clean jupyter environment (without existing favorites files) 
