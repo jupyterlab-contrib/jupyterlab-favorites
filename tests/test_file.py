@@ -9,18 +9,19 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+
 class TestAddfavs():
     def setup_method(self, method):
         self.driver = webdriver.Firefox()
         self.vars = {}
-  
+
     def teardown_method(self, method):
         self.driver.quit()
-  
+
     def test_addfavs(self):
         self.driver.get("http://localhost:8889/lab/")
         self.driver.implicitly_wait(30)
-        
+
         # src_file = self.driver.find_element(By.XPATH, "/html/body/div/div[3]/div[2]/div[1]/div[2]/div[4]/ul/li[2]")
         # actions = ActionChains(self.driver)
         # actions.double_click(src_file).perform() #works
