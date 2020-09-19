@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/NERSC/jupyterlab-favorites.svg?branch=master)](https://travis-ci.com/NERSC/jupyterlab-favorites)
 
-Add the ability to save favorite folders to JupyterLab for quicker browsing
+Add the ability to save favorite folders to JupyterLab for quicker browsing.
 
 ## Prerequisites
 
