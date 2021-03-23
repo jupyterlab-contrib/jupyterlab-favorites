@@ -12,6 +12,56 @@ import {
   mergePaths,
 } from './utils';
 
+/**
+ * The parent node class for Favorites content.
+ */
+const FAVORITE_MAIN_CLASS = 'jp-Favorites';
+
+/**
+ * The class name for the node containing the Favorites label that appears above
+ * favorited items when there are favorited items.  When there are no favorited items,
+ * this class is hidden.
+ */
+const FAVORITE_HEADER_CLASS = 'jp-Favorites-header';
+
+/**
+ * The class name for the node that contains favorited items.
+ */
+const FAVORITE_CONTAINER_CLASS = 'jp-Favorites-container';
+
+/**
+ * The class name for the parent node of a favorited item that appears in the favorited items section.
+ */
+const FAVORITE_ITEM_CLASS = 'jp-Favorites-item';
+
+/**
+ * The class name for the icon that appears to the left of the favorited item.
+ */
+const FAVORITE_ITEM_ICON_CLASS = 'jp-Favorites-itemIcon';
+
+/**
+ * The class name for the text that describes the favorited item.
+ */
+const FAVORITE_ITEM_TEXT_CLASS = 'jp-Favorites-itemText';
+
+/**
+ * The class name for the FileBrowser label that appears above FileBrowser content when there are favorited items.
+ * When there are no favorited items, this class is hidden.
+ */
+const FILEBROWSER_HEADER_CLASS = 'jp-FileBrowser-header';
+
+/**
+ * The class name for the node containing the FileBrowser BreadCrumbs favorite icon.  This node
+ * is also responsible for click actions on the icon.
+ */
+const FAVORITE_ITEM_PINNER_CLASS = 'jp-Favorites-pinner';
+
+/**
+ * The class name for the the BreadCrumbs favorite icon.
+ * This icon is overlaid on top of the FileBrowser content via CSS.
+ */
+const FAVORITE_BREADCRUMB_ICON_CLASS = 'jp-Favorites-BreadCrumbs-Icon';
+
 namespace types {
   export type FavoriteComponentProps = {
     favorite: IFavorites.Favorite;
@@ -37,7 +87,7 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
     FavoriteIcon = LabIcon.resolve({ icon: favorite.iconLabel });
   } else {
     // Fallback for favorite using the v1 setting definition
-    if (favorite.contentType === "directory") {
+    if (favorite.contentType === 'directory') {
       FavoriteIcon = folderIcon;
     } else {
       FavoriteIcon = fileIcon;
@@ -46,14 +96,14 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
 
   return (
     <div
-      className="jp-Favorites-item"
+      className={FAVORITE_ITEM_CLASS}
       title={mergePaths(favorite.root, favorite.path)}
       onClick={(e) => {
         handleClick(favorite);
       }}
     >
-      <FavoriteIcon.react className="jp-Favorites-itemIcon" tag="span" />
-      <span className="jp-Favorites-itemText">{displayName}</span>
+      <FavoriteIcon.react className={FAVORITE_ITEM_ICON_CLASS} tag="span" />
+      <span className={FAVORITE_ITEM_TEXT_CLASS}>{displayName}</span>
     </div>
   );
 };
@@ -67,14 +117,14 @@ const FavoritesBreadCrumbs: React.FunctionComponent<types.IFavoritesBreadCrumbPr
     );
     return (
       <div
-        className="jp-Favorites-pinner"
+        className={FAVORITE_ITEM_PINNER_CLASS}
         title={getPinnerActionDescription(
           props.manager.hasFavorite(props.currentPath)
         )}
         onClick={(e) => props.handleClick(props.currentPath)}
       >
         <FavoriteIcon.react
-          className={'jp-Favorites-BreadCrumbs-Icon'}
+          className={FAVORITE_BREADCRUMB_ICON_CLASS}
           tag="span"
         />
       </div>
@@ -92,7 +142,7 @@ export class FavoritesWidget extends ReactWidget {
     super();
     this.manager = manager;
     this.filebrowser = filebrowser;
-    this.addClass('jp-Favorites');
+    this.addClass(FAVORITE_MAIN_CLASS);
 
     this.filebrowser.model.pathChanged.connect((_, changedArgs) => {
       const path = changedArgs.newValue;
@@ -135,8 +185,8 @@ export class FavoritesWidget extends ReactWidget {
               {(manager: FavoritesManager, isVisible: boolean) =>
                 isVisible && (
                   <>
-                    <div className="jp-Favorites-header">Favorites</div>
-                    <div className="jp-Favorites-container">
+                    <div className={FAVORITE_HEADER_CLASS}>Favorites</div>
+                    <div className={FAVORITE_CONTAINER_CLASS}>
                       {visibleFavorites.map((f) => (
                         <FavoriteComponent
                           key={`favorites-item-${f.path}`}
@@ -145,7 +195,7 @@ export class FavoritesWidget extends ReactWidget {
                         />
                       ))}
                     </div>
-                    <div className="jp-FileBrowser-header">File Browser</div>
+                    <div className={FILEBROWSER_HEADER_CLASS}>File Browser</div>
                   </>
                 )
               }

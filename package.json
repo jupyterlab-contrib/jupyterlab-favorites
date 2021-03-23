@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab-favorites",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Add the ability to save favorite folders to JupyterLab for quicker browsing",
   "keywords": [
     "jupyter",
@@ -16,48 +16,72 @@
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
-    "schema/*.json"
+    "schema/*.json",
+    "style/index.js"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "style": "style/index.css",
   "sideEffects": [
-    "style/**/*"
+    "style/**/*",
+    "style/index.js"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/NERSC/jupyterlab-favorites.git"
   },
   "scripts": {
-    "build": "tsc",
-    "clean": "rimraf lib tsconfig.tsbuildinfo",
-    "prepare": "npm run clean && npm run build",
-    "watch": "tsc -w"
+    "build": "jlpm run build:lib && jlpm run build:labextension:dev",
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:lib": "tsc",
+    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
+    "clean": "jlpm run clean:lib",
+    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
+    "clean:labextension": "rimraf jupyterlab_favorites/labextension",
+    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+    "eslint": "eslint . --ext .ts,.tsx --fix",
+    "eslint:check": "eslint . --ext .ts,.tsx",
+    "install:extension": "jupyter labextension develop --overwrite .",
+    "prepare": "jlpm run clean && jlpm run build:prod",
+    "watch": "run-p watch:src watch:labextension",
+    "watch:labextension": "jupyter labextension watch .",
+    "watch:src": "tsc -w"
   },
   "dependencies": {
-    "@jupyterlab/application": "^2.0.0",
-    "@jupyterlab/apputils": "^2.0.2",
-    "@jupyterlab/coreutils": "^4.0.2",
-    "@jupyterlab/docregistry": "^2.0.2",
-    "@jupyterlab/filebrowser": "^2.0.0",
-    "@jupyterlab/mainmenu": "^2.0.0",
-    "@jupyterlab/services": "^5.0.2",
-    "@jupyterlab/settingregistry": "^2.0.1",
-    "@jupyterlab/ui-components": "^2.0.2",
-    "@lumino/algorithm": "^1.2.3",
-    "@lumino/commands": "^1.10.1",
-    "@lumino/signaling": "^1.3.5",
-    "@lumino/widgets": "^1.11.1"
+    "@jupyterlab/application": "^3.0.4",
+    "@jupyterlab/apputils": "^3.0.3",
+    "@jupyterlab/coreutils": "^5.0.2",
+    "@jupyterlab/docregistry": "^3.0.4",
+    "@jupyterlab/filebrowser": "^3.0.4",
+    "@jupyterlab/mainmenu": "^3.0.3",
+    "@jupyterlab/services": "^6.0.3",
+    "@jupyterlab/settingregistry": "^3.0.2",
+    "@jupyterlab/ui-components": "^3.0.3",
+    "@lumino/algorithm": "^1.3.3",
+    "@lumino/commands": "^1.12.0",
+    "@lumino/signaling": "^1.4.3",
+    "@lumino/widgets": "^1.16.1"
   },
   "devDependencies": {
-    "rimraf": "^2.6.1",
-    "typescript": "~3.7.3"
+    "@jupyterlab/builder": "^3.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.8.1",
+    "@typescript-eslint/parser": "^4.8.1",
+    "eslint": "^7.14.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.1.1",
+    "rimraf": "^3.0.2",
+    "typescript": "~4.1.3"
   },
   "jupyterlab": {
     "extension": true,
-    "schemaDir": "schema"
+    "schemaDir": "schema",
+    "outputDir": "jupyterlab_favorites/labextension"
   },
   "prettier": {
     "singleQuote": true
-  }
+  },
+  "styleModule": "style/index.js"
 }

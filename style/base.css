@@ -1,0 +1,71 @@
+.jp-Favorites-pinner {
+  position: absolute;
+  right: 6px;
+  bottom: -59px;
+  cursor: pointer;
+}
+
+/* Increase the right margin from 12px to allow room for pinner */
+.jp-BreadCrumbs.jp-FileBrowser-crumbs {
+  margin: 4px 26px 4px 12px;
+}
+
+.jp-Favorites-BreadCrumbs-Icon svg {
+  border-radius: var(--jp-border-radius);
+  cursor: pointer;
+  height: 16px;
+  margin: 0px 2px;
+  padding: 0px 2px;
+  vertical-align: middle;
+  width: 16px;
+}
+
+.jp-Favorites-header,
+.jp-FileBrowser-header {
+  padding: 8px 0 8px 12px;
+  color: var(--jp-ui-font-color1);
+  font-size: var(--jp-ui-font-size0);
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: solid var(--jp-border-width) var(--jp-border-color2);
+  letter-spacing: 1px;
+}
+
+.jp-Favorites-container {
+  overflow: auto;
+  max-height: 120px;
+}
+
+.jp-Favorites {
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.jp-Favorites-item {
+  display: flex;
+  flex-direction: row;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.jp-Favorites-item:hover {
+  background-color: var(--jp-layout-color2);
+}
+
+.jp-Favorites-itemIcon svg {
+  display: block;
+  height: 16px;
+  margin: 0 5px;
+  width: 16px;
+}
+
+.jp-Favorites-itemText {
+  flex: 1 0 64px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

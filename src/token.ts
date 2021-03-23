@@ -25,7 +25,7 @@ export namespace IFavorites {
     name?: string;
     default?: boolean;
     hidden?: boolean;
-  }
+  };
 
   export type FavoritesSettings = {
     favorites?: Array<IFavorites.Favorite>;

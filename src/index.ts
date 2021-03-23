@@ -18,6 +18,8 @@ import {
 } from './utils';
 import { PageConfig } from '@jupyterlab/coreutils';
 
+const TOOLBAR_CLASS = 'jp-FileBrowser-toolbar';
+
 /**
  * Initialization data for the jupyterlab-favorites extension.
  */
@@ -45,14 +47,16 @@ const favorites: JupyterFrontEndPlugin<void> = {
     );
     favoritesManager.init();
     const favoritesWidget = new FavoritesWidget(favoritesManager, filebrowser);
-    // Insert the Favorites widget just ahead of the BreadCrumbs
-    let breadCrumbsIndex = 0;
+    // Insert the Favorites widget contents at the top of the FileBrowser area under the toolbar
+    let insertIndex = 0;
     layout.widgets.forEach((widget, index) => {
-      if (widget.node.className.includes('jp-BreadCrumbs')) {
-        breadCrumbsIndex = index;
+      if (widget.node.className.includes(TOOLBAR_CLASS)) {
+        insertIndex = index + 1;
+        return; // no reason to continue to iterate once the className is found
       }
     });
-    layout.insertWidget(breadCrumbsIndex, favoritesWidget);
+    layout.insertWidget(insertIndex, favoritesWidget);
+
     // Context Menu commands
     const getSelectedItems = () => {
       const widget = tracker.currentWidget;
@@ -171,7 +175,9 @@ const favorites: JupyterFrontEndPlugin<void> = {
           }
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
     // Commands
     commands.addCommand(CommandIDs.openFavorite, {
       execute: async (args) => {

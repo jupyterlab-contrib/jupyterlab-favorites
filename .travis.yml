@@ -11,7 +11,7 @@ sudo: required
 services:
   - xvfb
 before_install:
-  - sudo apt-get install xvfb
+  - nvm use 12.13.1
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
   - sudo tar -xzf geckodriver-v0.26.0-linux64.tar.gz -C /usr/bin
   - sudo chmod a+x /usr/bin/geckodriver

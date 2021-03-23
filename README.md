@@ -4,43 +4,68 @@
 
 Add the ability to save favorite folders to JupyterLab for quicker browsing.
 
-## Prerequisites
-
-* JupyterLab
-* For development, an active `conda` environment with `nodejs`
-
 ## Installation
 
-Install via NPM
-```{bash}
-jupyter labextension install jupyterlab-favorites
+### Prerequisites
+
+* JupyterLab 3.x
+
+### Install from pypi
+```
+python -m pip install "jupyterlab-favorites==3.0.0"
 ```
 
-Install via git
+### Install from github
+```
+python -m pip install "git+https://github.com/NERSC/jupyterlab-favorites@v3.0.0#egg=jupyterlab_favorites"
+```
+
+### Install locally from a git checkout
 ```
 git clone https://github.com/NERSC/jupyterlab-favorites.git
 cd jupyterlab-favorites
-jupyter labextension install .
+pip install .
 ```
 
 ## Development
 
-For a development install (requires npm version 4 or later), do the following in the repository directory:
+### Prerequisites
 
+* An active `conda` environment with JupyterLab 3.x installed
+
+### Install locally from a git checkout
 ```bash
-npm install
-npm run build
-jupyter labextension link .
+git clone https://github.com/NERSC/jupyterlab-favorites.git
+cd jupyterlab-favorites
+pip install -ve .
+```
+This copies the frontend code for the extension into JupyterLab.
+
+To keep the source code synced with JupyterLab, you can run the following:
+```bash
+jupyter labextension develop --overwrite .
 ```
 
-To rebuild the package and the JupyterLab app:
-
+To rebuild the extension manually after each change::
 ```bash
-npm run build
-jupyter lab build
+jlpm run build
 ```
 
-## Legacy Jupyterlab v1 Support
+To automatically rebuild after each change, run in a separate terminal:
+```bash
+jlpm run watch
+```
+
+## Older JupyterLab versions
+
+### JupyterLab v2 Support
+
+NPM install
+```bash
+jupyter labextension install jupyterlab-favorites@2.0.0
+```
+
+### Jupyterlab v1 Support
 
 Via NPM:
 ```{bash}
@@ -53,11 +78,11 @@ https://github.com/NERSC/jupyterlab-favorites/tree/v1.0.0
 ## Testing 
 Download Firefox browser if not already installed: https://www.mozilla.org/en-US/firefox/new/
 
-Download Selenium:
+Install Selenium:
 ```bash
 conda install -c conda-forge selenium
 ```
-Download Pytest:
+Install Pytest:
 ```bash
 conda install -c anaconda pytest
 ```
