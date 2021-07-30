@@ -7,9 +7,9 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/NERSC/jupyterlab-favorites",
+  "homepage": "https://github.com/jupyterlab-contrib/jupyterlab-favorites",
   "bugs": {
-    "url": "https://github.com/NERSC/jupyterlab-favorites/issues"
+    "url": "https://github.com/jupyterlab-contrib/jupyterlab-favorites/issues"
   },
   "license": "BSD-3-Clause",
   "author": "Trevor Slaton",
@@ -33,7 +33,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/NERSC/jupyterlab-favorites.git"
+    "url": "https://github.com/jupyterlab-contrib/jupyterlab-favorites.git"
   },
   "scripts": {
     "build": "jlpm run build:lib && jlpm run build:labextension:dev",

@@ -1,6 +1,6 @@
 # jupyterlab-favorites
 
-[![Build Status](https://travis-ci.com/NERSC/jupyterlab-favorites.svg?branch=master)](https://travis-ci.com/NERSC/jupyterlab-favorites)
+[![Build Status](https://travis-ci.com/jupyterlab-contrib/jupyterlab-favorites.svg?branch=master)](https://travis-ci.com/jupyterlab-contrib/jupyterlab-favorites)
 
 Add the ability to save favorite folders to JupyterLab for quicker browsing.
 
@@ -17,12 +17,12 @@ python -m pip install "jupyterlab-favorites==3.0.0"
 
 ### Install from github
 ```
-python -m pip install "git+https://github.com/NERSC/jupyterlab-favorites@v3.0.0#egg=jupyterlab_favorites"
+python -m pip install "git+https://github.com/jupyterlab-contrib/jupyterlab-favorites@v3.0.0#egg=jupyterlab_favorites"
 ```
 
 ### Install locally from a git checkout
 ```
-git clone https://github.com/NERSC/jupyterlab-favorites.git
+git clone https://github.com/jupyterlab-contrib/jupyterlab-favorites.git
 cd jupyterlab-favorites
 pip install .
 ```
@@ -35,7 +35,7 @@ pip install .
 
 ### Install locally from a git checkout
 ```bash
-git clone https://github.com/NERSC/jupyterlab-favorites.git
+git clone https://github.com/jupyterlab-contrib/jupyterlab-favorites.git
 cd jupyterlab-favorites
 pip install -ve .
 ```
@@ -73,7 +73,7 @@ jupyter labextension install jupyterlab-favorites@1.0.0
 ```
 
 Or use the tagged 1.0.0 release at:
-https://github.com/NERSC/jupyterlab-favorites/tree/v1.0.0
+https://github.com/jupyterlab-contrib/jupyterlab-favorites/tree/v1.0.0
 
 ## Testing 
 Download Firefox browser if not already installed: https://www.mozilla.org/en-US/firefox/new/
