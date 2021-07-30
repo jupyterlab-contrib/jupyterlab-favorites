@@ -30,7 +30,7 @@ package_data_spec = {
     name: ["*"],
 }
 
-labext_name = "jupyterlab-favorites"
+labext_name = "@jlab-enhanced/favorites"
 
 data_files_spec = [
     ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),

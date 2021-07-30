@@ -1,5 +1,5 @@
 {
-  "name": "jupyterlab-favorites",
+  "name": "@jlab-enhanced/favorites",
   "version": "3.0.0",
   "description": "Add the ability to save favorite folders to JupyterLab for quicker browsing",
   "keywords": [
@@ -13,6 +13,11 @@
   },
   "license": "BSD-3-Clause",
   "author": "Trevor Slaton",
+  "contributors": [
+    {
+      "name": "Frédéric Collonval"
+    }
+  ],
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
