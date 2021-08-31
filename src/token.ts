@@ -13,7 +13,7 @@ export namespace CommandIDs {
 
 export namespace SettingIDs {
   export const themes = '@jupyterlab/apputils-extension:themes';
-  export const favorites = `${PluginIDs.favorites}:favorites`;
+  export const favorites = '@jlab-enhanced/favorites:favorites';
 }
 
 export namespace IFavorites {

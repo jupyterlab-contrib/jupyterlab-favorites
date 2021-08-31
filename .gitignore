@@ -9,3 +9,4 @@ dist/
 *.pyc
 tsconfig.tsbuildinfo
 geckodriver.log
+jupyterlab_favorites/labextension/
