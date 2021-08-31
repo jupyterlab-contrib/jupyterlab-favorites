@@ -1,8 +1,8 @@
 # jupyterlab-favorites
 
 [![Github Actions Status](https://github.com/jupyterlab-contrib/jupyterlab-favorites/workflows/Build/badge.svg)](https://github.com/jupyterlab-contrib/jupyterlab-favorites/actions?query=workflow%3ABuild)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jupyterlab-contrib/jupyterlab-favorites/main?urlpath=lab/tree/Example.ipynb)
-[![npm](https://img.shields.io/npm/v/@jlab-enhanced/cell-toolbar)](https://www.npmjs.com/package/@jlab-enhanced/cell-toolbar)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jupyterlab-contrib/jupyterlab-favorites/master?urlpath=lab)
+[![npm](https://img.shields.io/npm/v/@jlab-enhanced/favorites)](https://www.npmjs.com/package/@jlab-enhanced/favorites)
 [![PyPI](https://img.shields.io/pypi/v/jupyterlab-favorites)](https://pypi.org/project/jupyterlab-favorites)
 [![conda-forge](https://img.shields.io/conda/vn/conda-forge/jupyterlab-favorites)](https://anaconda.org/conda-forge/jupyterlab-favorites)
 
@@ -17,7 +17,7 @@ Add the ability to save favorite folders to JupyterLab for quicker browsing.
 ### Install from pypi
 
 ```
-python -m pip install "jupyterlab-favorites==3.0.0"
+python -m pip install jupyterlab-favorites
 ```
 
 ### Install from github
