@@ -108,30 +108,29 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
   );
 };
 
-const FavoritesBreadCrumbs: React.FunctionComponent<types.IFavoritesBreadCrumbProps> = (
-  props: types.IFavoritesBreadCrumbProps
-): JSX.Element => {
-  if (props.currentPath) {
-    const FavoriteIcon = getFavoritesIcon(
-      props.manager.hasFavorite(props.currentPath)
-    );
-    return (
-      <div
-        className={FAVORITE_ITEM_PINNER_CLASS}
-        title={getPinnerActionDescription(
-          props.manager.hasFavorite(props.currentPath)
-        )}
-        onClick={(e) => props.handleClick(props.currentPath)}
-      >
-        <FavoriteIcon.react
-          className={FAVORITE_BREADCRUMB_ICON_CLASS}
-          tag="span"
-        />
-      </div>
-    );
-  }
-  return null;
-};
+const FavoritesBreadCrumbs: React.FunctionComponent<types.IFavoritesBreadCrumbProps> =
+  (props: types.IFavoritesBreadCrumbProps): JSX.Element => {
+    if (props.currentPath) {
+      const FavoriteIcon = getFavoritesIcon(
+        props.manager.hasFavorite(props.currentPath)
+      );
+      return (
+        <div
+          className={FAVORITE_ITEM_PINNER_CLASS}
+          title={getPinnerActionDescription(
+            props.manager.hasFavorite(props.currentPath)
+          )}
+          onClick={(e) => props.handleClick(props.currentPath)}
+        >
+          <FavoriteIcon.react
+            className={FAVORITE_BREADCRUMB_ICON_CLASS}
+            tag="span"
+          />
+        </div>
+      );
+    }
+    return null;
+  };
 
 export class FavoritesWidget extends ReactWidget {
   private manager: FavoritesManager;
