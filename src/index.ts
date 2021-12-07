@@ -184,7 +184,6 @@ const favorites: JupyterFrontEndPlugin<void> = {
         const favorite = args.favorite as IFavorites.Favorite;
         const path = favorite.path === '' ? '/' : favorite.path;
         await commands.execute('filebrowser:open-path', { path });
-        // favoritesManager.removeFavoriteIfInvalid(favorite);
       },
       label: (args) => {
         const favorite = args.favorite as IFavorites.Favorite;
