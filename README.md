@@ -9,6 +9,8 @@
 
 Add the ability to save favorite folders to JupyterLab for quicker browsing.
 
+![JupyterLab Favorites extension demonstration](https://raw.githubusercontent.com/jupyterlab-contrib/jupyterlab-favorites/master/jupyterlab-favorites.gif)
+
 ## Installation
 
 ### Prerequisites
