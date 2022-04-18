@@ -1,6 +1,6 @@
 {
   "name": "@jlab-enhanced/favorites",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "Add the ability to save favorite folders to JupyterLab for quicker browsing",
   "keywords": [
     "jupyter",
