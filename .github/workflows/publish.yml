@@ -3,6 +3,7 @@ name: Publish Package
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -12,22 +13,22 @@ jobs:
       - name: Install node
         uses: actions/setup-node@v1
         with:
-          node-version: "14.x"
-          registry-url: "https://registry.npmjs.org"
+          node-version: '14.x'
+          registry-url: 'https://registry.npmjs.org'
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.x"
+          python-version: '3.x'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install jupyterlab~=3.0 jupyter_packaging~=0.7.9 setuptools>=40.8.0 wheel twine build
+          python -m pip install jupyterlab~=3.0 jupyter_packaging~=0.10,<2 twine build
       - name: Build and publish package
         run: |
           jlpm
 
           python -m build
-          twine upload dist/*
+          twine upload --skip-existing dist/*
 
           npm publish --access=public
         env:
