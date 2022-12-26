@@ -17,6 +17,7 @@ export class FavoritesManager {
     settings: ISettingRegistry,
     contents: ContentsManager
   ) {
+    this._showWidget = true;
     this._serverRoot = serverRoot;
     this._commandRegistry = commands;
     this._settingsRegistry = settings;
