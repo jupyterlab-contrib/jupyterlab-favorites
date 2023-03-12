@@ -2,8 +2,9 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
 } from '@jupyterlab/application';
-import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
+import { IDefaultFileBrowser, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { IMainMenu } from '@jupyterlab/mainmenu';
+import { ContentsManager } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { toArray } from '@lumino/algorithm';
 import { Menu, PanelLayout } from '@lumino/widgets';
@@ -26,24 +27,24 @@ const TOOLBAR_CLASS = 'jp-FileBrowser-toolbar';
 const favorites: JupyterFrontEndPlugin<void> = {
   id: PluginIDs.favorites,
   autoStart: true,
-  requires: [IFileBrowserFactory, ISettingRegistry],
+  requires: [IDefaultFileBrowser, IFileBrowserFactory, ISettingRegistry],
   optional: [IMainMenu],
   activate: async (
     app: JupyterFrontEnd,
+    filebrowser: IDefaultFileBrowser,
     factory: IFileBrowserFactory,
     settingsRegistry: ISettingRegistry,
     mainMenu: IMainMenu
   ) => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
-    const docRegistry = app.docRegistry;
-    const filebrowser = factory.defaultBrowser;
-    const layout = filebrowser.layout as PanelLayout;
+    const docRegistry = app.docRegistry
+    const layout = filebrowser.layout as PanelLayout
     const { commands, serviceManager } = app;
     const favoritesManager = new FavoritesManager(
       PageConfig.getOption('serverRoot') || 'Jupyter Server Root',
       commands,
       settingsRegistry,
-      serviceManager.contents
+      serviceManager.contents as ContentsManager
     );
     favoritesManager.init();
     const favoritesWidget = new FavoritesWidget(favoritesManager, filebrowser);
@@ -141,7 +142,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
     }
     // Try to merge with existing Group 1
     try {
-      const groups = (mainMenu.fileMenu as any)._groups;
+      const groups = (mainMenu.fileMenu as any)._ranks;
       let numRankOneGroups = 0;
       let openGroupIndex = -1;
       for (let i = 0; i < groups.length; i++) {
