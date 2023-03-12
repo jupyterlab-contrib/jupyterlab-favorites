@@ -1,6 +1,5 @@
-import { ReactWidget, UseSignal } from '@jupyterlab/apputils';
 import { FileBrowser } from '@jupyterlab/filebrowser';
-import { folderIcon, LabIcon, fileIcon } from '@jupyterlab/ui-components';
+import { folderIcon, LabIcon, fileIcon, ReactWidget, UseSignal } from '@jupyterlab/ui-components';
 import { Signal } from '@lumino/signaling';
 import * as React from 'react';
 import { FavoritesManager } from './manager';
