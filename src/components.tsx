@@ -1,5 +1,11 @@
 import { FileBrowser } from '@jupyterlab/filebrowser';
-import { folderIcon, LabIcon, fileIcon, ReactWidget, UseSignal } from '@jupyterlab/ui-components';
+import {
+  folderIcon,
+  LabIcon,
+  fileIcon,
+  ReactWidget,
+  UseSignal,
+} from '@jupyterlab/ui-components';
 import { Signal } from '@lumino/signaling';
 import * as React from 'react';
 import { FavoritesManager } from './manager';
@@ -107,29 +113,30 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
   );
 };
 
-const FavoritesBreadCrumbs: React.FunctionComponent<types.IFavoritesBreadCrumbProps> =
-  (props: types.IFavoritesBreadCrumbProps): JSX.Element => {
-    if (props.currentPath) {
-      const FavoriteIcon = getFavoritesIcon(
-        props.manager.hasFavorite(props.currentPath)
-      );
-      return (
-        <div
-          className={FAVORITE_ITEM_PINNER_CLASS}
-          title={getPinnerActionDescription(
-            props.manager.hasFavorite(props.currentPath)
-          )}
-          onClick={(e) => props.handleClick(props.currentPath)}
-        >
-          <FavoriteIcon.react
-            className={FAVORITE_BREADCRUMB_ICON_CLASS}
-            tag="span"
-          />
-        </div>
-      );
-    }
-    return null;
-  };
+const FavoritesBreadCrumbs: React.FunctionComponent<
+  types.IFavoritesBreadCrumbProps
+> = (props: types.IFavoritesBreadCrumbProps): JSX.Element => {
+  if (props.currentPath) {
+    const FavoriteIcon = getFavoritesIcon(
+      props.manager.hasFavorite(props.currentPath)
+    );
+    return (
+      <div
+        className={FAVORITE_ITEM_PINNER_CLASS}
+        title={getPinnerActionDescription(
+          props.manager.hasFavorite(props.currentPath)
+        )}
+        onClick={(e) => props.handleClick(props.currentPath)}
+      >
+        <FavoriteIcon.react
+          className={FAVORITE_BREADCRUMB_ICON_CLASS}
+          tag="span"
+        />
+      </div>
+    );
+  }
+  return null;
+};
 
 export class FavoritesWidget extends ReactWidget {
   private manager: FavoritesManager;
@@ -148,7 +155,7 @@ export class FavoritesWidget extends ReactWidget {
     });
   }
 
-  handlePinnerClick(path: string) {
+  handlePinnerClick(path: string): void {
     const shouldRemove = this.manager.hasFavorite(path);
     if (shouldRemove) {
       this.manager.removeFavorite(path);
@@ -163,7 +170,7 @@ export class FavoritesWidget extends ReactWidget {
     }
   }
 
-  render() {
+  render(): JSX.Element {
     return (
       <UseSignal
         signal={this.manager.favoritesChanged}

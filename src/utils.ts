@@ -5,7 +5,7 @@ export function getFavoritesIcon(filled: boolean): LabIcon {
   return filled ? filledStarIcon : starIcon;
 }
 
-export function getName(path: string) {
+export function getName(path: string): string {
   let name = '';
   const parts = path.split('/');
   if (parts.length > 0) {
@@ -14,11 +14,11 @@ export function getName(path: string) {
   return name;
 }
 
-export function getPinnerActionDescription(showRemove: boolean) {
+export function getPinnerActionDescription(showRemove: boolean): string {
   return `${showRemove ? 'Remove' : 'Add'} Favorite`;
 }
 
-export function mergePaths(root: string, path: string) {
+export function mergePaths(root: string, path: string): string {
   if (root.endsWith('/')) {
     root = root.slice(0, -1);
   }
