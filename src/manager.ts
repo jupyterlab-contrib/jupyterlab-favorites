@@ -54,7 +54,7 @@ export class FavoritesManager {
     this.favoritesChanged.emit(this.visibleFavorites());
   }
 
-  async addFavorite(favorite: IFavorites.Favorite) {
+  async addFavorite(favorite: IFavorites.Favorite): Promise<void> {
     const favorites = this._favorites.slice();
     const index = favorites.findIndex(
       (f) => f.root === this.serverRoot && f.path === favorite.path
@@ -70,32 +70,34 @@ export class FavoritesManager {
     }
   }
 
-  clearFavorites() {
+  clearFavorites(): void {
     this.clearFavoritesOrRestoreDefaults(true);
   }
 
-  init() {
+  init(): void {
     this.loadFavorites();
   }
 
-  isVisible() {
+  isVisible(): boolean {
     return this._showWidget && this.visibleFavorites().length > 0;
   }
 
-  hasFavorite(path: string) {
+  hasFavorite(path: string): boolean {
     return this.visibleFavorites().findIndex((f) => f.path === path) >= 0;
   }
 
-  handleClick(favorite: IFavorites.Favorite) {
+  handleClick(favorite: IFavorites.Favorite): void {
     this._commandRegistry.execute(CommandIDs.openFavorite, { favorite });
   }
 
-  async overwriteSettings(settings: IFavorites.FavoritesSettings) {
+  async overwriteSettings(
+    settings: IFavorites.FavoritesSettings
+  ): Promise<void> {
     const newSettings = JSON.stringify(settings, null, 4);
     this._settingsRegistry.upload(SettingIDs.favorites, newSettings);
   }
 
-  async removeFavorite(path: string) {
+  async removeFavorite(path: string): Promise<void> {
     const favorites = this._favorites.slice();
     const index = favorites.findIndex(
       (f) => f.root === this.serverRoot && f.path === path
@@ -111,7 +113,7 @@ export class FavoritesManager {
     }
   }
 
-  async removeFavoriteIfInvalid(favorite: IFavorites.Favorite) {
+  async removeFavoriteIfInvalid(favorite: IFavorites.Favorite): Promise<void> {
     this._contentsManager
       .get(favorite.path, { content: false })
       .catch((error) => {
@@ -121,11 +123,11 @@ export class FavoritesManager {
       });
   }
 
-  restoreDefaults() {
+  restoreDefaults(): void {
     this.clearFavoritesOrRestoreDefaults(false);
   }
 
-  async saveSettings(settings: IFavorites.FavoritesSettings) {
+  async saveSettings(settings: IFavorites.FavoritesSettings): Promise<void> {
     if (settings.favorites !== undefined) {
       await this._settingsRegistry.set(
         SettingIDs.favorites,

@@ -2,7 +2,10 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
 } from '@jupyterlab/application';
-import { IDefaultFileBrowser, IFileBrowserFactory } from '@jupyterlab/filebrowser';
+import {
+  IDefaultFileBrowser,
+  IFileBrowserFactory,
+} from '@jupyterlab/filebrowser';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { ContentsManager } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
@@ -37,8 +40,8 @@ const favorites: JupyterFrontEndPlugin<void> = {
     mainMenu: IMainMenu
   ) => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
-    const docRegistry = app.docRegistry
-    const layout = filebrowser.layout as PanelLayout
+    const docRegistry = app.docRegistry;
+    const layout = filebrowser.layout as PanelLayout;
     const { commands, serviceManager } = app;
     const favoritesManager = new FavoritesManager(
       PageConfig.getOption('serverRoot') || 'Jupyter Server Root',
