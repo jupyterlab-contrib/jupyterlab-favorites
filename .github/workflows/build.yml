@@ -90,6 +90,6 @@ jobs:
           sudo rm -rf $(which node)
           sudo rm -rf $(which node)
           pip install myextension.tar.gz
-          pip install jupyterlab==4.0.0a35
+          pip install "jupyterlab>=4.0.0"
           jupyter labextension list 2>&1 | grep -ie "@jlab-enhanced/favorites.*OK"
           python -m jupyterlab.browser_check --no-chrome-test
