@@ -1,4 +1,0 @@
-jupyter
-jupyterlab => 4.0.0
-selenium >= 3.0.0
-pytest
