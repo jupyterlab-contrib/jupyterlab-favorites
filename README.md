@@ -11,114 +11,74 @@ Add the ability to save favorite folders to JupyterLab for quicker browsing.
 
 ![JupyterLab Favorites extension demonstration](https://raw.githubusercontent.com/jupyterlab-contrib/jupyterlab-favorites/master/jupyterlab-favorites.gif)
 
-## Installation
+## Requirements
 
-### Prerequisites
+- JupyterLab >= 3.0.0 or Notebook >= 7.0.0
 
-- JupyterLab 3.x
+## Install
 
-### Install from pypi
-
-```
-python -m pip install jupyterlab-favorites
-```
-
-### Install from github
-
-```
-python -m pip install "git+https://github.com/jupyterlab-contrib/jupyterlab-favorites@v3.0.0#egg=jupyterlab_favorites"
-```
-
-### Install locally from a git checkout
-
-```
-git clone https://github.com/jupyterlab-contrib/jupyterlab-favorites.git
-cd jupyterlab-favorites
-pip install .
-```
-
-## Development
-
-### Prerequisites
-
-- An active `conda` environment with JupyterLab 3.x installed
-
-### Install locally from a git checkout
+To install the extension, execute:
 
 ```bash
-git clone https://github.com/jupyterlab-contrib/jupyterlab-favorites.git
-cd jupyterlab-favorites
-pip install -ve .
+pip install jupyterlab_favorites
 ```
 
-This copies the frontend code for the extension into JupyterLab.
+## Uninstall
 
-To keep the source code synced with JupyterLab, you can run the following:
+To remove the extension, execute:
 
 ```bash
-jupyter labextension develop --overwrite .
+pip uninstall jupyterlab_favorites
 ```
 
-To rebuild the extension manually after each change::
+## Contributing
+
+### Development install
+
+Note: You will need NodeJS to build the extension package.
+
+The `jlpm` command is JupyterLab's pinned version of
+[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
+`yarn` or `npm` in lieu of `jlpm` below.
 
 ```bash
-jlpm run build
+# Clone the repo to your local environment
+# Change directory to the jupyterlab_favorites directory
+# Install package in development mode
+pip install -e "."
+# Link your development version of the extension with JupyterLab
+jupyter labextension develop . --overwrite
+# Rebuild extension Typescript source after making changes
+jlpm build
 ```
 
-To automatically rebuild after each change, run in a separate terminal:
+You can watch the source directory and run JupyterLab at the same time in different terminals to watch for changes in the extension's source and automatically rebuild the extension.
 
 ```bash
-jlpm run watch
+# Watch the source directory in one terminal, automatically rebuilding when needed
+jlpm watch
+# Run JupyterLab in another terminal
+jupyter lab
 ```
 
-## Older JupyterLab versions
+With the watch command running, every saved change will immediately be built locally and available in your running JupyterLab. Refresh JupyterLab to load the change in your browser (you may need to wait several seconds for the extension to be rebuilt).
 
-### JupyterLab v2 Support
-
-NPM install
+By default, the `jlpm build` command generates the source maps for this extension to make it easier to debug using the browser dev tools. To also generate source maps for the JupyterLab core extensions, you can run the following command:
 
 ```bash
-jupyter labextension install jupyterlab-favorites@2.0.0
+jupyter lab build --minimize=False
 ```
 
-### Jupyterlab v1 Support
-
-Via NPM:
-
-```{bash}
-jupyter labextension install jupyterlab-favorites@1.0.0
-```
-
-Or use the tagged 1.0.0 release at:
-https://github.com/jupyterlab-contrib/jupyterlab-favorites/tree/v1.0.0
-
-## Testing
-
-Download Firefox browser if not already installed: https://www.mozilla.org/en-US/firefox/new/
-
-Install Selenium:
+### Development uninstall
 
 ```bash
-conda install -c conda-forge selenium
+pip uninstall jupyterlab_favorites
 ```
 
-Install Pytest:
+In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
+command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
+folder is located. Then you can remove the symlink named `@jlab-enhanced/favorites` within that folder.
 
-```bash
-conda install -c anaconda pytest
-```
+### Packaging the extension
 
-Change directory to this repo after cloning
-
-```bash
-cd yourfolder/jupyterlab-favorites
-```
-
-Running test script:
-
-```bash
-./run_tests.sh
-```
-
-This will open jupyter lab and run available tests.
-Note: You will need to run in a clean jupyter environment (without existing favorites files)
+See [RELEASE](RELEASE.md)

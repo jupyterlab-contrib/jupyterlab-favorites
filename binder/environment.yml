@@ -1,21 +1,19 @@
-# a mybinder.org-ready environment for demoing jlab-enhanced-favorites
+# a mybinder.org-ready environment for demoing jupyterlab_favorites
 # this environment may also be used locally on Linux/MacOS/Windows, e.g.
 #
 #   conda env update --file binder/environment.yml
-#   conda activate jlab-enhanced-favorites-demo
+#   conda activate jupyterlab-favorites-demo
 #
-name: jlab-enhanced-favorites-demo
+name: jupyterlab-favorites-demo
 
 channels:
   - conda-forge
 
 dependencies:
   # runtime dependencies
-  - python >=3.8,<3.9.0a0
-  - jupyterlab >=3,<4.0.0a0
+  - python >=3.10,<3.11.0a0
+  - jupyterlab >=4.0.0,<5
   # labextension build dependencies
-  - nodejs >=14,<15
+  - nodejs >=18,<19
   - pip
   - wheel
-  # Fix binder
-  - mistune <2
