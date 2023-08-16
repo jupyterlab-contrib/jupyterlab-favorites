@@ -4,7 +4,7 @@ import {
   LabIcon,
   fileIcon,
   ReactWidget,
-  UseSignal,
+  UseSignal
 } from '@jupyterlab/ui-components';
 import { Signal } from '@lumino/signaling';
 import * as React from 'react';
@@ -14,7 +14,7 @@ import {
   getFavoritesIcon,
   getName,
   getPinnerActionDescription,
-  mergePaths,
+  mergePaths
 } from './utils';
 
 /**
@@ -103,7 +103,7 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
     <div
       className={FAVORITE_ITEM_CLASS}
       title={mergePaths(favorite.root, favorite.path)}
-      onClick={(e) => {
+      onClick={e => {
         handleClick(favorite);
       }}
     >
@@ -126,7 +126,7 @@ const FavoritesBreadCrumbs: React.FunctionComponent<
         title={getPinnerActionDescription(
           props.manager.hasFavorite(props.currentPath)
         )}
-        onClick={(e) => props.handleClick(props.currentPath)}
+        onClick={e => props.handleClick(props.currentPath)}
       >
         <FavoriteIcon.react
           className={FAVORITE_BREADCRUMB_ICON_CLASS}
@@ -164,7 +164,7 @@ export class FavoritesWidget extends ReactWidget {
         root: this.manager.serverRoot,
         contentType: 'directory',
         iconLabel: folderIcon.name,
-        path,
+        path
       } as IFavorites.Favorite;
       this.manager.addFavorite(favorite);
     }
@@ -192,7 +192,7 @@ export class FavoritesWidget extends ReactWidget {
                   <>
                     <div className={FAVORITE_HEADER_CLASS}>Favorites</div>
                     <div className={FAVORITE_CONTAINER_CLASS}>
-                      {visibleFavorites.map((f) => (
+                      {visibleFavorites.map(f => (
                         <FavoriteComponent
                           key={`favorites-item-${f.path}`}
                           favorite={f}
