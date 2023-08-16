@@ -1,7 +1,7 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: v4.1.0
+_commit: v4.2.0
 _src_path: https://github.com/jupyterlab/extension-template
-author_email: <author_email>
+author_email: ''
 author_name: Trevor Slaton
 data_format: string
 file_extension: ''
@@ -15,6 +15,6 @@ project_short_description: Add the ability to save favorite folders to JupyterLa
     for quicker browsing
 python_name: jupyterlab_favorites
 repository: https://github.com/jupyterlab-contrib/jupyterlab-favorites.git
-test: false
+test: true
 viewer_name: ''
 
