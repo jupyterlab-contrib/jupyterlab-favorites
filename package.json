@@ -12,7 +12,7 @@
         "url": "https://github.com/jupyterlab-contrib/jupyterlab-favorites/issues"
     },
     "license": "BSD-3-Clause",
-    "author": "Trevor Slaton",
+    "author": {"name": "Trevor Slaton"},
     "contributors": [
         {
             "name": "Frédéric Collonval"
