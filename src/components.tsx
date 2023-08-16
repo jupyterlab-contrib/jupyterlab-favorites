@@ -115,7 +115,7 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
 
 const FavoritesBreadCrumbs: React.FunctionComponent<
   types.IFavoritesBreadCrumbProps
-> = (props: types.IFavoritesBreadCrumbProps): JSX.Element => {
+> = (props: types.IFavoritesBreadCrumbProps): JSX.Element | null => {
   if (props.currentPath) {
     const FavoriteIcon = getFavoritesIcon(
       props.manager.hasFavorite(props.currentPath)
@@ -178,25 +178,25 @@ export class FavoritesWidget extends ReactWidget {
         initialArgs={this.manager.visibleFavorites()}
       >
         {(
-          manager: FavoritesManager,
-          visibleFavorites: Array<IFavorites.Favorite>
+          manager?: FavoritesManager,
+          visibleFavorites?: Array<IFavorites.Favorite>
         ) => (
           <div>
             <UseSignal
-              signal={manager.visibilityChanged}
+              signal={manager!.visibilityChanged}
               initialSender={manager}
-              initialArgs={manager.isVisible()}
+              initialArgs={manager!.isVisible()}
             >
-              {(manager: FavoritesManager, isVisible: boolean) =>
+              {(manager?: FavoritesManager, isVisible?: boolean) =>
                 isVisible && (
                   <>
                     <div className={FAVORITE_HEADER_CLASS}>Favorites</div>
                     <div className={FAVORITE_CONTAINER_CLASS}>
-                      {visibleFavorites.map(f => (
+                      {(visibleFavorites ?? []).map(f => (
                         <FavoriteComponent
                           key={`favorites-item-${f.path}`}
                           favorite={f}
-                          handleClick={manager.handleClick.bind(manager)}
+                          handleClick={manager!.handleClick.bind(manager)}
                         />
                       ))}
                     </div>
@@ -210,11 +210,11 @@ export class FavoritesWidget extends ReactWidget {
               initialSender={this}
               initialArgs={this.filebrowser.model.path}
             >
-              {(widget: FavoritesWidget, currentPath: string) => (
+              {(widget?: FavoritesWidget, currentPath?: string) => (
                 <FavoritesBreadCrumbs
-                  currentPath={currentPath}
-                  handleClick={widget.handlePinnerClick}
-                  manager={widget.manager}
+                  currentPath={currentPath!}
+                  handleClick={widget!.handlePinnerClick}
+                  manager={widget!.manager}
                 />
               )}
             </UseSignal>

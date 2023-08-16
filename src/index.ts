@@ -84,7 +84,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
               root: favoritesManager.serverRoot,
               path: selectedItem.path,
               contentType: fileType.contentType,
-              iconLabel: fileType.icon.name
+              iconLabel: fileType.icon?.name
             });
           }
         }
@@ -115,8 +115,8 @@ const favorites: JupyterFrontEndPlugin<void> = {
       execute: () => {
         const contextNode: HTMLElement = app.contextMenuHitTest(node =>
           node.classList.contains('jp-Favorites-item')
-        );
-        const fullPath = contextNode.getAttribute('title');
+        )!;
+        const fullPath = contextNode.getAttribute('title')!;
         let path = fullPath.replace(favoritesManager.serverRoot, '');
         if (path.startsWith('/')) {
           path = path.slice(1);

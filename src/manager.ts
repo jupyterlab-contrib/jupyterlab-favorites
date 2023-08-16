@@ -45,7 +45,7 @@ export class FavoritesManager {
   }
 
   get favorites(): Array<IFavorites.Favorite> {
-    const favorites = this._favorites || [];
+    const favorites = this._favorites;
     return favorites.filter(f => f.root === this.serverRoot);
   }
 
@@ -173,7 +173,7 @@ export class FavoritesManager {
       SettingIDs.favorites,
       'favorites'
     );
-    this.favorites = favorites.composite as IFavorites.Favorite[];
+    this.favorites = (favorites.composite ?? []) as IFavorites.Favorite[];
   }
 
   private async loadShowWidget() {
@@ -181,7 +181,7 @@ export class FavoritesManager {
       SettingIDs.favorites,
       'showWidget'
     );
-    return showWidgetSettings.composite as boolean;
+    return (showWidgetSettings.composite ?? false) as boolean;
   }
 
   private syncFavoritesMenu() {
@@ -212,7 +212,7 @@ export class FavoritesManager {
   private _settingsRegistry: ISettingRegistry;
   private _commandRegistry: CommandRegistry;
   private _contentsManager: ContentsManager;
-  private _favorites: IFavorites.Favorite[];
+  private _favorites: IFavorites.Favorite[] = [];
   private _serverRoot: string;
-  private _showWidget: boolean;
+  private _showWidget = false;
 }
