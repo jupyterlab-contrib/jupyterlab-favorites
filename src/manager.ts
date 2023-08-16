@@ -33,7 +33,7 @@ export class FavoritesManager {
       }
     });
     // Listen for update to own favorites
-    this.favoritesChanged.connect(async (_) => {
+    this.favoritesChanged.connect(async _ => {
       this._showWidget = await this.loadShowWidget();
       this.syncFavoritesMenu();
       this.visibilityChanged.emit(this.isVisible());
@@ -46,7 +46,7 @@ export class FavoritesManager {
 
   get favorites(): Array<IFavorites.Favorite> {
     const favorites = this._favorites || [];
-    return favorites.filter((f) => f.root === this.serverRoot);
+    return favorites.filter(f => f.root === this.serverRoot);
   }
 
   set favorites(favorites: Array<IFavorites.Favorite>) {
@@ -57,7 +57,7 @@ export class FavoritesManager {
   async addFavorite(favorite: IFavorites.Favorite): Promise<void> {
     const favorites = this._favorites.slice();
     const index = favorites.findIndex(
-      (f) => f.root === this.serverRoot && f.path === favorite.path
+      f => f.root === this.serverRoot && f.path === favorite.path
     );
     const existing = favorites[index];
     if (existing) {
@@ -83,7 +83,7 @@ export class FavoritesManager {
   }
 
   hasFavorite(path: string): boolean {
-    return this.visibleFavorites().findIndex((f) => f.path === path) >= 0;
+    return this.visibleFavorites().findIndex(f => f.path === path) >= 0;
   }
 
   handleClick(favorite: IFavorites.Favorite): void {
@@ -100,7 +100,7 @@ export class FavoritesManager {
   async removeFavorite(path: string): Promise<void> {
     const favorites = this._favorites.slice();
     const index = favorites.findIndex(
-      (f) => f.root === this.serverRoot && f.path === path
+      f => f.root === this.serverRoot && f.path === path
     );
     const existing = favorites[index];
     if (existing) {
@@ -116,7 +116,7 @@ export class FavoritesManager {
   async removeFavoriteIfInvalid(favorite: IFavorites.Favorite): Promise<void> {
     this._contentsManager
       .get(favorite.path, { content: false })
-      .catch((error) => {
+      .catch(error => {
         if (error.response.status === 404) {
           this.removeFavorite(favorite.path);
         }
@@ -146,7 +146,7 @@ export class FavoritesManager {
 
   visibleFavorites(): IFavorites.Favorite[] {
     return this.favorites
-      .filter((f) => !f.hidden)
+      .filter(f => !f.hidden)
       .sort((a, b) => {
         if (a.contentType === b.contentType) {
           return getName(a.path) <= getName(b.path) ? -1 : 1;
@@ -159,7 +159,7 @@ export class FavoritesManager {
   private clearFavoritesOrRestoreDefaults(hidden: boolean) {
     const favorites = this._favorites;
     const defaultFavorites: Array<IFavorites.Favorite> = [];
-    favorites.forEach((favorite) => {
+    favorites.forEach(favorite => {
       if (favorite.default) {
         favorite.hidden = hidden;
         defaultFavorites.push(favorite);
@@ -188,10 +188,10 @@ export class FavoritesManager {
     this.favoritesMenu.clearItems();
     const visibleFavorites = this.visibleFavorites();
     if (visibleFavorites.length > 0) {
-      visibleFavorites.forEach((favorite) => {
+      visibleFavorites.forEach(favorite => {
         this.favoritesMenu.addItem({
           command: CommandIDs.openFavorite,
-          args: { favorite },
+          args: { favorite }
         });
       });
       this.favoritesMenu.addItem({ type: 'separator' });
@@ -199,13 +199,13 @@ export class FavoritesManager {
     const showWidget = this._showWidget;
     this.favoritesMenu.addItem({
       command: CommandIDs.toggleFavoritesWidget,
-      args: { showWidget },
+      args: { showWidget }
     });
     this.favoritesMenu.addItem({
-      command: CommandIDs.restoreDefaults,
+      command: CommandIDs.restoreDefaults
     });
     this.favoritesMenu.addItem({
-      command: CommandIDs.clearFavorites,
+      command: CommandIDs.clearFavorites
     });
   }
 
