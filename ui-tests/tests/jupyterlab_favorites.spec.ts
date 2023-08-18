@@ -2,7 +2,10 @@ import { expect, test } from '@jupyterlab/galata';
 
 test.beforeEach(async ({ page }) => {
   await page.menu.clickMenuItem('File>New>Text File');
-  await page.getByRole('main').getByRole('tab', {name: 'untitled.txt'}).waitFor();
+  await page
+    .getByRole('main')
+    .getByRole('tab', { name: 'untitled.txt' })
+    .waitFor();
   await page.activity.closeAll();
   await page.getByRole('button', { name: 'New Folder' }).click();
   await page.locator('.jp-DirListing-editor').press('Escape');
