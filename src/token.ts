@@ -35,7 +35,9 @@ export namespace IFavorites {
   };
 }
 
-export const IFavorites = new Token<IFavorites>('jupyterlab-favorites:IFavorites');
+export const IFavorites = new Token<IFavorites>(
+  'jupyterlab-favorites:IFavorites'
+);
 
 export interface IFavorites {
   readonly favorites: IFavorites.Favorite[];
