@@ -1,6 +1,11 @@
-import { ReactWidget, UseSignal } from '@jupyterlab/apputils';
 import { FileBrowser } from '@jupyterlab/filebrowser';
-import { folderIcon, LabIcon, fileIcon } from '@jupyterlab/ui-components';
+import {
+  folderIcon,
+  LabIcon,
+  fileIcon,
+  ReactWidget,
+  UseSignal
+} from '@jupyterlab/ui-components';
 import { Signal } from '@lumino/signaling';
 import * as React from 'react';
 import { FavoritesManager } from './manager';
@@ -9,7 +14,7 @@ import {
   getFavoritesIcon,
   getName,
   getPinnerActionDescription,
-  mergePaths,
+  mergePaths
 } from './utils';
 
 /**
@@ -98,7 +103,7 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
     <div
       className={FAVORITE_ITEM_CLASS}
       title={mergePaths(favorite.root, favorite.path)}
-      onClick={(e) => {
+      onClick={e => {
         handleClick(favorite);
       }}
     >
@@ -108,29 +113,30 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
   );
 };
 
-const FavoritesBreadCrumbs: React.FunctionComponent<types.IFavoritesBreadCrumbProps> =
-  (props: types.IFavoritesBreadCrumbProps): JSX.Element => {
-    if (props.currentPath) {
-      const FavoriteIcon = getFavoritesIcon(
-        props.manager.hasFavorite(props.currentPath)
-      );
-      return (
-        <div
-          className={FAVORITE_ITEM_PINNER_CLASS}
-          title={getPinnerActionDescription(
-            props.manager.hasFavorite(props.currentPath)
-          )}
-          onClick={(e) => props.handleClick(props.currentPath)}
-        >
-          <FavoriteIcon.react
-            className={FAVORITE_BREADCRUMB_ICON_CLASS}
-            tag="span"
-          />
-        </div>
-      );
-    }
-    return null;
-  };
+const FavoritesBreadCrumbs: React.FunctionComponent<
+  types.IFavoritesBreadCrumbProps
+> = (props: types.IFavoritesBreadCrumbProps): JSX.Element | null => {
+  if (props.currentPath) {
+    const FavoriteIcon = getFavoritesIcon(
+      props.manager.hasFavorite(props.currentPath)
+    );
+    return (
+      <div
+        className={FAVORITE_ITEM_PINNER_CLASS}
+        title={getPinnerActionDescription(
+          props.manager.hasFavorite(props.currentPath)
+        )}
+        onClick={e => props.handleClick(props.currentPath)}
+      >
+        <FavoriteIcon.react
+          className={FAVORITE_BREADCRUMB_ICON_CLASS}
+          tag="span"
+        />
+      </div>
+    );
+  }
+  return null;
+};
 
 export class FavoritesWidget extends ReactWidget {
   private manager: FavoritesManager;
@@ -149,7 +155,7 @@ export class FavoritesWidget extends ReactWidget {
     });
   }
 
-  handlePinnerClick(path: string) {
+  handlePinnerClick(path: string): void {
     const shouldRemove = this.manager.hasFavorite(path);
     if (shouldRemove) {
       this.manager.removeFavorite(path);
@@ -158,13 +164,13 @@ export class FavoritesWidget extends ReactWidget {
         root: this.manager.serverRoot,
         contentType: 'directory',
         iconLabel: folderIcon.name,
-        path,
+        path
       } as IFavorites.Favorite;
       this.manager.addFavorite(favorite);
     }
   }
 
-  render() {
+  render(): JSX.Element {
     return (
       <UseSignal
         signal={this.manager.favoritesChanged}
@@ -172,25 +178,25 @@ export class FavoritesWidget extends ReactWidget {
         initialArgs={this.manager.visibleFavorites()}
       >
         {(
-          manager: FavoritesManager,
-          visibleFavorites: Array<IFavorites.Favorite>
+          manager?: FavoritesManager,
+          visibleFavorites?: Array<IFavorites.Favorite>
         ) => (
           <div>
             <UseSignal
-              signal={manager.visibilityChanged}
+              signal={manager!.visibilityChanged}
               initialSender={manager}
-              initialArgs={manager.isVisible()}
+              initialArgs={manager!.isVisible()}
             >
-              {(manager: FavoritesManager, isVisible: boolean) =>
+              {(manager?: FavoritesManager, isVisible?: boolean) =>
                 isVisible && (
                   <>
                     <div className={FAVORITE_HEADER_CLASS}>Favorites</div>
                     <div className={FAVORITE_CONTAINER_CLASS}>
-                      {visibleFavorites.map((f) => (
+                      {(visibleFavorites ?? []).map(f => (
                         <FavoriteComponent
                           key={`favorites-item-${f.path}`}
                           favorite={f}
-                          handleClick={manager.handleClick.bind(manager)}
+                          handleClick={manager!.handleClick.bind(manager)}
                         />
                       ))}
                     </div>
@@ -204,11 +210,11 @@ export class FavoritesWidget extends ReactWidget {
               initialSender={this}
               initialArgs={this.filebrowser.model.path}
             >
-              {(widget: FavoritesWidget, currentPath: string) => (
+              {(widget?: FavoritesWidget, currentPath?: string) => (
                 <FavoritesBreadCrumbs
-                  currentPath={currentPath}
-                  handleClick={widget.handlePinnerClick}
-                  manager={widget.manager}
+                  currentPath={currentPath!}
+                  handleClick={widget!.handlePinnerClick}
+                  manager={widget!.manager}
                 />
               )}
             </UseSignal>

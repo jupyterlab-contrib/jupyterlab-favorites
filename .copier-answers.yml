@@ -1,0 +1,20 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.2.0
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: ''
+author_name: Trevor Slaton
+data_format: string
+file_extension: ''
+has_binder: true
+has_settings: true
+kind: frontend
+labextension_name: '@jlab-enhanced/favorites'
+mimetype: ''
+mimetype_name: ''
+project_short_description: Add the ability to save favorite folders to JupyterLab
+    for quicker browsing
+python_name: jupyterlab_favorites
+repository: https://github.com/jupyterlab-contrib/jupyterlab-favorites.git
+test: true
+viewer_name: ''
+

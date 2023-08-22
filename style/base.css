@@ -14,8 +14,8 @@
   border-radius: var(--jp-border-radius);
   cursor: pointer;
   height: 16px;
-  margin: 0px 2px;
-  padding: 0px 2px;
+  margin: 0 2px;
+  padding: 0 2px;
   vertical-align: middle;
   width: 16px;
 }

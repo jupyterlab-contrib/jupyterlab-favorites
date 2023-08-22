@@ -1,9 +1,13 @@
 import {
   JupyterFrontEnd,
-  JupyterFrontEndPlugin,
+  JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
+import {
+  IDefaultFileBrowser,
+  IFileBrowserFactory
+} from '@jupyterlab/filebrowser';
 import { IMainMenu } from '@jupyterlab/mainmenu';
+import { ContentsManager } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { toArray } from '@lumino/algorithm';
 import { Menu, PanelLayout } from '@lumino/widgets';
@@ -14,7 +18,7 @@ import { IFavorites, PluginIDs, CommandIDs } from './token';
 import {
   getFavoritesIcon,
   getPinnerActionDescription,
-  mergePaths,
+  mergePaths
 } from './utils';
 import { PageConfig } from '@jupyterlab/coreutils';
 
@@ -26,24 +30,24 @@ const TOOLBAR_CLASS = 'jp-FileBrowser-toolbar';
 const favorites: JupyterFrontEndPlugin<void> = {
   id: PluginIDs.favorites,
   autoStart: true,
-  requires: [IFileBrowserFactory, ISettingRegistry],
+  requires: [IDefaultFileBrowser, IFileBrowserFactory, ISettingRegistry],
   optional: [IMainMenu],
   activate: async (
     app: JupyterFrontEnd,
+    filebrowser: IDefaultFileBrowser,
     factory: IFileBrowserFactory,
     settingsRegistry: ISettingRegistry,
     mainMenu: IMainMenu
   ) => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
     const docRegistry = app.docRegistry;
-    const filebrowser = factory.defaultBrowser;
     const layout = filebrowser.layout as PanelLayout;
     const { commands, serviceManager } = app;
     const favoritesManager = new FavoritesManager(
       PageConfig.getOption('serverRoot') || 'Jupyter Server Root',
       commands,
       settingsRegistry,
-      serviceManager.contents
+      serviceManager.contents as ContentsManager
     );
     favoritesManager.init();
     const favoritesWidget = new FavoritesWidget(favoritesManager, filebrowser);
@@ -80,7 +84,7 @@ const favorites: JupyterFrontEndPlugin<void> = {
               root: favoritesManager.serverRoot,
               path: selectedItem.path,
               contentType: fileType.contentType,
-              iconLabel: fileType.icon.name,
+              iconLabel: fileType.icon?.name
             });
           }
         }
@@ -100,19 +104,19 @@ const favorites: JupyterFrontEndPlugin<void> = {
         const selectedItem = selectedItems[0];
         const showRemove = favoritesManager.hasFavorite(selectedItem.path);
         return getPinnerActionDescription(showRemove);
-      },
+      }
     });
     app.contextMenu.addItem({
       command: CommandIDs.addOrRemoveFavorite,
       selector: '.jp-DirListing-item[data-isdir]',
-      rank: 3,
+      rank: 3
     });
     commands.addCommand(CommandIDs.removeFavorite, {
       execute: () => {
-        const contextNode: HTMLElement = app.contextMenuHitTest((node) =>
+        const contextNode: HTMLElement = app.contextMenuHitTest(node =>
           node.classList.contains('jp-Favorites-item')
-        );
-        const fullPath = contextNode.getAttribute('title');
+        )!;
+        const fullPath = contextNode.getAttribute('title')!;
         let path = fullPath.replace(favoritesManager.serverRoot, '');
         if (path.startsWith('/')) {
           path = path.slice(1);
@@ -120,12 +124,12 @@ const favorites: JupyterFrontEndPlugin<void> = {
         favoritesManager.removeFavorite(path);
       },
       icon: starIcon,
-      label: 'Remove Favorite',
+      label: 'Remove Favorite'
     });
     app.contextMenu.addItem({
       command: CommandIDs.removeFavorite,
       selector: '.jp-Favorites-item',
-      rank: 0,
+      rank: 0
     });
     // Main Menu
     if (mainMenu) {
@@ -133,15 +137,15 @@ const favorites: JupyterFrontEndPlugin<void> = {
         [
           {
             type: 'submenu' as Menu.ItemType,
-            submenu: favoritesManager.favoritesMenu,
-          },
+            submenu: favoritesManager.favoritesMenu
+          }
         ],
         1
       );
     }
     // Try to merge with existing Group 1
     try {
-      const groups = (mainMenu.fileMenu as any)._groups;
+      const groups = (mainMenu.fileMenu as any)._ranks;
       let numRankOneGroups = 0;
       let openGroupIndex = -1;
       for (let i = 0; i < groups.length; i++) {
@@ -180,36 +184,36 @@ const favorites: JupyterFrontEndPlugin<void> = {
     }
     // Commands
     commands.addCommand(CommandIDs.openFavorite, {
-      execute: async (args) => {
+      execute: async args => {
         const favorite = args.favorite as IFavorites.Favorite;
         const path = favorite.path === '' ? '/' : favorite.path;
         await commands.execute('filebrowser:open-path', { path });
       },
-      label: (args) => {
+      label: args => {
         const favorite = args.favorite as IFavorites.Favorite;
         return mergePaths(favorite.root, favorite.path);
-      },
+      }
     });
     commands.addCommand(CommandIDs.toggleFavoritesWidget, {
-      execute: async (args) => {
+      execute: async args => {
         const showWidget = args.showWidget as boolean;
         favoritesManager.saveSettings({ showWidget: !showWidget });
       },
-      label: (args) => {
+      label: args => {
         const showWidget = args.showWidget as boolean;
         return `${showWidget ? 'Hide' : 'Show'} Favorites Widget`;
       },
-      isVisible: () => favoritesManager.visibleFavorites().length > 0,
+      isVisible: () => favoritesManager.visibleFavorites().length > 0
     });
     commands.addCommand(CommandIDs.restoreDefaults, {
       execute: () => favoritesManager.restoreDefaults(),
-      label: 'Restore Defaults',
+      label: 'Restore Defaults'
     });
     commands.addCommand(CommandIDs.clearFavorites, {
       execute: () => favoritesManager.clearFavorites(),
-      label: 'Clear Favorites',
+      label: 'Clear Favorites'
     });
-  },
+  }
 };
 
 export default favorites;
