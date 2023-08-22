@@ -37,9 +37,6 @@
         "type": "git",
         "url": "https://github.com/jupyterlab-contrib/jupyterlab-favorites.git"
     },
-    "workspaces": [
-        "ui-tests"
-    ],
     "scripts": {
         "build": "jlpm build:lib && jlpm build:labextension:dev",
         "build:labextension": "jupyter labextension build .",
