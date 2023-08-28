@@ -1,3 +1,5 @@
+import { Token } from '@lumino/coreutils';
+
 export namespace PluginIDs {
   export const favorites = 'jupyterlab-favorites';
 }
@@ -31,4 +33,12 @@ export namespace IFavorites {
     favorites?: Array<IFavorites.Favorite>;
     showWidget?: boolean;
   };
+}
+
+export const IFavorites = new Token<IFavorites>(
+  'jupyterlab-favorites:IFavorites'
+);
+
+export interface IFavorites {
+  readonly favorites: IFavorites.Favorite[];
 }

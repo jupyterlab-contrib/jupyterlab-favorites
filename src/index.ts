@@ -22,23 +22,26 @@ import {
 } from './utils';
 import { PageConfig } from '@jupyterlab/coreutils';
 
+export { IFavorites } from './token';
+
 const TOOLBAR_CLASS = 'jp-FileBrowser-toolbar';
 
 /**
  * Initialization data for the jupyterlab-favorites extension.
  */
-const favorites: JupyterFrontEndPlugin<void> = {
+const favorites: JupyterFrontEndPlugin<IFavorites> = {
   id: PluginIDs.favorites,
   autoStart: true,
   requires: [IDefaultFileBrowser, IFileBrowserFactory, ISettingRegistry],
+  provides: IFavorites,
   optional: [IMainMenu],
-  activate: async (
+  activate: (
     app: JupyterFrontEnd,
     filebrowser: IDefaultFileBrowser,
     factory: IFileBrowserFactory,
     settingsRegistry: ISettingRegistry,
     mainMenu: IMainMenu
-  ) => {
+  ): IFavorites => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
     const docRegistry = app.docRegistry;
     const layout = filebrowser.layout as PanelLayout;
@@ -213,6 +216,8 @@ const favorites: JupyterFrontEndPlugin<void> = {
       execute: () => favoritesManager.clearFavorites(),
       label: 'Clear Favorites'
     });
+
+    return favoritesManager;
   }
 };
 
