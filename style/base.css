@@ -1,13 +1,6 @@
 .jp-Favorites-pinner {
-  position: absolute;
-  right: 6px;
-  bottom: -59px;
+  float: right;
   cursor: pointer;
-}
-
-/* Increase the right margin from 12px to allow room for pinner */
-.jp-BreadCrumbs.jp-FileBrowser-crumbs {
-  margin: 4px 26px 4px 12px;
 }
 
 .jp-Favorites-BreadCrumbs-Icon svg {
