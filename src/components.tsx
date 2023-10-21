@@ -56,12 +56,6 @@ const FAVORITE_ITEM_TEXT_CLASS = 'jp-Favorites-itemText';
 const FILEBROWSER_HEADER_CLASS = 'jp-FileBrowser-header';
 
 /**
- * The class name for the node containing the FileBrowser BreadCrumbs favorite icon.  This node
- * is also responsible for click actions on the icon.
- */
-const FAVORITE_ITEM_PINNER_CLASS = 'jp-Favorites-pinner';
-
-/**
  * The class name for the the BreadCrumbs favorite icon.
  * This icon is overlaid on top of the FileBrowser content via CSS.
  */
@@ -113,29 +107,35 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
   );
 };
 
-const FavoritesBreadCrumbs: React.FunctionComponent<
+export const FavoritesBreadCrumbs: React.FunctionComponent<
   types.IFavoritesBreadCrumbProps
 > = (props: types.IFavoritesBreadCrumbProps): JSX.Element | null => {
-  if (props.currentPath) {
-    const FavoriteIcon = getFavoritesIcon(
-      props.manager.hasFavorite(props.currentPath)
-    );
-    return (
-      <div
-        className={FAVORITE_ITEM_PINNER_CLASS}
-        title={getPinnerActionDescription(
-          props.manager.hasFavorite(props.currentPath)
-        )}
-        onClick={e => props.handleClick(props.currentPath)}
-      >
-        <FavoriteIcon.react
-          className={FAVORITE_BREADCRUMB_ICON_CLASS}
-          tag="span"
-        />
-      </div>
-    );
+  const currentPath = props.currentPath;
+  if (!currentPath) {
+    return null;
   }
-  return null;
+  return (
+    <UseSignal
+      signal={props.manager.favoritesChanged}
+      initialSender={props.manager}
+    >
+      {manager => {
+        const isFavorite = manager?.hasFavorite(currentPath) ?? false;
+        const icon = getFavoritesIcon(isFavorite);
+        return (
+          <button
+            className="jp-ToolbarButtonComponent"
+            title={getPinnerActionDescription(isFavorite)}
+            onClick={e => {
+              props.handleClick(currentPath);
+            }}
+          >
+            <icon.react className={FAVORITE_BREADCRUMB_ICON_CLASS} tag="span" />
+          </button>
+        );
+      }}
+    </UseSignal>
+  );
 };
 
 export class FavoritesWidget extends ReactWidget {
@@ -153,21 +153,6 @@ export class FavoritesWidget extends ReactWidget {
       const path = changedArgs.newValue;
       this.pathChanged.emit(path);
     });
-  }
-
-  handlePinnerClick(path: string): void {
-    const shouldRemove = this.manager.hasFavorite(path);
-    if (shouldRemove) {
-      this.manager.removeFavorite(path);
-    } else {
-      const favorite = {
-        root: this.manager.serverRoot,
-        contentType: 'directory',
-        iconLabel: folderIcon.name,
-        path
-      } as IFavorites.Favorite;
-      this.manager.addFavorite(favorite);
-    }
   }
 
   render(): JSX.Element {
@@ -204,19 +189,6 @@ export class FavoritesWidget extends ReactWidget {
                   </>
                 )
               }
-            </UseSignal>
-            <UseSignal
-              signal={this.pathChanged}
-              initialSender={this}
-              initialArgs={this.filebrowser.model.path}
-            >
-              {(widget?: FavoritesWidget, currentPath?: string) => (
-                <FavoritesBreadCrumbs
-                  currentPath={currentPath!}
-                  handleClick={widget!.handlePinnerClick}
-                  manager={widget!.manager}
-                />
-              )}
             </UseSignal>
           </div>
         )}

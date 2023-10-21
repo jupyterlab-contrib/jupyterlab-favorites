@@ -44,8 +44,7 @@ test('should remove a favorite from widget', async ({ page }) => {
   ).toHaveCount(0);
 });
 
-// FIXME
-test.skip('should remove a favorite from breadcrumb', async ({ page }) => {
+test('should remove a favorite from breadcrumb', async ({ page }) => {
   // Set folder as favorite
   await page.getByText('Untitled Folder').click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Add Favorite' }).click();
@@ -54,6 +53,8 @@ test.skip('should remove a favorite from breadcrumb', async ({ page }) => {
   await page.getByText('Untitled Folder').dblclick();
 
   await page.getByTitle('Remove Favorite').click();
+
+  await expect.soft(page.getByRole('button', {name: 'Add Favorite'})).toBeVisible()
 
   await expect(
     page.locator('.jp-Favorites').getByText('Untitled Folder')

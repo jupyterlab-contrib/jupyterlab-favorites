@@ -2,7 +2,7 @@ import { Menu } from '@lumino/widgets';
 import { Signal } from '@lumino/signaling';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { CommandRegistry } from '@lumino/commands';
-import { ContentsManager } from '@jupyterlab/services';
+import { Contents } from '@jupyterlab/services';
 import { IFavorites, SettingIDs, CommandIDs } from './token';
 import { getName } from './utils';
 
@@ -15,7 +15,7 @@ export class FavoritesManager {
     serverRoot: string,
     commands: CommandRegistry,
     settings: ISettingRegistry,
-    contents: ContentsManager
+    contents: Contents.IManager
   ) {
     this._showWidget = true;
     this._serverRoot = serverRoot;
@@ -211,7 +211,7 @@ export class FavoritesManager {
 
   private _settingsRegistry: ISettingRegistry;
   private _commandRegistry: CommandRegistry;
-  private _contentsManager: ContentsManager;
+  private _contentsManager: Contents.IManager;
   private _favorites: IFavorites.Favorite[] = [];
   private _serverRoot: string;
   private _showWidget = false;

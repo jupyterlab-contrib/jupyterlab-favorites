@@ -1,38 +1,68 @@
 {
-  "jupyter.lab.setting-icon": "jupyterlab-favorites:filledStar",
-  "jupyter.lab.setting-icon-label": "Favorites",
-  "title": "Favorites",
-  "description": "Favorites settings.",
-  "type": "object",
   "additionalProperties": false,
-  "properties": {
-    "favorites": {
-      "title": "Favorites",
-      "description": "The list of favorites.",
-      "items": { "$ref": "#/definitions/favorite" },
-      "type": "array",
-      "default": []
-    },
-    "showWidget": {
-      "title": "Show Widget",
-      "description": "Toggles the favorites widget above the filebrowser breadcrumbs.",
-      "type": "boolean",
-      "default": true
-    }
-  },
   "definitions": {
     "favorite": {
       "properties": {
-        "root": { "type": "string" },
-        "path": { "type": "string" },
-        "contentType": { "type": "string" },
-        "iconLabel": { "type": "string" },
-        "name": { "type": "string" },
-        "default": { "type": "boolean" },
-        "hidden": { "type": "boolean" }
+        "contentType": {
+          "type": "string"
+        },
+        "default": {
+          "type": "boolean"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "iconLabel": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "root": {
+          "type": "string"
+        }
       },
       "required": ["root", "path"],
       "type": "object"
     }
-  }
+  },
+  "description": "Favorites settings.",
+  "jupyter.lab.menus": {
+    "context": [
+      {
+        "command": "jupyterlab-favorites:remove-favorite",
+        "rank": 0,
+        "selector": ".jp-Favorites-item"
+      },
+      {
+        "command": "jupyterlab-favorites:add-or-remove-favorite",
+        "rank": 3,
+        "selector": ".jp-DirListing-item[data-isdir]"
+      }
+    ]
+  },
+  "jupyter.lab.setting-icon": "jupyterlab-favorites:filledStar",
+  "jupyter.lab.setting-icon-label": "Favorites",
+  "properties": {
+    "favorites": {
+      "default": [],
+      "description": "The list of favorites.",
+      "items": {
+        "$ref": "#/definitions/favorite"
+      },
+      "title": "Favorites",
+      "type": "array"
+    },
+    "showWidget": {
+      "default": true,
+      "description": "Toggles the favorites widget above the filebrowser breadcrumbs.",
+      "title": "Show Widget",
+      "type": "boolean"
+    }
+  },
+  "title": "Favorites",
+  "type": "object"
 }
