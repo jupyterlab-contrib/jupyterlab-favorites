@@ -54,7 +54,9 @@ test('should remove a favorite from breadcrumb', async ({ page }) => {
 
   await page.getByTitle('Remove Favorite').click();
 
-  await expect.soft(page.getByRole('button', {name: 'Add Favorite'})).toBeVisible()
+  await expect
+    .soft(page.getByRole('button', { name: 'Add Favorite' }))
+    .toBeVisible();
 
   await expect(
     page.locator('.jp-Favorites').getByText('Untitled Folder')
