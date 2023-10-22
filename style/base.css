@@ -53,7 +53,7 @@
 }
 
 .jp-Favorites-itemText {
-  flex: 1 0 64px;
+  flex: 1 1 64px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -61,4 +61,10 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.jp-Favorites-dirname {
+  color: var(--jp-ui-font-color2);
+  font-size: var(--jp-ui-font-size0);
+  margin: 0 4px;
 }

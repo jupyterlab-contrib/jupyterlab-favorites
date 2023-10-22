@@ -38,6 +38,11 @@
         "selector": ".jp-Favorites-item"
       },
       {
+        "command": "jupyterlab-favorites:rename-favorite",
+        "rank": 1,
+        "selector": ".jp-Favorites-item"
+      },
+      {
         "command": "jupyterlab-favorites:add-or-remove-favorite",
         "rank": 3,
         "selector": ".jp-DirListing-item[data-isdir]"

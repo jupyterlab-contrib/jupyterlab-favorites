@@ -10,6 +10,7 @@ import {
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ReactWidget, UseSignal, folderIcon } from '@jupyterlab/ui-components';
+import { toArray } from '@lumino/algorithm';
 import { Throttler } from '@lumino/polling';
 import { Menu, PanelLayout, Widget } from '@lumino/widgets';
 import React from 'react';
@@ -22,6 +23,7 @@ import {
   getPinnerActionDescription,
   mergePaths
 } from './utils';
+import { InputDialog } from '@jupyterlab/apputils';
 
 export { IFavorites } from './token';
 
@@ -132,7 +134,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
       if (!widget) {
         return [];
       }
-      return Array.from(widget.selectedItems());
+      return toArray(widget.selectedItems());
     };
     const { tracker } = factory;
 
@@ -178,15 +180,80 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
         const contextNode: HTMLElement = app.contextMenuHitTest(node =>
           node.classList.contains('jp-Favorites-item')
         )!;
-        const fullPath = contextNode.getAttribute('title')!;
-        let path = fullPath.replace(favoritesManager.serverRoot, '');
-        if (path.startsWith('/')) {
-          path = path.slice(1);
-        }
+        const path = contextNode.dataset['path']!;
         favoritesManager.removeFavorite(path);
       },
       icon: starIcon,
       label: 'Remove Favorite'
+    });
+
+    commands.addCommand(CommandIDs.renameFavorite, {
+      execute: async args => {
+        let { path, displayName } = args as {
+          path?: string;
+          displayName?: string;
+        };
+        if (!path) {
+          const contextNode: HTMLElement = app.contextMenuHitTest(node =>
+            node.classList.contains('jp-Favorites-item')
+          )!;
+          path = contextNode.dataset['path'];
+        }
+
+        if (!path) {
+          return;
+        }
+
+        if (!displayName) {
+          const result = await InputDialog.getText({
+            title: 'Rename favorite',
+            label: `Name for favorite at '${path}'`,
+            okLabel: 'Rename',
+            placeholder: 'Display name'
+          });
+
+          displayName = result.button.accept ? result.value ?? '' : '';
+        }
+
+        if (!displayName) {
+          return;
+        }
+
+        favoritesManager.renameFavorite(path, displayName);
+      },
+      label: 'Rename Favorite'
+    });
+
+    // Commands
+    commands.addCommand(CommandIDs.openFavorite, {
+      execute: async args => {
+        const favorite = args.favorite as IFavorites.Favorite;
+        const path = favorite.path === '' ? '/' : favorite.path;
+        await commands.execute('filebrowser:open-path', { path });
+      },
+      label: args => {
+        const favorite = args.favorite as IFavorites.Favorite;
+        return mergePaths(favorite.root, favorite.path);
+      }
+    });
+    commands.addCommand(CommandIDs.toggleFavoritesWidget, {
+      execute: async args => {
+        const showWidget = args.showWidget as boolean;
+        favoritesManager.saveSettings({ showWidget: !showWidget });
+      },
+      label: args => {
+        const showWidget = args.showWidget as boolean;
+        return `${showWidget ? 'Hide' : 'Show'} Favorites Widget`;
+      },
+      isVisible: () => favoritesManager.visibleFavorites().length > 0
+    });
+    commands.addCommand(CommandIDs.restoreDefaults, {
+      execute: () => favoritesManager.restoreDefaults(),
+      label: 'Restore Defaults'
+    });
+    commands.addCommand(CommandIDs.clearFavorites, {
+      execute: () => favoritesManager.clearFavorites(),
+      label: 'Clear Favorites'
     });
 
     // Main Menu
@@ -240,37 +307,6 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
         console.log(e);
       }
     }
-    // Commands
-    commands.addCommand(CommandIDs.openFavorite, {
-      execute: async args => {
-        const favorite = args.favorite as IFavorites.Favorite;
-        const path = favorite.path === '' ? '/' : favorite.path;
-        await commands.execute('filebrowser:open-path', { path });
-      },
-      label: args => {
-        const favorite = args.favorite as IFavorites.Favorite;
-        return mergePaths(favorite.root, favorite.path);
-      }
-    });
-    commands.addCommand(CommandIDs.toggleFavoritesWidget, {
-      execute: async args => {
-        const showWidget = args.showWidget as boolean;
-        favoritesManager.saveSettings({ showWidget: !showWidget });
-      },
-      label: args => {
-        const showWidget = args.showWidget as boolean;
-        return `${showWidget ? 'Hide' : 'Show'} Favorites Widget`;
-      },
-      isVisible: () => favoritesManager.visibleFavorites().length > 0
-    });
-    commands.addCommand(CommandIDs.restoreDefaults, {
-      execute: () => favoritesManager.restoreDefaults(),
-      label: 'Restore Defaults'
-    });
-    commands.addCommand(CommandIDs.clearFavorites, {
-      execute: () => favoritesManager.clearFavorites(),
-      label: 'Clear Favorites'
-    });
 
     return favoritesManager;
   }
