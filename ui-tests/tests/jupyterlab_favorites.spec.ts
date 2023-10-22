@@ -62,3 +62,20 @@ test('should remove a favorite from breadcrumb', async ({ page }) => {
     page.locator('.jp-Favorites').getByText('Untitled Folder')
   ).toHaveCount(0);
 });
+
+test('should rename a favorite', async ({ page }) => {
+  await page.getByText('untitled.txt').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Add Favorite' }).click();
+
+  await page
+    .locator('.jp-Favorites')
+    .getByText('untitled.txt')
+    .click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Rename Favorite' }).click();
+
+  await page.getByRole('textbox', { name: 'Name for favorite' }).fill('magics');
+
+  await page.getByRole('button', { name: 'Rename' }).click();
+
+  await expect(page.locator('.jp-Favorites').getByText('magics')).toBeVisible();
+});

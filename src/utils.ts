@@ -1,17 +1,18 @@
 import { LabIcon } from '@jupyterlab/ui-components';
 import { filledStarIcon, starIcon } from './icons';
+import { PathExt } from '@jupyterlab/coreutils';
 
 export function getFavoritesIcon(filled: boolean): LabIcon {
   return filled ? filledStarIcon : starIcon;
 }
 
-export function getName(path: string): string {
-  let name = '';
-  const parts = path.split('/');
-  if (parts.length > 0) {
-    name = parts[parts.length - 1];
-  }
-  return name;
+/**
+ * Split the file path in two parts: the name and the folder
+ * @param path Path to display
+ * @returns [name, folder]
+ */
+export function getName(path: string): [string, string] {
+  return [PathExt.basename(path), PathExt.dirname(path)];
 }
 
 export function getPinnerActionDescription(showRemove: boolean): string {
@@ -19,11 +20,5 @@ export function getPinnerActionDescription(showRemove: boolean): string {
 }
 
 export function mergePaths(root: string, path: string): string {
-  if (root.endsWith('/')) {
-    root = root.slice(0, -1);
-  }
-  if (path.endsWith('/')) {
-    path = path.slice(1);
-  }
-  return `${root}/${path}`;
+  return PathExt.join(root, path);
 }

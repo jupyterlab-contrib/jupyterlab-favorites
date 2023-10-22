@@ -97,6 +97,23 @@ export class FavoritesManager {
     this._settingsRegistry.upload(SettingIDs.favorites, newSettings);
   }
 
+  /**
+   * Rename a favorite
+   * @param path Favorite path
+   * @param displayName Favorite name
+   */
+  async renameFavorite(path: string, displayName: string): Promise<void> {
+    // Copy the favorites
+    const favorites = this._favorites.slice();
+    const favorite = favorites.find(
+      f => f.root === this.serverRoot && f.path === path
+    );
+    if (favorite) {
+      favorite.name = displayName;
+      this.saveSettings({ favorites });
+    }
+  }
+
   async removeFavorite(path: string): Promise<void> {
     const favorites = this._favorites.slice();
     const index = favorites.findIndex(

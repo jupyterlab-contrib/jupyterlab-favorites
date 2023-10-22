@@ -76,9 +76,14 @@ namespace types {
 
 const FavoriteComponent = (props: types.FavoriteComponentProps) => {
   const { favorite, handleClick } = props;
-  let displayName = getName(favorite.path);
+
+  let [displayName, dirname] = getName(favorite.path);
   if (favorite.name) {
     displayName = favorite.name;
+    // Hide path name if a display name is defined
+    dirname = '';
+  } else {
+    dirname = '/' + dirname;
   }
 
   let FavoriteIcon: LabIcon;
@@ -100,9 +105,13 @@ const FavoriteComponent = (props: types.FavoriteComponentProps) => {
       onClick={e => {
         handleClick(favorite);
       }}
+      data-path={favorite.path}
     >
       <FavoriteIcon.react className={FAVORITE_ITEM_ICON_CLASS} tag="span" />
-      <span className={FAVORITE_ITEM_TEXT_CLASS}>{displayName}</span>
+      <span className={FAVORITE_ITEM_TEXT_CLASS}>
+        {displayName}
+        <span className="jp-Favorites-dirname">{dirname}</span>
+      </span>
     </div>
   );
 };

@@ -7,6 +7,7 @@ export namespace PluginIDs {
 export namespace CommandIDs {
   export const addOrRemoveFavorite = `${PluginIDs.favorites}:add-or-remove-favorite`;
   export const removeFavorite = `${PluginIDs.favorites}:remove-favorite`;
+  export const renameFavorite = `${PluginIDs.favorites}:rename-favorite`;
   export const openFavorite = `${PluginIDs.favorites}:open-favorite`;
   export const toggleFavoritesWidget = `${PluginIDs.favorites}:toggle-favorites-widget`;
   export const restoreDefaults = `${PluginIDs.favorites}:restore-defaults`;
