@@ -133,7 +133,7 @@ export const FavoritesBreadCrumbs: React.FunctionComponent<
         const icon = getFavoritesIcon(isFavorite);
         return (
           <button
-            className="jp-ToolbarButtonComponent"
+            className="jp-ToolbarButtonComponent jp-Button jp-mod-minimal"
             title={getPinnerActionDescription(isFavorite)}
             onClick={e => {
               props.handleClick(currentPath);

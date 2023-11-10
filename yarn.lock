@@ -191,10 +191,8 @@ __metadata:
     "@jupyterlab/services": ^7.0.5
     "@jupyterlab/settingregistry": ^4.0.5
     "@jupyterlab/ui-components": ^4.0.5
-    "@lumino/algorithm": ^2.0.0
     "@lumino/commands": ^2.0.1
     "@lumino/coreutils": ^2.0.1
-    "@lumino/polling": ^2.0.0
     "@lumino/signaling": ^2.0.0
     "@lumino/widgets": ^2.0.1
     "@types/json-schema": ^7.0.11
@@ -674,7 +672,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lumino/algorithm@npm:^2.0.0, @lumino/algorithm@npm:^2.0.1":
+"@lumino/algorithm@npm:^2.0.1":
   version: 2.0.1
   resolution: "@lumino/algorithm@npm:2.0.1"
   checksum: cbf7fcf6ee6b785ea502cdfddc53d61f9d353dcb9659343511d5cd4b4030be2ff2ca4c08daec42f84417ab0318a3d9972a17319fa5231693e109ab112dcf8000
@@ -766,7 +764,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lumino/polling@npm:^2.0.0, @lumino/polling@npm:^2.1.2":
+"@lumino/polling@npm:^2.1.2":
   version: 2.1.2
   resolution: "@lumino/polling@npm:2.1.2"
   dependencies:

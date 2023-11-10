@@ -79,11 +79,11 @@ export class FavoritesManager {
   }
 
   isVisible(): boolean {
-    return this._showWidget && this.visibleFavorites().length > 0;
+    return this._showWidget && this.visibleFavorites(false).length > 0;
   }
 
   hasFavorite(path: string): boolean {
-    return this.visibleFavorites().findIndex(f => f.path === path) >= 0;
+    return this.visibleFavorites(false).findIndex(f => f.path === path) >= 0;
   }
 
   handleClick(favorite: IFavorites.Favorite): void {
@@ -161,16 +161,18 @@ export class FavoritesManager {
     }
   }
 
-  visibleFavorites(): IFavorites.Favorite[] {
-    return this.favorites
-      .filter(f => !f.hidden)
-      .sort((a, b) => {
-        if (a.contentType === b.contentType) {
-          return getName(a.path) <= getName(b.path) ? -1 : 1;
-        } else {
-          return a.contentType < b.contentType ? -1 : 1;
-        }
-      });
+  visibleFavorites(sort: boolean = true): IFavorites.Favorite[] {
+    const filtered = this.favorites.filter(f => !f.hidden);
+    if (!sort) {
+      return filtered;
+    }
+    return filtered.sort((a, b) => {
+      if (a.contentType === b.contentType) {
+        return getName(a.path) <= getName(b.path) ? -1 : 1;
+      } else {
+        return a.contentType < b.contentType ? -1 : 1;
+      }
+    });
   }
 
   private clearFavoritesOrRestoreDefaults(hidden: boolean) {
