@@ -13,7 +13,13 @@ Add the ability to save favorite folders to JupyterLab for quicker browsing.
 
 ## Requirements
 
-- JupyterLab >= 3.0.0 or Notebook >= 7.0.0
+- JupyterLab >= 4.0.0 or Notebook >= 7.0.0
+
+> For JupyterLab 3, you can install jupyterlab-favorites 3.1.x using pip for example:
+
+```sh
+pip install "jupyterlab-favorites~=3.1.1"
+```
 
 ## Install
 
