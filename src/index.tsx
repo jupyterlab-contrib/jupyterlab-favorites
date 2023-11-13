@@ -10,8 +10,6 @@ import {
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ReactWidget, UseSignal, folderIcon } from '@jupyterlab/ui-components';
-import { toArray } from '@lumino/algorithm';
-import { Throttler } from '@lumino/polling';
 import { Menu, PanelLayout, Widget } from '@lumino/widgets';
 import React from 'react';
 import { FavoritesBreadCrumbs, FavoritesWidget } from './components';
@@ -30,10 +28,14 @@ export { IFavorites } from './token';
 const BREADCRUMBS_CLASS = 'jp-FileBrowser-crumbs';
 
 /**
- * The class name for the node containing the FileBrowser BreadCrumbs favorite icon.  This node
- * is also responsible for click actions on the icon.
+ * The class name for the node containing the FileBrowser BreadCrumbs favorite icon.
  */
 const FAVORITE_ITEM_PINNER_CLASS = 'jp-Favorites-pinner';
+
+/**
+ * Modifier class added to breadcrumbs to ensure the favourite icon has enough spacing.
+ */
+const BREADCUMBS_FAVORITES_CLASS = 'jp-Favorites-crumbs';
 
 /**
  * Initialization data for the jupyterlab-favorites extension.
@@ -108,19 +110,8 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
           );
           favoriteIcon.addClass(FAVORITE_ITEM_PINNER_CLASS);
           Widget.attach(favoriteIcon, breadcrumbs as HTMLElement);
-          const throttler = new Throttler(() => {
-            breadcrumbs.insertAdjacentElement('beforeend', favoriteIcon.node);
-          });
-          const observer = new MutationObserver(() => {
-            throttler.invoke();
-          });
-
-          observer.observe(breadcrumbs, { childList: true });
-
-          filebrowser.disposed.connect(() => {
-            throttler.dispose();
-            observer.disconnect();
-          });
+          breadcrumbs.insertAdjacentElement('beforebegin', favoriteIcon.node);
+          breadcrumbs.classList.add(BREADCUMBS_FAVORITES_CLASS);
         };
 
         filebrowser.model.pathChanged.connect(initializeBreadcrumbsIcon);
@@ -134,7 +125,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
       if (!widget) {
         return [];
       }
-      return toArray(widget.selectedItems());
+      return Array.from(widget.selectedItems());
     };
     const { tracker } = factory;
 

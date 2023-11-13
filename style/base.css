@@ -1,15 +1,24 @@
 .jp-Favorites-pinner {
-  float: right;
-  cursor: pointer;
+  position: absolute;
+  right: 0;
+  overflow: visible;
+
+  /* aimed to match the upstream breadcrumbs */
+  margin: 8px 12px;
 }
 
-.jp-Favorites-BreadCrumbs-Icon svg {
-  border-radius: var(--jp-border-radius);
-  cursor: pointer;
+.jp-Favorites-pinner > .jp-ToolbarButtonComponent {
+  height: 24px;
+  margin-top: -5px;
+}
+
+.jp-Favorites-crumbs {
+  margin-right: 40px;
+}
+
+.jp-Favorites-BreadCrumbs-Icon,
+.jp-Favorites-BreadCrumbs-Icon > svg {
   height: 16px;
-  margin: 0 2px;
-  padding: 0 2px;
-  vertical-align: middle;
   width: 16px;
 }
 
@@ -45,7 +54,7 @@
   background-color: var(--jp-layout-color2);
 }
 
-.jp-Favorites-itemIcon svg {
+.jp-Favorites-itemIcon > svg {
   display: block;
   height: 16px;
   margin: 0 5px;
