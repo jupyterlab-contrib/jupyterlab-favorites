@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
     .getByRole('tab', { name: 'untitled.txt' })
     .waitFor();
   await page.activity.closeAll();
-  await page.getByRole('button', { name: 'New Folder' }).click();
+  await page.getByTitle('New Folder').click();
   await page.locator('.jp-DirListing-editor').press('Escape');
 });
 
