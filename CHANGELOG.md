@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.2.2
+
+([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.2.1...6ce4b99004411eefe9c5eedd8eb53105eced49fa))
+
+### Bugs fixed
+
+- Allow to omit the `root` attribute in settings [#26](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/26) ([@krassowski](https://github.com/krassowski))
+
+### Documentation improvements
+
+- Update README.md [#24](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/24) ([@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2023-11-13&to=2024-03-21&type=c))
+
+[@github-actions](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Agithub-actions+updated%3A2023-11-13..2024-03-21&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2023-11-13..2024-03-21&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.2.1
 
 ([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.2.0...93429578260e2c5803640a407de555a1acaca81f))
@@ -19,8 +39,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2023-10-22&to=2023-11-13&type=c))
 
 [@fcollonval](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Afcollonval+updated%3A2023-10-22..2023-11-13&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Agithub-actions+updated%3A2023-10-22..2023-11-13&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2023-10-22..2023-11-13&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.2.0
 
