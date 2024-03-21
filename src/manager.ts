@@ -4,7 +4,7 @@ import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { CommandRegistry } from '@lumino/commands';
 import { Contents } from '@jupyterlab/services';
 import { IFavorites, SettingIDs, CommandIDs } from './token';
-import { getName } from './utils';
+import { getName, Optional } from './utils';
 
 export class FavoritesManager {
   favoritesMenu: Menu;
@@ -188,11 +188,17 @@ export class FavoritesManager {
   }
 
   private async loadFavorites() {
-    const favorites = await this._settingsRegistry.get(
+    const setting = await this._settingsRegistry.get(
       SettingIDs.favorites,
       'favorites'
     );
-    this.favorites = (favorites.composite ?? []) as IFavorites.Favorite[];
+    const favorites = (setting.composite ?? []) as Optional<
+      IFavorites.Favorite,
+      'root'
+    >[];
+    this.favorites = favorites.map(favorite => {
+      return { ...favorite, root: favorite.root ?? this.serverRoot };
+    });
   }
 
   private async loadShowWidget() {

@@ -22,10 +22,11 @@
           "type": "string"
         },
         "root": {
-          "type": "string"
+          "type": "string",
+          "description": "Root path used for filtering out favourites from instances of JupyterLab launched in a different root directory. If not given the favourite will be shown if the associated file exists."
         }
       },
-      "required": ["root", "path"],
+      "required": ["path"],
       "type": "object"
     }
   },
