@@ -37,6 +37,12 @@ To remove the extension, execute:
 pip uninstall jupyterlab_favorites
 ```
 
+## History
+
+This extension was orginally developed by [National Energy Research Scientific Computing Center](https://github.com/NERSC/).
+
+The original (archived) repository can be found here: [NERSC/jupyterlab-favorites](https://github.com/NERSC/jupyterlab-favorites).
+
 ## Contributing
 
 ### Development install
