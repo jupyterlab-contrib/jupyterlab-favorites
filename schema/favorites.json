@@ -49,7 +49,7 @@
         "selector": ".jp-DirListing-item[data-isdir]"
       }
     ],
-     "main": [
+    "main": [
       {
         "id": "jp-mainmenu-view",
         "rank": 10,

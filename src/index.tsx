@@ -8,10 +8,15 @@ import {
   IFileBrowserFactory
 } from '@jupyterlab/filebrowser';
 import { INotebookTracker, Notebook } from '@jupyterlab/notebook';
-import { Cell } from '@jupyterlab/cells'
+import { Cell } from '@jupyterlab/cells';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { ReactWidget, ToolbarButton, UseSignal, folderIcon } from '@jupyterlab/ui-components';
+import {
+  ReactWidget,
+  ToolbarButton,
+  UseSignal,
+  folderIcon
+} from '@jupyterlab/ui-components';
 import { Menu, PanelLayout, Widget } from '@lumino/widgets';
 import React from 'react';
 import { FavoritesBreadCrumbs, FavoritesWidget } from './components';
@@ -138,22 +143,22 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
 
     toolbarRegistry?.addFactory<Cell>('Cell', 'cellFavoriteToggle', args => {
       const cell = args.model;
-      const tags = cell.getMetadata("tags");
-      const isFavorite = Array.isArray(tags) && tags.includes("fav");
+      const tags = cell.getMetadata('tags');
+      const isFavorite = Array.isArray(tags) && tags.includes('fav');
 
       const button = new ToolbarButton({
-      tooltip: isFavorite ? "Unfavorite cell" : "Favorite cell",
-      icon: getFavoritesIcon(isFavorite),
-      onClick: () => toggleCellFavorite(cell)
-    })
+        tooltip: isFavorite ? 'Unfavorite cell' : 'Favorite cell',
+        icon: getFavoritesIcon(isFavorite),
+        onClick: () => toggleCellFavorite(cell)
+      });
 
-    // Connect metadataChanged signal to update the icon and tooltip dynamically
-    cell.metadataChanged.connect(() => {
-      updateCellFavoriteButton(button, cell);
+      // Connect metadataChanged signal to update the icon and tooltip dynamically
+      cell.metadataChanged.connect(() => {
+        updateCellFavoriteButton(button, cell);
+      });
+
+      return button;
     });
-
-    return button;
-  });
 
     commands.addCommand(CommandIDs.addOrRemoveFavorite, {
       execute: () => {
@@ -207,58 +212,58 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     const notebookObservers = new WeakMap<Notebook, MutationObserver>();
 
     commands.addCommand('favorites:toggle-cells-visibility', {
-      label: (args) => {
+      label: args => {
         const mode = args['mode'] as string;
         return mode === 'favorites' ? 'Show Favorite Cells' : 'Show All Cells';
       },
-      execute: (args) => {
-          const notebookPanel = notebookTracker.currentWidget;
-          if (!notebookPanel || !notebookPanel.content) {
-            return;
-          }
+      execute: args => {
+        const notebookPanel = notebookTracker.currentWidget;
+        if (!notebookPanel || !notebookPanel.content) {
+          return;
+        }
 
-          const notebook = notebookPanel.content;
-          const mode = args['mode'] as string;
+        const notebook = notebookPanel.content;
+        const mode = args['mode'] as string;
 
-          updateCellClasses(notebook);
+        updateCellClasses(notebook);
 
-          // Toggle filter mode
-          if (mode === 'favorites') {
-            notebook.node.classList.add('favorites-filter-active');
+        // Toggle filter mode
+        if (mode === 'favorites') {
+          notebook.node.classList.add('favorites-filter-active');
 
-            // Add observer if not already added
-            if (!notebookObservers.has(notebook)) {
-              let debounceTimeout: number | undefined;
+          // Add observer if not already added
+          if (!notebookObservers.has(notebook)) {
+            let debounceTimeout: number | undefined;
 
-              const observer = new MutationObserver(() => {
-                if (notebook.node.classList.contains('favorites-filter-active')) {
-                  if (debounceTimeout) {
-                    window.clearTimeout(debounceTimeout);
-                  }
-                  debounceTimeout = window.setTimeout(() => {
-                    updateCellClasses(notebook);
-                  }, 100);
+            const observer = new MutationObserver(() => {
+              if (notebook.node.classList.contains('favorites-filter-active')) {
+                if (debounceTimeout) {
+                  window.clearTimeout(debounceTimeout);
                 }
-              });
+                debounceTimeout = window.setTimeout(() => {
+                  updateCellClasses(notebook);
+                }, 100);
+              }
+            });
 
-              observer.observe(notebook.node, {
-                childList: true,
-                subtree: true
-              });
+            observer.observe(notebook.node, {
+              childList: true,
+              subtree: true
+            });
 
-              notebookObservers.set(notebook, observer);
-            }
-          } else {
-            notebook.node.classList.remove('favorites-filter-active');
-
-            // Disconnect observer and clean up
-            const observer = notebookObservers.get(notebook);
-            if (observer) {
-              observer.disconnect();
-              notebookObservers.delete(notebook);
-            }
+            notebookObservers.set(notebook, observer);
           }
-        },
+        } else {
+          notebook.node.classList.remove('favorites-filter-active');
+
+          // Disconnect observer and clean up
+          const observer = notebookObservers.get(notebook);
+          if (observer) {
+            observer.disconnect();
+            notebookObservers.delete(notebook);
+          }
+        }
+      },
       isEnabled: () => {
         const currentWidget = app.shell.currentWidget;
         const notebook = notebookTracker.currentWidget;

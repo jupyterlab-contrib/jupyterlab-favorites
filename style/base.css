@@ -79,5 +79,5 @@
 }
 
 .jp-Notebook.favorites-filter-active .jp-Cell:not(.favorite-cell) {
-    display: none !important;
+  display: none !important;
 }
