@@ -48,6 +48,43 @@
         "rank": 3,
         "selector": ".jp-DirListing-item[data-isdir]"
       }
+    ],
+     "main": [
+      {
+        "id": "jp-mainmenu-view",
+        "rank": 10,
+        "items": [
+          {
+            "type": "submenu",
+            "submenu": {
+              "id": "cell-favourites-submenu",
+              "label": "Cell Favourites",
+              "items": [
+                {
+                  "command": "favorites:toggle-cells-visibility",
+                  "args": {
+                    "mode": "favorites"
+                  }
+                },
+                {
+                  "command": "favorites:toggle-cells-visibility",
+                  "args": {
+                    "mode": "all"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "jupyter.lab.toolbars": {
+    "Cell": [
+      {
+        "name": "cellFavoriteToggle",
+        "rank": 110
+      }
     ]
   },
   "jupyter.lab.setting-icon": "jupyterlab-favorites:filledStar",
