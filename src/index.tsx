@@ -31,7 +31,8 @@ import {
   updateCellClasses,
   updateCellFavoriteButton
 } from './utils';
-import { InputDialog, IToolbarWidgetRegistry } from '@jupyterlab/apputils';
+import { ICommandPalette, InputDialog, IToolbarWidgetRegistry } from '@jupyterlab/apputils';
+import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 
 export { IFavorites } from './token';
 
@@ -48,6 +49,16 @@ const FAVORITE_ITEM_PINNER_CLASS = 'jp-Favorites-pinner';
 const BREADCUMBS_FAVORITES_CLASS = 'jp-Favorites-crumbs';
 
 /**
+ * Cell tag used to mark cell as favorite
+ */
+const FAVORITE_TAG = 'favorite'
+
+/**
+ * Class set to notebook when filtering cells by favorite is enabled
+ */
+const FAVORITE_FILTER_CLASS = 'jp-favorites-filter-active'
+
+/**
  * Initialization data for the jupyterlab-favorites extension.
  */
 const favorites: JupyterFrontEndPlugin<IFavorites> = {
@@ -55,17 +66,20 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
   autoStart: true,
   requires: [IFileBrowserFactory, ISettingRegistry, INotebookTracker],
   provides: IFavorites,
-  optional: [IDefaultFileBrowser, IMainMenu, IToolbarWidgetRegistry],
+  optional: [ITranslator, IDefaultFileBrowser, IMainMenu, IToolbarWidgetRegistry, ICommandPalette],
   activate: (
     app: JupyterFrontEnd,
     factory: IFileBrowserFactory,
     settingsRegistry: ISettingRegistry,
     notebookTracker: INotebookTracker,
+    translator: ITranslator | null,
     filebrowser: IDefaultFileBrowser | null,
     mainMenu: IMainMenu | null,
-    toolbarRegistry: IToolbarWidgetRegistry | null
+    toolbarRegistry: IToolbarWidgetRegistry | null,
+    palette: ICommandPalette
   ): IFavorites => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
+    const trans = (translator ?? nullTranslator).load('jupyterlab');
     const docRegistry = app.docRegistry;
     const { commands, serviceManager } = app;
     const favoritesManager = new FavoritesManager(
@@ -144,7 +158,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     toolbarRegistry?.addFactory<Cell>('Cell', 'cellFavoriteToggle', args => {
       const cell = args.model;
       const tags = cell.getMetadata('tags');
-      const isFavorite = Array.isArray(tags) && tags.includes('fav');
+      const isFavorite = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
 
       const button = new ToolbarButton({
         tooltip: isFavorite ? 'Unfavorite cell' : 'Favorite cell',
@@ -211,7 +225,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
 
     const notebookObservers = new WeakMap<Notebook, MutationObserver>();
 
-    commands.addCommand('favorites:toggle-cells-visibility', {
+    commands.addCommand(CommandIDs.toggleCellsVisibility, {
       label: args => {
         const mode = args['mode'] as string;
         return mode === 'favorites' ? 'Show Favorite Cells' : 'Show All Cells';
@@ -229,14 +243,14 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
 
         // Toggle filter mode
         if (mode === 'favorites') {
-          notebook.node.classList.add('favorites-filter-active');
+          notebook.node.classList.add(FAVORITE_FILTER_CLASS);
 
           // Add observer if not already added
           if (!notebookObservers.has(notebook)) {
             let debounceTimeout: number | undefined;
 
             const observer = new MutationObserver(() => {
-              if (notebook.node.classList.contains('favorites-filter-active')) {
+              if (notebook.node.classList.contains(FAVORITE_FILTER_CLASS)) {
                 if (debounceTimeout) {
                   window.clearTimeout(debounceTimeout);
                 }
@@ -254,7 +268,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
             notebookObservers.set(notebook, observer);
           }
         } else {
-          notebook.node.classList.remove('favorites-filter-active');
+          notebook.node.classList.remove(FAVORITE_FILTER_CLASS);
 
           // Disconnect observer and clean up
           const observer = notebookObservers.get(notebook);
@@ -339,6 +353,9 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
       execute: () => favoritesManager.clearFavorites(),
       label: 'Clear Favorites'
     });
+
+    // Add commands to palette
+    palette.addItem({ command: CommandIDs.toggleCellsVisibility, category: trans.__('Notebook Operations') });
 
     // Main Menu
     if (mainMenu) {

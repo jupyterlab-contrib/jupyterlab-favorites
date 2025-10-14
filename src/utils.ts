@@ -4,6 +4,8 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { Cell, ICellModel } from '@jupyterlab/cells';
 import { Notebook } from '@jupyterlab/notebook';
 
+const FAVORITE_CELL_CLASS = 'jp-favorite-cell'
+
 export function getFavoritesIcon(filled: boolean): LabIcon {
   return filled ? filledStarIcon : starIcon;
 }
@@ -80,9 +82,9 @@ export function updateCellClasses(notebook: Notebook) {
     const isFav = Array.isArray(tags) && tags.includes('fav');
 
     if (isFav) {
-      cell.node.classList.add('favorite-cell');
+      cell.node.classList.add(FAVORITE_CELL_CLASS);
     } else {
-      cell.node.classList.remove('favorite-cell');
+      cell.node.classList.remove(FAVORITE_CELL_CLASS);
     }
   });
   console.log('updated', count, 'cells');

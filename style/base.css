@@ -78,6 +78,6 @@
   margin: 0 4px;
 }
 
-.jp-Notebook.favorites-filter-active .jp-Cell:not(.favorite-cell) {
+.jp-Notebook.favorites-filter-active .jp-Cell:not(.jp-favorite-cell) {
   display: none !important;
 }
