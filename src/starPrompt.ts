@@ -1,10 +1,11 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { BoxLayout, Widget} from '@lumino/widgets';
-import { Notebook } from '@jupyterlab/notebook';
+// import { Notebook } from '@jupyterlab/notebook';
 import { CommandIDs } from './token';
-import { IInputPrompt } from '@jupyterlab/cells';
+import { Cell, IInputPrompt, InputPrompt } from '@jupyterlab/cells';
 import { ToolbarButton } from '@jupyterlab/ui-components';
 import { filledStarIcon, starIcon } from './icons';
+import { NotebookPanel } from '@jupyterlab/notebook';
 
 const INPUT_PROMPT_CLASS = 'jp-InputPrompt';
 const INPUT_PROMPT_NUMBER_CLASS = 'jp-Favorites-InputPromptNumber';
@@ -13,31 +14,9 @@ const FAVORITE_ICON_OFF_CLASS = 'jp-Favorites-star-class-off';
 const FAVORITE_ICON_BASE_CLASS = 'jp-Favorites-base-star-class';
 
 
-export class InputPromptIndicator extends Widget implements IInputPrompt {
-  private _executionCount: string | null = null;
-
-  constructor() {
-    super();
-    this.node.classList.add(INPUT_PROMPT_NUMBER_CLASS)
-  }
-
-  get executionCount(): string | null {
-    return this._executionCount;
-  }
-
-  set executionCount(value: string | null) {
-    this._executionCount = value;
-    if (value === null) {
-      this.node.textContent = ' ';
-    } else {
-      this.node.textContent = `[${value || ' '}]:`;
-    }
-  }
-}
-
 export class StarredInputPrompt extends Widget implements IInputPrompt {
   private _executionCount: string | null = null;
-  private _promptIndicator: InputPromptIndicator;
+  private _promptIndicator: InputPrompt;
   private _favoriteIconOn: ToolbarButton;
   private _favoriteIconOff: ToolbarButton;
 
@@ -46,7 +25,8 @@ export class StarredInputPrompt extends Widget implements IInputPrompt {
     this.addClass(INPUT_PROMPT_CLASS);
 
     const layout = (this.layout = new BoxLayout({ direction: 'right-to-left' }));;
-    this._promptIndicator = new InputPromptIndicator();
+    this._promptIndicator = new InputPrompt();
+    this._promptIndicator.node.classList.add(INPUT_PROMPT_NUMBER_CLASS)
     layout.addWidget(this._promptIndicator);
     this._favoriteIconOff = new ToolbarButton({
       icon: starIcon,
@@ -81,24 +61,20 @@ export class StarredInputPrompt extends Widget implements IInputPrompt {
 }
 
 export namespace StarredNotebookContentFactory {
-  export interface IOptions extends Notebook.ContentFactory.IOptions {
+  export interface IOptions extends Cell.ContentFactory.IOptions {
     app: JupyterFrontEnd
   }
 }
 
-export class StarredNotebookContentFactory extends Notebook.ContentFactory {
+export class StarredNotebookContentFactory extends NotebookPanel.ContentFactory {
   private _app: JupyterFrontEnd;
 
   constructor(options: StarredNotebookContentFactory.IOptions) {
-    super(options);
+    super(options)
     this._app = options.app;
   }
 
   createInputPrompt(): StarredInputPrompt {
     return new StarredInputPrompt(this._app);
-  }
-
-  createNotebook(options: Notebook.IOptions): Notebook {
-    return new Notebook(options);
   }
 }

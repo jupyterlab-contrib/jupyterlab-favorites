@@ -13,8 +13,10 @@
 }
 
 .jp-Favorites-InputPromptNumber{
-  left: 27.4545px !important;
-  width: 28px !important;
+  left: 12px !important;
+  width: 51px !important;
+  top: 0 !important;
+  height: 23px !important;
 }
 
 .jp-Favorites-crumbs {
@@ -89,7 +91,7 @@
 
 .jp-Favorites-base-star-class{
   top: -2px !important;
-  left: 0 !important;
+  left: -6px !important;
   height: 23px !important;
   width: 24px !important;
 }
@@ -107,4 +109,8 @@
 
 .jp-Cell:not(.jp-favorite-cell) .jp-Favorites-star-class {
   display: none !important;
+}
+
+.jp-Notebook .jp-Cell.jp-mod-dirty .jp-InputPrompt::before {
+    content: none !important;
 }

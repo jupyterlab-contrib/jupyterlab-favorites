@@ -79,7 +79,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     filebrowser: IDefaultFileBrowser | null,
     mainMenu: IMainMenu | null,
     toolbarRegistry: IToolbarWidgetRegistry | null,
-    palette: ICommandPalette
+    palette: ICommandPalette | null
   ): IFavorites => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
     const trans = (translator ?? nullTranslator).load('jupyterlab');
@@ -358,7 +358,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     });
 
     // Add commands to palette
-    palette.addItem({ command: CommandIDs.toggleCellsVisibility, category: trans.__('Notebook Operations') });
+    palette?.addItem({ command: CommandIDs.toggleCellsVisibility, category: trans.__('Notebook Operations') });
 
     // Main Menu
     if (mainMenu) {

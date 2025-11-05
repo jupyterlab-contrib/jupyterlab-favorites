@@ -44,7 +44,7 @@ jobs:
         pip uninstall -y "jupyterlab_favorites" jupyterlab
 
     - name: Upload extension packages
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: extension-artifacts
         path: dist/jupyterlab_favorites*
@@ -126,7 +126,7 @@ jobs:
 
     - name: Upload Playwright Test report
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: jupyterlab_favorites-playwright-tests
         path: |
