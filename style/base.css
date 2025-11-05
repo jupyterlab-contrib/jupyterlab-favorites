@@ -99,6 +99,7 @@
 .jp-Cell.jp-favorite-cell .jp-Favorites-star-class {
   display: block !important;
 }
+
 .jp-Cell.jp-favorite-cell .jp-Favorites-star-class-off {
   display: none !important;
 }
