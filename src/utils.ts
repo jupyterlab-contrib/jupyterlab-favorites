@@ -2,10 +2,11 @@ import { LabIcon, ToolbarButton } from '@jupyterlab/ui-components';
 import { filledStarIcon, starIcon } from './icons';
 import { PathExt } from '@jupyterlab/coreutils';
 import { Cell, ICellModel } from '@jupyterlab/cells';
-import { Notebook } from '@jupyterlab/notebook';
+import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
 
 const FAVORITE_CELL_CLASS = 'jp-favorite-cell';
 const FAVORITE_TAG = 'favorite';
+const SHOW_ALL_STARS = 'jp-Favorites-show-all-stars';
 
 export function getFavoritesIcon(filled: boolean): LabIcon {
   return filled ? filledStarIcon : starIcon;
@@ -99,5 +100,20 @@ export function updateSingleCellClass(cell: Cell<ICellModel>) {
     cell.addClass(FAVORITE_CELL_CLASS);
   } else {
     cell.removeClass(FAVORITE_CELL_CLASS);
+  }
+}
+
+export function changeShowStarsOnAllCells(
+  show: boolean,
+  notebookPanel: NotebookPanel | null
+) {
+  if (!notebookPanel || !notebookPanel.content) {
+    return;
+  }
+  const notebook = notebookPanel.content;
+  if (show) {
+    notebook.node.classList.add(SHOW_ALL_STARS);
+  } else {
+    notebook.node.classList.remove(SHOW_ALL_STARS);
   }
 }

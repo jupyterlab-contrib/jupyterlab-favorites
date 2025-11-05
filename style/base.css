@@ -103,8 +103,16 @@
   display: none !important;
 }
 
-.jp-Cell:not(.jp-favorite-cell) .jp-Favorites-star-class-off {
+.jp-Notebook.jp-Favorites-show-all-stars
+  .jp-Cell:not(.jp-favorite-cell)
+  .jp-Favorites-star-class-off {
   display: block !important;
+}
+
+.jp-Notebook:not(.jp-Favorites-show-all-stars)
+  .jp-Cell:not(.jp-favorite-cell)
+  .jp-Favorites-star-class-off {
+  display: none !important;
 }
 
 .jp-Cell:not(.jp-favorite-cell) .jp-Favorites-star-class {

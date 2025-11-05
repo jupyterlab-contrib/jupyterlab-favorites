@@ -22,8 +22,9 @@ import React from 'react';
 import { FavoritesBreadCrumbs, FavoritesWidget } from './components';
 import { starIcon } from './icons';
 import { FavoritesManager } from './manager';
-import { IFavorites, PluginIDs, CommandIDs } from './token';
+import { IFavorites, PluginIDs, CommandIDs, SettingIDs } from './token';
 import {
+  changeShowStarsOnAllCells,
   getFavoritesIcon,
   getPinnerActionDescription,
   mergePaths,
@@ -66,6 +67,10 @@ const FAVORITE_TAG = 'favorite';
 const FAVORITE_FILTER_CLASS = 'jp-favorites-filter-active';
 
 /**
+ * Setting key for toggling the visibility of star icons on all cells.
+ */
+const SHOW_STARS_ON_ALL_CELLS = 'showStarsOnAllCells';
+/**
  * Initialization data for the jupyterlab-favorites extension.
  */
 const favorites: JupyterFrontEndPlugin<IFavorites> = {
@@ -80,7 +85,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     IToolbarWidgetRegistry,
     ICommandPalette
   ],
-  activate: (
+  activate: async (
     app: JupyterFrontEnd,
     factory: IFileBrowserFactory,
     settingsRegistry: ISettingRegistry,
@@ -90,7 +95,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     mainMenu: IMainMenu | null,
     toolbarRegistry: IToolbarWidgetRegistry | null,
     palette: ICommandPalette | null
-  ): IFavorites => {
+  ): Promise<IFavorites> => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
     const trans = (translator ?? nullTranslator).load('jupyterlab');
     const docRegistry = app.docRegistry;
@@ -102,6 +107,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
       serviceManager.contents
     );
     favoritesManager.init();
+    const favoriteSettings = await settingsRegistry.load(SettingIDs.favorites);
 
     if (filebrowser) {
       const favoritesWidget = new FavoritesWidget(
@@ -257,10 +263,13 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     });
 
     const attachViewportListener = (notebook: NotebookPanel) => {
-      if (!notebook) {
+      if (!notebook || !notebook.content) {
         return;
       }
-
+      changeShowStarsOnAllCells(
+        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as boolean,
+        notebook
+      );
       notebook.content.cellInViewportChanged.connect((_, cell) => {
         updateSingleCellClass(cell);
       });
@@ -274,6 +283,20 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     // Attach to any newly opened notebooks
     notebookTracker.widgetAdded.connect((_, notebook) => {
       attachViewportListener(notebook);
+    });
+
+    notebookTracker.currentChanged.connect((_, notebook) => {
+      changeShowStarsOnAllCells(
+        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as boolean,
+        notebook
+      );
+    });
+
+    favoriteSettings.changed.connect(() => {
+      changeShowStarsOnAllCells(
+        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as boolean,
+        notebookTracker.currentWidget
+      );
     });
 
     commands.addCommand(CommandIDs.toggleCellsVisibility, {

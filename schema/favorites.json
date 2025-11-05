@@ -104,6 +104,12 @@
       "description": "Toggles the favorites widget above the filebrowser breadcrumbs.",
       "title": "Show Widget",
       "type": "boolean"
+    },
+    "showStarsOnAllCells": {
+      "default": false,
+      "description": "Toggles the visibility of star icons on all cells. When enabled, an empty star icon will appear on all cells. By default, only favorite cells display a filled star icon.",
+      "title": "Show Stars on All Cells",
+      "type": "boolean"
     }
   },
   "title": "Favorites",
