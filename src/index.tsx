@@ -32,7 +32,11 @@ import {
   updateCellFavoriteButton,
   updateSingleCellClass
 } from './utils';
-import { ICommandPalette, InputDialog, IToolbarWidgetRegistry } from '@jupyterlab/apputils';
+import {
+  ICommandPalette,
+  InputDialog,
+  IToolbarWidgetRegistry
+} from '@jupyterlab/apputils';
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 import { IEditorServices } from '@jupyterlab/codeeditor';
 import { StarredNotebookContentFactory } from './starPrompt';
@@ -54,12 +58,12 @@ const BREADCUMBS_FAVORITES_CLASS = 'jp-Favorites-crumbs';
 /**
  * Cell tag used to mark cell as favorite
  */
-const FAVORITE_TAG = 'favorite'
+const FAVORITE_TAG = 'favorite';
 
 /**
  * Class set to notebook when filtering cells by favorite is enabled
  */
-const FAVORITE_FILTER_CLASS = 'jp-favorites-filter-active'
+const FAVORITE_FILTER_CLASS = 'jp-favorites-filter-active';
 
 /**
  * Initialization data for the jupyterlab-favorites extension.
@@ -69,7 +73,13 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
   autoStart: true,
   requires: [IFileBrowserFactory, ISettingRegistry, INotebookTracker],
   provides: IFavorites,
-  optional: [ITranslator, IDefaultFileBrowser, IMainMenu, IToolbarWidgetRegistry, ICommandPalette],
+  optional: [
+    ITranslator,
+    IDefaultFileBrowser,
+    IMainMenu,
+    IToolbarWidgetRegistry,
+    ICommandPalette
+  ],
   activate: (
     app: JupyterFrontEnd,
     factory: IFileBrowserFactory,
@@ -158,24 +168,28 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     };
     const { tracker } = factory;
 
-    toolbarRegistry?.addFactory<Cell<ICellModel>>('Cell', 'cellFavoriteToggle', args => {
-      const cell = args.model;
-      const tags = cell.getMetadata('tags');
-      const isFavorite = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
+    toolbarRegistry?.addFactory<Cell<ICellModel>>(
+      'Cell',
+      'cellFavoriteToggle',
+      args => {
+        const cell = args.model;
+        const tags = cell.getMetadata('tags');
+        const isFavorite = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
 
-      const button = new ToolbarButton({
-        tooltip: isFavorite ? 'Unfavorite cell' : 'Favorite cell',
-        icon: getFavoritesIcon(isFavorite),
-        onClick: () => toggleCellFavorite(cell)
-      });
+        const button = new ToolbarButton({
+          tooltip: isFavorite ? 'Unfavorite cell' : 'Favorite cell',
+          icon: getFavoritesIcon(isFavorite),
+          onClick: () => toggleCellFavorite(cell)
+        });
 
-      // Connect metadataChanged signal to update the icon and tooltip dynamically
-      cell.metadataChanged.connect(() => {
-        updateCellFavoriteButton(button, args);
-      });
+        // Connect metadataChanged signal to update the icon and tooltip dynamically
+        cell.metadataChanged.connect(() => {
+          updateCellFavoriteButton(button, args);
+        });
 
-      return button;
-    });
+        return button;
+      }
+    );
 
     commands.addCommand(CommandIDs.addOrRemoveFavorite, {
       execute: () => {
@@ -228,25 +242,27 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
 
     commands.addCommand(CommandIDs.toggleCellFavorite, {
       execute: () => {
-      const notebookPanel = notebookTracker.currentWidget;
-      if (!notebookPanel || !notebookPanel.content) {
-        return;
-      }
-      const notebook = notebookPanel.content;
-      const activeCell = notebook.activeCell;
-      if (!activeCell) {
-        console.warn('No active cell found to toggle favorite');
-        return;
-      }
-      toggleCellFavorite(activeCell.model)
+        const notebookPanel = notebookTracker.currentWidget;
+        if (!notebookPanel || !notebookPanel.content) {
+          return;
+        }
+        const notebook = notebookPanel.content;
+        const activeCell = notebook.activeCell;
+        if (!activeCell) {
+          console.warn('No active cell found to toggle favorite');
+          return;
+        }
+        toggleCellFavorite(activeCell.model);
       }
     });
-  
-  const attachViewportListener = (notebook: NotebookPanel) => {
-      if (!notebook) return;
-      
+
+    const attachViewportListener = (notebook: NotebookPanel) => {
+      if (!notebook) {
+        return;
+      }
+
       notebook.content.cellInViewportChanged.connect((_, cell) => {
-        updateSingleCellClass(cell)
+        updateSingleCellClass(cell);
       });
     };
 
@@ -358,7 +374,10 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     });
 
     // Add commands to palette
-    palette?.addItem({ command: CommandIDs.toggleCellsVisibility, category: trans.__('Notebook Operations') });
+    palette?.addItem({
+      command: CommandIDs.toggleCellsVisibility,
+      category: trans.__('Notebook Operations')
+    });
 
     // Main Menu
     if (mainMenu) {
@@ -416,26 +435,26 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
   }
 };
 
-
 /**
  * Plugin that provides the custom notebook factory with star icons
  */
-export const notebookFactoryPlugin: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
-  id: PluginIDs.notebookFactory,
-  description: 'Provides notebook cell factory with star icons',
-  provides: NotebookPanel.IContentFactory,
-  requires: [IEditorServices],
-  autoStart: true,
-  activate: (app: JupyterFrontEnd, editorServices: IEditorServices) => {
-    const editorFactory = editorServices.factoryService.newInlineEditor;
+export const notebookFactoryPlugin: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> =
+  {
+    id: PluginIDs.notebookFactory,
+    description: 'Provides notebook cell factory with star icons',
+    provides: NotebookPanel.IContentFactory,
+    requires: [IEditorServices],
+    autoStart: true,
+    activate: (app: JupyterFrontEnd, editorServices: IEditorServices) => {
+      const editorFactory = editorServices.factoryService.newInlineEditor;
 
-    const factory = new StarredNotebookContentFactory({
-      editorFactory,
-      app
-    });
+      const factory = new StarredNotebookContentFactory({
+        editorFactory,
+        app
+      });
 
-    return factory;
-  }
-};
+      return factory;
+    }
+  };
 
 export default [favorites, notebookFactoryPlugin];

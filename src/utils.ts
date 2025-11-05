@@ -4,8 +4,8 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { Cell, ICellModel } from '@jupyterlab/cells';
 import { Notebook } from '@jupyterlab/notebook';
 
-const FAVORITE_CELL_CLASS = 'jp-favorite-cell'
-const FAVORITE_TAG = 'favorite'
+const FAVORITE_CELL_CLASS = 'jp-favorite-cell';
+const FAVORITE_TAG = 'favorite';
 
 export function getFavoritesIcon(filled: boolean): LabIcon {
   return filled ? filledStarIcon : starIcon;
@@ -36,10 +36,10 @@ export function updateCellFavoriteButton(
 ) {
   const tags = cell.model.getMetadata('tags');
   const isFavorite = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
-  if(isFavorite){
-    cell.addClass(FAVORITE_CELL_CLASS)
-  } else{
-    cell.removeClass(FAVORITE_CELL_CLASS)
+  if (isFavorite) {
+    cell.addClass(FAVORITE_CELL_CLASS);
+  } else {
+    cell.removeClass(FAVORITE_CELL_CLASS);
   }
   // Update tooltip
   const tooltip = isFavorite ? 'Unfavorite cell' : 'Favorite cell';

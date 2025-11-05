@@ -13,9 +13,9 @@ export namespace CommandIDs {
   export const toggleFavoritesWidget = `${PluginIDs.favorites}:toggle-favorites-widget`;
   export const restoreDefaults = `${PluginIDs.favorites}:restore-defaults`;
   export const clearFavorites = `${PluginIDs.favorites}:clear-favorites`;
-  export const toggleCellsVisibility = `${PluginIDs.favorites}:toggle-cell-visibility`
-  export const addFavoriteClasses = `${PluginIDs.favorites}:toggle-favorite-classes`
-  export const toggleCellFavorite = `${PluginIDs.favorites}:toggle-cell-favorite`
+  export const toggleCellsVisibility = `${PluginIDs.favorites}:toggle-cell-visibility`;
+  export const addFavoriteClasses = `${PluginIDs.favorites}:toggle-favorite-classes`;
+  export const toggleCellFavorite = `${PluginIDs.favorites}:toggle-cell-favorite`;
 }
 
 export namespace SettingIDs {

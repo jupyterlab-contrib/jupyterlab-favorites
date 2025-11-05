@@ -12,7 +12,7 @@
   margin-top: -5px;
 }
 
-.jp-Favorites-InputPromptNumber{
+.jp-Favorites-InputPromptNumber {
   left: 12px !important;
   width: 51px !important;
   top: 0 !important;
@@ -89,7 +89,7 @@
   display: none !important;
 }
 
-.jp-Favorites-base-star-class{
+.jp-Favorites-base-star-class {
   top: -2px !important;
   left: -6px !important;
   height: 23px !important;
@@ -112,5 +112,5 @@
 }
 
 .jp-Notebook .jp-Cell.jp-mod-dirty .jp-InputPrompt::before {
-    content: none !important;
+  content: none !important;
 }
