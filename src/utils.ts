@@ -5,6 +5,7 @@ import { Cell, ICellModel } from '@jupyterlab/cells';
 import { Notebook } from '@jupyterlab/notebook';
 
 const FAVORITE_CELL_CLASS = 'jp-favorite-cell'
+const FAVORITE_TAG = 'favorite'
 
 export function getFavoritesIcon(filled: boolean): LabIcon {
   return filled ? filledStarIcon : starIcon;
@@ -31,10 +32,15 @@ export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 export function updateCellFavoriteButton(
   button: ToolbarButton,
-  cell: ICellModel
+  cell: Cell<ICellModel>
 ) {
-  const tags = cell.getMetadata('tags');
-  const isFavorite = Array.isArray(tags) && tags.includes('fav');
+  const tags = cell.model.getMetadata('tags');
+  const isFavorite = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
+  if(isFavorite){
+    cell.addClass(FAVORITE_CELL_CLASS)
+  } else{
+    cell.removeClass(FAVORITE_CELL_CLASS)
+  }
   // Update tooltip
   const tooltip = isFavorite ? 'Unfavorite cell' : 'Favorite cell';
   const jpButton = button.node.querySelector('jp-button');
@@ -56,11 +62,11 @@ export function updateCellFavoriteButton(
 export function toggleCellFavorite(cell: ICellModel): void {
   let tags = cell.getMetadata('tags');
   if (Array.isArray(tags)) {
-    const favIndex = tags.indexOf('fav');
+    const favIndex = tags.indexOf(FAVORITE_TAG);
     if (favIndex === -1) {
-      tags = [...tags, 'fav'];
+      tags = [...tags, FAVORITE_TAG];
     } else {
-      tags = tags.filter(tag => tag !== 'fav');
+      tags = tags.filter(tag => tag !== FAVORITE_TAG);
     }
     if (tags.length === 0) {
       cell.deleteMetadata('tags');
@@ -68,18 +74,15 @@ export function toggleCellFavorite(cell: ICellModel): void {
       cell.setMetadata('tags', tags);
     }
   } else {
-    cell.setMetadata('tags', ['fav']);
+    cell.setMetadata('tags', [FAVORITE_TAG]);
   }
 }
 
 export function updateCellClasses(notebook: Notebook) {
-  console.log('Calling updateCellClasses!');
-  let count = 0;
   notebook.widgets.forEach(widget => {
-    count += 1;
     const cell = widget as Cell;
     const tags = cell.model.getMetadata('tags') as string[] | undefined;
-    const isFav = Array.isArray(tags) && tags.includes('fav');
+    const isFav = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
 
     if (isFav) {
       cell.node.classList.add(FAVORITE_CELL_CLASS);
@@ -87,5 +90,14 @@ export function updateCellClasses(notebook: Notebook) {
       cell.node.classList.remove(FAVORITE_CELL_CLASS);
     }
   });
-  console.log('updated', count, 'cells');
+}
+
+export function updateSingleCellClass(cell: Cell<ICellModel>) {
+  const tags = cell.model.getMetadata('tags') as string[] | undefined;
+  const isFav = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
+  if (isFav) {
+    cell.addClass(FAVORITE_CELL_CLASS);
+  } else {
+    cell.removeClass(FAVORITE_CELL_CLASS);
+  }
 }

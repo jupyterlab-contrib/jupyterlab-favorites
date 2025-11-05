@@ -61,13 +61,13 @@
               "label": "Cell Favourites",
               "items": [
                 {
-                  "command": "favorites:toggle-cells-visibility",
+                  "command": "jupyterlab-favorites:toggle-cell-visibility",
                   "args": {
                     "mode": "favorites"
                   }
                 },
                 {
-                  "command": "favorites:toggle-cells-visibility",
+                  "command": "jupyterlab-favorites:toggle-cell-visibility",
                   "args": {
                     "mode": "all"
                   }

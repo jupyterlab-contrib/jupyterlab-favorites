@@ -12,6 +12,11 @@
   margin-top: -5px;
 }
 
+.jp-Favorites-InputPromptNumber{
+  left: 27.4545px !important;
+  width: 28px !important;
+}
+
 .jp-Favorites-crumbs {
   margin-right: 40px;
 }
@@ -78,6 +83,28 @@
   margin: 0 4px;
 }
 
-.jp-Notebook.favorites-filter-active .jp-Cell:not(.jp-favorite-cell) {
+.jp-Notebook.jp-favorites-filter-active .jp-Cell:not(.jp-favorite-cell) {
+  display: none !important;
+}
+
+.jp-Favorites-base-star-class{
+  top: -2px !important;
+  left: 0 !important;
+  height: 23px !important;
+  width: 24px !important;
+}
+
+.jp-Cell.jp-favorite-cell .jp-Favorites-star-class {
+  display: block !important;
+}
+.jp-Cell.jp-favorite-cell .jp-Favorites-star-class-off {
+  display: none !important;
+}
+
+.jp-Cell:not(.jp-favorite-cell) .jp-Favorites-star-class-off {
+  display: block !important;
+}
+
+.jp-Cell:not(.jp-favorite-cell) .jp-Favorites-star-class {
   display: none !important;
 }
