@@ -3,10 +3,12 @@ import { filledStarIcon, starIcon } from './icons';
 import { PathExt } from '@jupyterlab/coreutils';
 import { Cell, ICellModel } from '@jupyterlab/cells';
 import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
+import { ShowStarsTypes } from './token';
 
 const FAVORITE_CELL_CLASS = 'jp-favorite-cell';
 const FAVORITE_TAG = 'favorite';
 const SHOW_ALL_STARS = 'jp-Favorites-show-all-stars';
+const NEVER_SHOW_STARS = 'jp-Favorites-never-show-stars'
 
 export function getFavoritesIcon(filled: boolean): LabIcon {
   return filled ? filledStarIcon : starIcon;
@@ -104,16 +106,32 @@ export function updateSingleCellClass(cell: Cell<ICellModel>) {
 }
 
 export function changeShowStarsOnAllCells(
-  show: boolean,
+  type: ShowStarsTypes,
   notebookPanel: NotebookPanel | null
 ) {
   if (!notebookPanel || !notebookPanel.content) {
     return;
   }
   const notebook = notebookPanel.content;
-  if (show) {
-    notebook.node.classList.add(SHOW_ALL_STARS);
-  } else {
-    notebook.node.classList.remove(SHOW_ALL_STARS);
+  const toggleClass = (className: string, shouldAdd: boolean) => {
+    if (shouldAdd) {
+      if (!notebook.node.classList.contains(className)) {
+        notebook.node.classList.add(className);
+      }
+    } else {
+      if (notebook.node.classList.contains(className)) {
+        notebook.node.classList.remove(className);
+      }
+    }
+  };
+  if (type === 'all Cells') {
+    toggleClass(NEVER_SHOW_STARS, false);
+    toggleClass(SHOW_ALL_STARS, true);
+  } else if (type === 'only Favourite Cells') {
+    toggleClass(NEVER_SHOW_STARS, false);
+    toggleClass(SHOW_ALL_STARS, false);
+  } else if (type === 'never') {
+    toggleClass(SHOW_ALL_STARS, false);
+    toggleClass(NEVER_SHOW_STARS, true);
   }
 }

@@ -1,6 +1,5 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { BoxLayout, Widget } from '@lumino/widgets';
-// import { Notebook } from '@jupyterlab/notebook';
 import { CommandIDs } from './token';
 import { Cell, IInputPrompt, InputPrompt } from '@jupyterlab/cells';
 import { ToolbarButton } from '@jupyterlab/ui-components';

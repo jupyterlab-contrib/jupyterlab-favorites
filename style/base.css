@@ -123,3 +123,7 @@
 .jp-Notebook .jp-Cell.jp-mod-dirty .jp-InputPrompt::before {
   content: none !important;
 }
+
+.jp-Notebook.jp-Favorites-never-show-stars .jp-Favorites-base-star-class {
+  display: none !important;
+}

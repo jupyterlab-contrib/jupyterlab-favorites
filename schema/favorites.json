@@ -55,25 +55,7 @@
         "rank": 10,
         "items": [
           {
-            "type": "submenu",
-            "submenu": {
-              "id": "cell-favourites-submenu",
-              "label": "Cell Favourites",
-              "items": [
-                {
-                  "command": "jupyterlab-favorites:toggle-cell-visibility",
-                  "args": {
-                    "mode": "favorites"
-                  }
-                },
-                {
-                  "command": "jupyterlab-favorites:toggle-cell-visibility",
-                  "args": {
-                    "mode": "all"
-                  }
-                }
-              ]
-            }
+            "command": "jupyterlab-favorites:toggle-cell-visibility"
           }
         ]
       }
@@ -105,11 +87,12 @@
       "title": "Show Widget",
       "type": "boolean"
     },
-    "showStarsOnAllCells": {
-      "default": false,
-      "description": "Toggles the visibility of star icons on all cells. When enabled, an empty star icon will appear on all cells. By default, only favorite cells display a filled star icon.",
-      "title": "Show Stars on All Cells",
-      "type": "boolean"
+    "showStarsOnCells": {
+      "default": "only Favourite Cells",
+      "description": "Controls the visibility of star icons on cells.",
+      "title": "Show Stars on Cells",
+      "type": "string",
+      "enum": ["all Cells", "only Favourite Cells", "never"]
     }
   },
   "title": "Favorites",

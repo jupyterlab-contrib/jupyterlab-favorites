@@ -22,7 +22,7 @@ import React from 'react';
 import { FavoritesBreadCrumbs, FavoritesWidget } from './components';
 import { starIcon } from './icons';
 import { FavoritesManager } from './manager';
-import { IFavorites, PluginIDs, CommandIDs, SettingIDs } from './token';
+import { IFavorites, PluginIDs, CommandIDs, SettingIDs, ShowStarsTypes } from './token';
 import {
   changeShowStarsOnAllCells,
   getFavoritesIcon,
@@ -69,7 +69,7 @@ const FAVORITE_FILTER_CLASS = 'jp-favorites-filter-active';
 /**
  * Setting key for toggling the visibility of star icons on all cells.
  */
-const SHOW_STARS_ON_ALL_CELLS = 'showStarsOnAllCells';
+const SHOW_STARS_ON_ALL_CELLS = 'showStarsOnCells';
 /**
  * Initialization data for the jupyterlab-favorites extension.
  */
@@ -267,7 +267,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
         return;
       }
       changeShowStarsOnAllCells(
-        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as boolean,
+        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as ShowStarsTypes,
         notebook
       );
       notebook.content.cellInViewportChanged.connect((_, cell) => {
@@ -287,38 +287,42 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
 
     notebookTracker.currentChanged.connect((_, notebook) => {
       changeShowStarsOnAllCells(
-        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as boolean,
+        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as ShowStarsTypes,
         notebook
       );
     });
 
     favoriteSettings.changed.connect(() => {
       changeShowStarsOnAllCells(
-        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as boolean,
+        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as ShowStarsTypes,
         notebookTracker.currentWidget
       );
     });
 
     commands.addCommand(CommandIDs.toggleCellsVisibility, {
-      label: args => {
-        const mode = args['mode'] as string;
-        return mode === 'favorites' ? 'Show Favorite Cells' : 'Show All Cells';
+      isToggled: () => {
+        const notebookPanel = notebookTracker.currentWidget;
+        if (!notebookPanel || !notebookPanel.content) {
+          return false;
+        }
+        return notebookPanel.content.node.classList.contains(FAVORITE_FILTER_CLASS);
       },
-      execute: args => {
+      label: 'Show Only Favorite Cells',
+      execute: () => {
         const notebookPanel = notebookTracker.currentWidget;
         if (!notebookPanel || !notebookPanel.content) {
           return;
         }
 
         const notebook = notebookPanel.content;
-        updateCellClasses(notebook);
+        const isFavoriteMode = notebook.node.classList.contains(FAVORITE_FILTER_CLASS);
 
-        const mode = args['mode'] as string;
-        if (mode === 'favorites') {
-          notebook.node.classList.add(FAVORITE_FILTER_CLASS);
-        } else {
+        if (isFavoriteMode) {
           notebook.node.classList.remove(FAVORITE_FILTER_CLASS);
+        } else {
+          notebook.node.classList.add(FAVORITE_FILTER_CLASS);
         }
+        updateCellClasses(notebook);
       },
       isEnabled: () => {
         const currentWidget = app.shell.currentWidget;

@@ -64,10 +64,10 @@ test.describe('JupyterLab Favorites Extension', () => {
         query: 'Favorites'
       });
     });
-    const showStarsCheckbox = page.locator(
-      'label:has-text("Show Stars on All Cells") input[type="checkbox"]'
+    const showStarsSelect = page.locator(
+      '[id="jp-SettingsEditor-@jlab-enhanced/favorites:favorites_showStarsOnCells"]'
     );
-    await showStarsCheckbox.click();
+    await showStarsSelect.selectOption({ label: 'all Cells' });
     await page.keyboard.press('Control+Shift+[');
     await page.notebook.enterCellEditingMode(0);
 
@@ -112,7 +112,7 @@ test.describe('JupyterLab Favorites Extension', () => {
       .dblclick();
     await page.waitForSelector('.jp-NotebookPanel');
 
-    await page.menu.clickMenuItem('View>Cell Favourites>Show Favorite Cells');
+    await page.menu.clickMenuItem('View>Show Only Favorite Cells');
     await page.waitForTimeout(500);
 
     const panel = page.locator('[role="main"] >> .jp-NotebookPanel');
@@ -121,7 +121,7 @@ test.describe('JupyterLab Favorites Extension', () => {
       'favorite-cells-snapshot.png'
     );
 
-    await page.menu.clickMenuItem('View>Cell Favourites>Show All Cells');
+    await page.menu.clickMenuItem('View>Show Only Favorite Cells');
     await page.waitForTimeout(500);
     expect(await document.screenshot()).toMatchSnapshot(
       'all-cells-snapshot.png'
