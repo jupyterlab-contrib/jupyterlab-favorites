@@ -8,7 +8,7 @@ import { ShowStarsTypes } from './token';
 const FAVORITE_CELL_CLASS = 'jp-favorite-cell';
 const FAVORITE_TAG = 'favorite';
 const SHOW_ALL_STARS = 'jp-Favorites-show-all-stars';
-const NEVER_SHOW_STARS = 'jp-Favorites-never-show-stars'
+const NEVER_SHOW_STARS = 'jp-Favorites-never-show-stars';
 
 export function getFavoritesIcon(filled: boolean): LabIcon {
   return filled ? filledStarIcon : starIcon;

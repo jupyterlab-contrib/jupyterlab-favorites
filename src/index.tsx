@@ -22,7 +22,13 @@ import React from 'react';
 import { FavoritesBreadCrumbs, FavoritesWidget } from './components';
 import { starIcon } from './icons';
 import { FavoritesManager } from './manager';
-import { IFavorites, PluginIDs, CommandIDs, SettingIDs, ShowStarsTypes } from './token';
+import {
+  IFavorites,
+  PluginIDs,
+  CommandIDs,
+  SettingIDs,
+  ShowStarsTypes
+} from './token';
 import {
   changeShowStarsOnAllCells,
   getFavoritesIcon,
@@ -267,7 +273,8 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
         return;
       }
       changeShowStarsOnAllCells(
-        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as ShowStarsTypes,
+        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS)
+          .composite as ShowStarsTypes,
         notebook
       );
       notebook.content.cellInViewportChanged.connect((_, cell) => {
@@ -287,14 +294,16 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
 
     notebookTracker.currentChanged.connect((_, notebook) => {
       changeShowStarsOnAllCells(
-        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as ShowStarsTypes,
+        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS)
+          .composite as ShowStarsTypes,
         notebook
       );
     });
 
     favoriteSettings.changed.connect(() => {
       changeShowStarsOnAllCells(
-        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS).composite as ShowStarsTypes,
+        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS)
+          .composite as ShowStarsTypes,
         notebookTracker.currentWidget
       );
     });
@@ -305,7 +314,9 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
         if (!notebookPanel || !notebookPanel.content) {
           return false;
         }
-        return notebookPanel.content.node.classList.contains(FAVORITE_FILTER_CLASS);
+        return notebookPanel.content.node.classList.contains(
+          FAVORITE_FILTER_CLASS
+        );
       },
       label: 'Show Only Favorite Cells',
       execute: () => {
@@ -315,7 +326,9 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
         }
 
         const notebook = notebookPanel.content;
-        const isFavoriteMode = notebook.node.classList.contains(FAVORITE_FILTER_CLASS);
+        const isFavoriteMode = notebook.node.classList.contains(
+          FAVORITE_FILTER_CLASS
+        );
 
         if (isFavoriteMode) {
           notebook.node.classList.remove(FAVORITE_FILTER_CLASS);
