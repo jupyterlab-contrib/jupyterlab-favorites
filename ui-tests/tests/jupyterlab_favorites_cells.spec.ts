@@ -67,7 +67,7 @@ test.describe('JupyterLab Favorites Extension', () => {
     const showStarsSelect = page.locator(
       '[id="jp-SettingsEditor-@jlab-enhanced/favorites:favorites_showStarsOnCells"]'
     );
-    await showStarsSelect.selectOption({ label: 'all Cells' });
+    await showStarsSelect.selectOption({ label: 'All Cells' });
     await page.keyboard.press('Control+Shift+[');
     await page.notebook.enterCellEditingMode(0);
 
