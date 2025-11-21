@@ -28,7 +28,7 @@
 
 ### Bugs fixed
 
-- Prevent listing/favourite icon jitter [#21](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/21) ([@krassowski](https://github.com/krassowski))
+- Prevent listing/favorite icon jitter [#21](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/21) ([@krassowski](https://github.com/krassowski))
 
 ### Documentation improvements
 

@@ -23,7 +23,7 @@
         },
         "root": {
           "type": "string",
-          "description": "Root path used for filtering out favourites from instances of JupyterLab launched in a different root directory. If not given the favourite will be shown if the associated file exists."
+          "description": "Root path used for filtering out favorites from instances of JupyterLab launched in a different root directory. If not given the favorite will be shown if the associated file exists."
         }
       },
       "required": ["path"],
@@ -88,11 +88,15 @@
       "type": "boolean"
     },
     "showStarsOnCells": {
-      "default": "only Favourite Cells",
-      "description": "Controls the visibility of star icons on cells.",
-      "title": "Show Stars on Cells",
       "type": "string",
-      "enum": ["all Cells", "only Favourite Cells", "never"]
+      "title": "Show Stars on Cells",
+      "description": "Controls the visibility of star icons on cells.",
+      "default": "onlyfavoriteCells",
+      "oneOf": [
+        { "const": "allCells", "title": "All Cells" },
+        { "const": "onlyfavoriteCells", "title": "Only favorite Cells" },
+        { "const": "never", "title": "Never" }
+      ]
     }
   },
   "title": "Favorites",

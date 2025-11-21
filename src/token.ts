@@ -5,7 +5,7 @@ export namespace PluginIDs {
   export const notebookFactory = 'favorites-notebook-factory';
 }
 
-export type ShowStarsTypes = 'all Cells' | 'only Favourite Cells' | 'never';
+export type ShowStarsTypes = 'allCells' | 'onlyfavoriteCells' | 'never';
 
 export namespace CommandIDs {
   export const addOrRemoveFavorite = `${PluginIDs.favorites}:add-or-remove-favorite`;
@@ -49,3 +49,8 @@ export const IFavorites = new Token<IFavorites>(
 export interface IFavorites {
   readonly favorites: IFavorites.Favorite[];
 }
+
+/**
+ * Cell tag used to mark cell as favorite
+ */
+export const FAVORITE_TAG = 'favorite';

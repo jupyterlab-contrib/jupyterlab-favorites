@@ -3,10 +3,9 @@ import { filledStarIcon, starIcon } from './icons';
 import { PathExt } from '@jupyterlab/coreutils';
 import { Cell, ICellModel } from '@jupyterlab/cells';
 import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
-import { ShowStarsTypes } from './token';
+import { ShowStarsTypes, FAVORITE_TAG } from './token';
 
 const FAVORITE_CELL_CLASS = 'jp-favorite-cell';
-const FAVORITE_TAG = 'favorite';
 const SHOW_ALL_STARS = 'jp-Favorites-show-all-stars';
 const NEVER_SHOW_STARS = 'jp-Favorites-never-show-stars';
 
@@ -105,7 +104,7 @@ export function updateSingleCellClass(cell: Cell<ICellModel>) {
   }
 }
 
-export function changeShowStarsOnAllCells(
+export function changeShowStarsOnCells(
   type: ShowStarsTypes,
   notebookPanel: NotebookPanel | null
 ) {
@@ -124,10 +123,10 @@ export function changeShowStarsOnAllCells(
       }
     }
   };
-  if (type === 'all Cells') {
+  if (type === 'allCells') {
     toggleClass(NEVER_SHOW_STARS, false);
     toggleClass(SHOW_ALL_STARS, true);
-  } else if (type === 'only Favourite Cells') {
+  } else if (type === 'onlyfavoriteCells') {
     toggleClass(NEVER_SHOW_STARS, false);
     toggleClass(SHOW_ALL_STARS, false);
   } else if (type === 'never') {

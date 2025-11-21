@@ -27,10 +27,11 @@ import {
   PluginIDs,
   CommandIDs,
   SettingIDs,
-  ShowStarsTypes
+  ShowStarsTypes,
+  FAVORITE_TAG
 } from './token';
 import {
-  changeShowStarsOnAllCells,
+  changeShowStarsOnCells,
   getFavoritesIcon,
   getPinnerActionDescription,
   mergePaths,
@@ -48,7 +49,7 @@ import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 import { IEditorServices } from '@jupyterlab/codeeditor';
 import { StarredNotebookContentFactory } from './starPrompt';
 
-export { IFavorites } from './token';
+export { IFavorites, FAVORITE_TAG } from './token';
 
 const BREADCRUMBS_CLASS = 'jp-FileBrowser-crumbs';
 
@@ -58,14 +59,9 @@ const BREADCRUMBS_CLASS = 'jp-FileBrowser-crumbs';
 const FAVORITE_ITEM_PINNER_CLASS = 'jp-Favorites-pinner';
 
 /**
- * Modifier class added to breadcrumbs to ensure the favourite icon has enough spacing.
+ * Modifier class added to breadcrumbs to ensure the favorite icon has enough spacing.
  */
 const BREADCUMBS_FAVORITES_CLASS = 'jp-Favorites-crumbs';
-
-/**
- * Cell tag used to mark cell as favorite
- */
-const FAVORITE_TAG = 'favorite';
 
 /**
  * Class set to notebook when filtering cells by favorite is enabled
@@ -73,9 +69,9 @@ const FAVORITE_TAG = 'favorite';
 const FAVORITE_FILTER_CLASS = 'jp-favorites-filter-active';
 
 /**
- * Setting key for toggling the visibility of star icons on all cells.
+ * Setting key for toggling the visibility of star icons on cells.
  */
-const SHOW_STARS_ON_ALL_CELLS = 'showStarsOnCells';
+const SHOW_STARS_ON_CELLS = 'showStarsOnCells';
 /**
  * Initialization data for the jupyterlab-favorites extension.
  */
@@ -272,9 +268,8 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
       if (!notebook || !notebook.content) {
         return;
       }
-      changeShowStarsOnAllCells(
-        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS)
-          .composite as ShowStarsTypes,
+      changeShowStarsOnCells(
+        favoriteSettings.get(SHOW_STARS_ON_CELLS).composite as ShowStarsTypes,
         notebook
       );
       notebook.content.cellInViewportChanged.connect((_, cell) => {
@@ -293,17 +288,15 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     });
 
     notebookTracker.currentChanged.connect((_, notebook) => {
-      changeShowStarsOnAllCells(
-        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS)
-          .composite as ShowStarsTypes,
+      changeShowStarsOnCells(
+        favoriteSettings.get(SHOW_STARS_ON_CELLS).composite as ShowStarsTypes,
         notebook
       );
     });
 
     favoriteSettings.changed.connect(() => {
-      changeShowStarsOnAllCells(
-        favoriteSettings.get(SHOW_STARS_ON_ALL_CELLS)
-          .composite as ShowStarsTypes,
+      changeShowStarsOnCells(
+        favoriteSettings.get(SHOW_STARS_ON_CELLS).composite as ShowStarsTypes,
         notebookTracker.currentWidget
       );
     });
