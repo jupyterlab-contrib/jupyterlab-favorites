@@ -5,7 +5,7 @@ export namespace PluginIDs {
   export const notebookFactory = 'favorites-notebook-factory';
 }
 
-export type ShowStarsTypes = 'allCells' | 'onlyfavoriteCells' | 'never';
+export type ShowStarsTypes = 'allCells' | 'onlyFavoriteCells' | 'never';
 
 export namespace CommandIDs {
   export const addOrRemoveFavorite = `${PluginIDs.favorites}:add-or-remove-favorite`;

@@ -91,10 +91,10 @@
       "type": "string",
       "title": "Show Stars on Cells",
       "description": "Controls the visibility of star icons on cells.",
-      "default": "onlyfavoriteCells",
+      "default": "onlyFavoriteCells",
       "oneOf": [
         { "const": "allCells", "title": "All Cells" },
-        { "const": "onlyfavoriteCells", "title": "Only favorite Cells" },
+        { "const": "onlyFavoriteCells", "title": "Only favorite Cells" },
         { "const": "never", "title": "Never" }
       ]
     }

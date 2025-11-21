@@ -126,7 +126,7 @@ export function changeShowStarsOnCells(
   if (type === 'allCells') {
     toggleClass(NEVER_SHOW_STARS, false);
     toggleClass(SHOW_ALL_STARS, true);
-  } else if (type === 'onlyfavoriteCells') {
+  } else if (type === 'onlyFavoriteCells') {
     toggleClass(NEVER_SHOW_STARS, false);
     toggleClass(SHOW_ALL_STARS, false);
   } else if (type === 'never') {
