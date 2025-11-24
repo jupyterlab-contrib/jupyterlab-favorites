@@ -275,6 +275,11 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
       notebook.content.cellInViewportChanged.connect((_, cell) => {
         updateSingleCellClass(cell);
       });
+      notebook.disposed.connect(() => {
+        notebook.content.cellInViewportChanged.disconnect((_, cell) => {
+          updateSingleCellClass(cell);
+        });
+      });
     };
 
     // Attach to currently open notebooks
