@@ -2,6 +2,31 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.3.0
+
+([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.2.2...8398e8401df2605b8d92ec3b018f2b142adb0aa2))
+
+### Enhancements made
+
+- Allow marking and viewing favorite cells in notebooks [#32](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/32) ([@Darshan808](https://github.com/Darshan808))
+
+### Maintenance and upkeep improvements
+
+- Bump artifact actions and ignore npm links [#33](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/33) ([@Darshan808](https://github.com/Darshan808))
+- Updated integration tests workflow [#29](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/29) ([@krassowski](https://github.com/krassowski))
+
+### Documentation improvements
+
+- Mention original developer in README. [#28](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/28) ([@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2024-03-21&to=2025-11-24&type=c))
+
+[@Darshan808](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3ADarshan808+updated%3A2024-03-21..2025-11-24&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Agithub-actions+updated%3A2024-03-21..2025-11-24&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2024-03-21..2025-11-24&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.2.2
 
 ([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.2.1...6ce4b99004411eefe9c5eedd8eb53105eced49fa))
@@ -19,8 +44,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2023-11-13&to=2024-03-21&type=c))
 
 [@github-actions](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Agithub-actions+updated%3A2023-11-13..2024-03-21&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2023-11-13..2024-03-21&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.2.1
 
