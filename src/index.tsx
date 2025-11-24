@@ -7,23 +7,49 @@ import {
   IDefaultFileBrowser,
   IFileBrowserFactory
 } from '@jupyterlab/filebrowser';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { Cell, ICellModel } from '@jupyterlab/cells';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { ReactWidget, UseSignal, folderIcon } from '@jupyterlab/ui-components';
+import {
+  ReactWidget,
+  ToolbarButton,
+  UseSignal,
+  folderIcon
+} from '@jupyterlab/ui-components';
 import { Menu, PanelLayout, Widget } from '@lumino/widgets';
 import React from 'react';
 import { FavoritesBreadCrumbs, FavoritesWidget } from './components';
 import { starIcon } from './icons';
 import { FavoritesManager } from './manager';
-import { IFavorites, PluginIDs, CommandIDs } from './token';
 import {
+  IFavorites,
+  PluginIDs,
+  CommandIDs,
+  SettingIDs,
+  ShowStarsTypes,
+  FAVORITE_TAG
+} from './token';
+import {
+  changeShowStarsOnCells,
   getFavoritesIcon,
   getPinnerActionDescription,
-  mergePaths
+  mergePaths,
+  toggleCellFavorite,
+  updateCellClasses,
+  updateCellFavoriteButton,
+  updateSingleCellClass
 } from './utils';
-import { InputDialog } from '@jupyterlab/apputils';
+import {
+  ICommandPalette,
+  InputDialog,
+  IToolbarWidgetRegistry
+} from '@jupyterlab/apputils';
+import { ITranslator, nullTranslator } from '@jupyterlab/translation';
+import { IEditorServices } from '@jupyterlab/codeeditor';
+import { StarredNotebookContentFactory } from './starPrompt';
 
-export { IFavorites } from './token';
+export { IFavorites, FAVORITE_TAG } from './token';
 
 const BREADCRUMBS_CLASS = 'jp-FileBrowser-crumbs';
 
@@ -33,27 +59,47 @@ const BREADCRUMBS_CLASS = 'jp-FileBrowser-crumbs';
 const FAVORITE_ITEM_PINNER_CLASS = 'jp-Favorites-pinner';
 
 /**
- * Modifier class added to breadcrumbs to ensure the favourite icon has enough spacing.
+ * Modifier class added to breadcrumbs to ensure the favorite icon has enough spacing.
  */
 const BREADCUMBS_FAVORITES_CLASS = 'jp-Favorites-crumbs';
 
+/**
+ * Class set to notebook when filtering cells by favorite is enabled
+ */
+const FAVORITE_FILTER_CLASS = 'jp-favorites-filter-active';
+
+/**
+ * Setting key for toggling the visibility of star icons on cells.
+ */
+const SHOW_STARS_ON_CELLS = 'showStarsOnCells';
 /**
  * Initialization data for the jupyterlab-favorites extension.
  */
 const favorites: JupyterFrontEndPlugin<IFavorites> = {
   id: PluginIDs.favorites,
   autoStart: true,
-  requires: [IFileBrowserFactory, ISettingRegistry],
+  requires: [IFileBrowserFactory, ISettingRegistry, INotebookTracker],
   provides: IFavorites,
-  optional: [IDefaultFileBrowser, IMainMenu],
-  activate: (
+  optional: [
+    ITranslator,
+    IDefaultFileBrowser,
+    IMainMenu,
+    IToolbarWidgetRegistry,
+    ICommandPalette
+  ],
+  activate: async (
     app: JupyterFrontEnd,
     factory: IFileBrowserFactory,
     settingsRegistry: ISettingRegistry,
+    notebookTracker: INotebookTracker,
+    translator: ITranslator | null,
     filebrowser: IDefaultFileBrowser | null,
-    mainMenu: IMainMenu | null
-  ): IFavorites => {
+    mainMenu: IMainMenu | null,
+    toolbarRegistry: IToolbarWidgetRegistry | null,
+    palette: ICommandPalette | null
+  ): Promise<IFavorites> => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
+    const trans = (translator ?? nullTranslator).load('jupyterlab');
     const docRegistry = app.docRegistry;
     const { commands, serviceManager } = app;
     const favoritesManager = new FavoritesManager(
@@ -63,6 +109,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
       serviceManager.contents
     );
     favoritesManager.init();
+    const favoriteSettings = await settingsRegistry.load(SettingIDs.favorites);
 
     if (filebrowser) {
       const favoritesWidget = new FavoritesWidget(
@@ -129,6 +176,29 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     };
     const { tracker } = factory;
 
+    toolbarRegistry?.addFactory<Cell<ICellModel>>(
+      'Cell',
+      'cellFavoriteToggle',
+      args => {
+        const cell = args.model;
+        const tags = cell.getMetadata('tags');
+        const isFavorite = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
+
+        const button = new ToolbarButton({
+          tooltip: isFavorite ? 'Unfavorite cell' : 'Favorite cell',
+          icon: getFavoritesIcon(isFavorite),
+          onClick: () => toggleCellFavorite(cell)
+        });
+
+        // Connect metadataChanged signal to update the icon and tooltip dynamically
+        cell.metadataChanged.connect(() => {
+          updateCellFavoriteButton(button, args);
+        });
+
+        return button;
+      }
+    );
+
     commands.addCommand(CommandIDs.addOrRemoveFavorite, {
       execute: () => {
         const selectedItems = getSelectedItems();
@@ -176,6 +246,100 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
       },
       icon: starIcon,
       label: 'Remove Favorite'
+    });
+
+    commands.addCommand(CommandIDs.toggleCellFavorite, {
+      execute: () => {
+        const notebookPanel = notebookTracker.currentWidget;
+        if (!notebookPanel || !notebookPanel.content) {
+          return;
+        }
+        const notebook = notebookPanel.content;
+        const activeCell = notebook.activeCell;
+        if (!activeCell) {
+          console.warn('No active cell found to toggle favorite');
+          return;
+        }
+        toggleCellFavorite(activeCell.model);
+      }
+    });
+
+    const attachViewportListener = (notebook: NotebookPanel) => {
+      if (!notebook || !notebook.content) {
+        return;
+      }
+      changeShowStarsOnCells(
+        favoriteSettings.get(SHOW_STARS_ON_CELLS).composite as ShowStarsTypes,
+        notebook
+      );
+      notebook.content.cellInViewportChanged.connect((_, cell) => {
+        updateSingleCellClass(cell);
+      });
+      notebook.disposed.connect(() => {
+        notebook.content.cellInViewportChanged.disconnect((_, cell) => {
+          updateSingleCellClass(cell);
+        });
+      });
+    };
+
+    // Attach to currently open notebooks
+    notebookTracker.forEach(notebook => {
+      attachViewportListener(notebook);
+    });
+
+    // Attach to any newly opened notebooks
+    notebookTracker.widgetAdded.connect((_, notebook) => {
+      attachViewportListener(notebook);
+    });
+
+    notebookTracker.currentChanged.connect((_, notebook) => {
+      changeShowStarsOnCells(
+        favoriteSettings.get(SHOW_STARS_ON_CELLS).composite as ShowStarsTypes,
+        notebook
+      );
+    });
+
+    favoriteSettings.changed.connect(() => {
+      changeShowStarsOnCells(
+        favoriteSettings.get(SHOW_STARS_ON_CELLS).composite as ShowStarsTypes,
+        notebookTracker.currentWidget
+      );
+    });
+
+    commands.addCommand(CommandIDs.toggleCellsVisibility, {
+      isToggled: () => {
+        const notebookPanel = notebookTracker.currentWidget;
+        if (!notebookPanel || !notebookPanel.content) {
+          return false;
+        }
+        return notebookPanel.content.node.classList.contains(
+          FAVORITE_FILTER_CLASS
+        );
+      },
+      label: 'Show Only Favorite Cells',
+      execute: () => {
+        const notebookPanel = notebookTracker.currentWidget;
+        if (!notebookPanel || !notebookPanel.content) {
+          return;
+        }
+
+        const notebook = notebookPanel.content;
+        const isFavoriteMode = notebook.node.classList.contains(
+          FAVORITE_FILTER_CLASS
+        );
+
+        if (isFavoriteMode) {
+          notebook.node.classList.remove(FAVORITE_FILTER_CLASS);
+        } else {
+          notebook.node.classList.add(FAVORITE_FILTER_CLASS);
+        }
+        updateCellClasses(notebook);
+      },
+      isEnabled: () => {
+        const currentWidget = app.shell.currentWidget;
+        const notebook = notebookTracker.currentWidget;
+        return !!(notebook !== null && notebook === currentWidget);
+      }
     });
 
     commands.addCommand(CommandIDs.renameFavorite, {
@@ -247,6 +411,12 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
       label: 'Clear Favorites'
     });
 
+    // Add commands to palette
+    palette?.addItem({
+      command: CommandIDs.toggleCellsVisibility,
+      category: trans.__('Notebook Operations')
+    });
+
     // Main Menu
     if (mainMenu) {
       mainMenu.fileMenu.addGroup(
@@ -303,4 +473,26 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
   }
 };
 
-export default favorites;
+/**
+ * Plugin that provides the custom notebook factory with star icons
+ */
+export const notebookFactoryPlugin: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> =
+  {
+    id: PluginIDs.notebookFactory,
+    description: 'Provides notebook cell factory with star icons',
+    provides: NotebookPanel.IContentFactory,
+    requires: [IEditorServices],
+    autoStart: true,
+    activate: (app: JupyterFrontEnd, editorServices: IEditorServices) => {
+      const editorFactory = editorServices.factoryService.newInlineEditor;
+
+      const factory = new StarredNotebookContentFactory({
+        editorFactory,
+        app
+      });
+
+      return factory;
+    }
+  };
+
+export default [favorites, notebookFactoryPlugin];

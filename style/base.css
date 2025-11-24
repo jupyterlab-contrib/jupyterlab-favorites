@@ -12,6 +12,13 @@
   margin-top: -5px;
 }
 
+.jp-Favorites-InputPromptNumber {
+  left: 12px !important;
+  width: 51px !important;
+  top: 0 !important;
+  height: 23px !important;
+}
+
 .jp-Favorites-crumbs {
   margin-right: 40px;
 }
@@ -76,4 +83,55 @@
   color: var(--jp-ui-font-color2);
   font-size: var(--jp-ui-font-size0);
   margin: 0 4px;
+}
+
+.jp-Notebook.jp-favorites-filter-active .jp-Cell:not(.jp-favorite-cell) {
+  display: none !important;
+}
+
+.jp-Favorites-base-star-class {
+  top: -2px !important;
+  left: -6px !important;
+  height: 23px !important;
+  width: 24px !important;
+}
+
+.jp-Cell.jp-favorite-cell .jp-Favorites-star-class {
+  display: block !important;
+}
+
+.jp-Cell.jp-favorite-cell .jp-Favorites-star-class-off {
+  display: none !important;
+}
+
+.jp-Notebook.jp-Favorites-show-all-stars
+  .jp-Cell:not(.jp-favorite-cell)
+  .jp-Favorites-star-class-off {
+  display: block !important;
+}
+
+.jp-Notebook:not(.jp-Favorites-show-all-stars)
+  .jp-Cell:not(.jp-favorite-cell)
+  .jp-Favorites-star-class-off {
+  display: none !important;
+}
+
+.jp-Cell:not(.jp-favorite-cell) .jp-Favorites-star-class {
+  display: none !important;
+}
+
+.jp-Notebook .jp-Cell.jp-mod-dirty .jp-InputPrompt::before {
+  content: none !important;
+}
+
+.jp-Notebook.jp-Favorites-never-show-stars .jp-Favorites-base-star-class {
+  display: none !important;
+}
+
+@media only screen and (width <= 760px) {
+  .jp-InputPrompt {
+    flex: 0 0 var(--jp-cell-prompt-width) !important;
+    margin-bottom: -30px !important;
+    text-align: left;
+  }
 }

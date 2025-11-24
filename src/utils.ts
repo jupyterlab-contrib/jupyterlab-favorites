@@ -1,6 +1,13 @@
-import { LabIcon } from '@jupyterlab/ui-components';
+import { LabIcon, ToolbarButton } from '@jupyterlab/ui-components';
 import { filledStarIcon, starIcon } from './icons';
 import { PathExt } from '@jupyterlab/coreutils';
+import { Cell, ICellModel } from '@jupyterlab/cells';
+import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
+import { ShowStarsTypes, FAVORITE_TAG } from './token';
+
+const FAVORITE_CELL_CLASS = 'jp-favorite-cell';
+const SHOW_ALL_STARS = 'jp-Favorites-show-all-stars';
+const NEVER_SHOW_STARS = 'jp-Favorites-never-show-stars';
 
 export function getFavoritesIcon(filled: boolean): LabIcon {
   return filled ? filledStarIcon : starIcon;
@@ -24,3 +31,106 @@ export function mergePaths(root: string, path: string): string {
 }
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
+export function updateCellFavoriteButton(
+  button: ToolbarButton,
+  cell: Cell<ICellModel>
+) {
+  const tags = cell.model.getMetadata('tags');
+  const isFavorite = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
+  if (isFavorite) {
+    cell.addClass(FAVORITE_CELL_CLASS);
+  } else {
+    cell.removeClass(FAVORITE_CELL_CLASS);
+  }
+  // Update tooltip
+  const tooltip = isFavorite ? 'Unfavorite cell' : 'Favorite cell';
+  const jpButton = button.node.querySelector('jp-button');
+  if (jpButton) {
+    jpButton.setAttribute('aria-label', tooltip);
+    jpButton.setAttribute('title', tooltip);
+  }
+  button.node.setAttribute('title', tooltip);
+  // Replace the SVG in the button
+  const icon = getFavoritesIcon(isFavorite);
+  const svgElement = button.node.querySelector('svg');
+  if (svgElement) {
+    svgElement.outerHTML = icon.svgstr;
+  } else {
+    button.node.innerHTML = icon.svgstr;
+  }
+}
+
+export function toggleCellFavorite(cell: ICellModel): void {
+  let tags = cell.getMetadata('tags');
+  if (Array.isArray(tags)) {
+    const favIndex = tags.indexOf(FAVORITE_TAG);
+    if (favIndex === -1) {
+      tags = [...tags, FAVORITE_TAG];
+    } else {
+      tags = tags.filter(tag => tag !== FAVORITE_TAG);
+    }
+    if (tags.length === 0) {
+      cell.deleteMetadata('tags');
+    } else {
+      cell.setMetadata('tags', tags);
+    }
+  } else {
+    cell.setMetadata('tags', [FAVORITE_TAG]);
+  }
+}
+
+export function updateCellClasses(notebook: Notebook) {
+  notebook.widgets.forEach(widget => {
+    const cell = widget as Cell;
+    const tags = cell.model.getMetadata('tags') as string[] | undefined;
+    const isFav = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
+
+    if (isFav) {
+      cell.node.classList.add(FAVORITE_CELL_CLASS);
+    } else {
+      cell.node.classList.remove(FAVORITE_CELL_CLASS);
+    }
+  });
+}
+
+export function updateSingleCellClass(cell: Cell<ICellModel>) {
+  const tags = cell.model.getMetadata('tags') as string[] | undefined;
+  const isFav = Array.isArray(tags) && tags.includes(FAVORITE_TAG);
+  if (isFav) {
+    cell.addClass(FAVORITE_CELL_CLASS);
+  } else {
+    cell.removeClass(FAVORITE_CELL_CLASS);
+  }
+}
+
+export function changeShowStarsOnCells(
+  type: ShowStarsTypes,
+  notebookPanel: NotebookPanel | null
+) {
+  if (!notebookPanel || !notebookPanel.content) {
+    return;
+  }
+  const notebook = notebookPanel.content;
+  const toggleClass = (className: string, shouldAdd: boolean) => {
+    if (shouldAdd) {
+      if (!notebook.node.classList.contains(className)) {
+        notebook.node.classList.add(className);
+      }
+    } else {
+      if (notebook.node.classList.contains(className)) {
+        notebook.node.classList.remove(className);
+      }
+    }
+  };
+  if (type === 'allCells') {
+    toggleClass(NEVER_SHOW_STARS, false);
+    toggleClass(SHOW_ALL_STARS, true);
+  } else if (type === 'onlyFavoriteCells') {
+    toggleClass(NEVER_SHOW_STARS, false);
+    toggleClass(SHOW_ALL_STARS, false);
+  } else if (type === 'never') {
+    toggleClass(SHOW_ALL_STARS, false);
+    toggleClass(NEVER_SHOW_STARS, true);
+  }
+}

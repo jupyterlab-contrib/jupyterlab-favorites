@@ -2,7 +2,10 @@ import { Token } from '@lumino/coreutils';
 
 export namespace PluginIDs {
   export const favorites = 'jupyterlab-favorites';
+  export const notebookFactory = 'favorites-notebook-factory';
 }
+
+export type ShowStarsTypes = 'allCells' | 'onlyFavoriteCells' | 'never';
 
 export namespace CommandIDs {
   export const addOrRemoveFavorite = `${PluginIDs.favorites}:add-or-remove-favorite`;
@@ -12,6 +15,9 @@ export namespace CommandIDs {
   export const toggleFavoritesWidget = `${PluginIDs.favorites}:toggle-favorites-widget`;
   export const restoreDefaults = `${PluginIDs.favorites}:restore-defaults`;
   export const clearFavorites = `${PluginIDs.favorites}:clear-favorites`;
+  export const toggleCellsVisibility = `${PluginIDs.favorites}:toggle-cell-visibility`;
+  export const addFavoriteClasses = `${PluginIDs.favorites}:toggle-favorite-classes`;
+  export const toggleCellFavorite = `${PluginIDs.favorites}:toggle-cell-favorite`;
 }
 
 export namespace SettingIDs {
@@ -43,3 +49,8 @@ export const IFavorites = new Token<IFavorites>(
 export interface IFavorites {
   readonly favorites: IFavorites.Favorite[];
 }
+
+/**
+ * Cell tag used to mark cell as favorite
+ */
+export const FAVORITE_TAG = 'favorite';

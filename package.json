@@ -70,10 +70,12 @@
     "dependencies": {
         "@jupyterlab/application": "^4.0.5",
         "@jupyterlab/apputils": "^4.1.5",
+        "@jupyterlab/cells": "^4.0.5",
         "@jupyterlab/coreutils": "^6.0.5",
         "@jupyterlab/docregistry": "^4.0.5",
         "@jupyterlab/filebrowser": "^4.0.5",
         "@jupyterlab/mainmenu": "^4.0.5",
+        "@jupyterlab/notebook": "^4.0.5",
         "@jupyterlab/services": "^7.0.5",
         "@jupyterlab/settingregistry": "^4.0.5",
         "@jupyterlab/ui-components": "^4.0.5",
