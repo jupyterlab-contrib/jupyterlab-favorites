@@ -71,7 +71,9 @@ export namespace StarredNotebookContentFactory {
   }
 }
 
-export class StarredNotebookContentFactory extends NotebookPanel.ContentFactory {
+export class StarredNotebookContentFactory
+  extends NotebookPanel.ContentFactory
+{
   private _app: JupyterFrontEnd;
 
   constructor(options: StarredNotebookContentFactory.IOptions) {

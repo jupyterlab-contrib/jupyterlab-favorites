@@ -367,7 +367,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
             placeholder: 'Display name'
           });
 
-          displayName = result.button.accept ? result.value ?? '' : '';
+          displayName = result.button.accept ? (result.value ?? '') : '';
         }
 
         if (!displayName) {
