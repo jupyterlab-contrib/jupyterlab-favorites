@@ -65,7 +65,9 @@
     },
     "resolutions": {
         "react-dom": "^18.2.0",
-        "react": "^18.2.0"
+        "react": "^18.2.0",
+        "lib0": "0.2.111",
+        "mermaid": "11.12.2"
     },
     "dependencies": {
         "@jupyterlab/application": "^4.0.5",
@@ -82,11 +84,13 @@
         "@lumino/commands": "^2.0.1",
         "@lumino/coreutils": "^2.0.1",
         "@lumino/signaling": "^2.0.0",
-        "@lumino/widgets": "^2.0.1"
+        "@lumino/widgets": "^2.0.1",
+        "jupyterlab-myst": "^2.4.0"
     },
     "devDependencies": {
         "@jupyterlab/builder": "^4.0.0",
         "@types/json-schema": "^7.0.11",
+        "@types/node": "^20.11.27",
         "@types/react": "^18.0.26",
         "@types/react-addons-linked-state-mixin": "^0.14.22",
         "@typescript-eslint/eslint-plugin": "^6.1.0",
