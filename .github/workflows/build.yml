@@ -79,6 +79,10 @@ jobs:
 
   integration-tests:
     name: Integration tests
+    strategy:
+      fail-fast: false
+      matrix:
+        jupyterlab: ['3.6', '4.0']
     needs: build
     runs-on: ubuntu-latest
 
@@ -100,13 +104,17 @@ jobs:
     - name: Install the extension
       run: |
         set -eux
-        python -m pip install "jupyterlab>=4.0.0,<5" jupyterlab_favorites*.whl
+        python -m pip install "jupyterlab~=${{ matrix.jupyterlab }}" jupyterlab_favorites*.whl
 
     - name: Install dependencies
       working-directory: ui-tests
       env:
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
-      run: jlpm install
+      run: |
+        if [[ "${{ matrix.jupyterlab }}" == "3.6" ]]; then
+          jlpm add -D "@jupyterlab/galata@^4.0.0"
+        fi
+        jlpm install
 
     - name: Set up browser cache
       uses: actions/cache@v3
@@ -121,8 +129,10 @@ jobs:
 
     - name: Execute integration tests
       working-directory: ui-tests
+      env:
+        PLAYWRIGHT_HTML_REPORT: playwright-report-${{ matrix.jupyterlab }}
       run: |
-        jlpm playwright test
+        jlpm playwright test --output test-results-${{ matrix.jupyterlab }}
 
     - name: Upload Playwright Test report
       if: always()
@@ -130,8 +140,8 @@ jobs:
       with:
         name: jupyterlab_favorites-playwright-tests
         path: |
-          ui-tests/test-results
-          ui-tests/playwright-report
+          ui-tests/test-results*
+          ui-tests/playwright-report*
 
   check_links:
     name: Check Links
