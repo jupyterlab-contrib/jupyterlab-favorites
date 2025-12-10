@@ -1,10 +1,16 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { BoxLayout, Widget } from '@lumino/widgets';
 import { CommandIDs } from './token';
-import { Cell, IInputPrompt, InputPrompt } from '@jupyterlab/cells';
+import {
+  Cell,
+  IInputPrompt,
+  InputPrompt,
+  MarkdownCell
+} from '@jupyterlab/cells';
 import { ToolbarButton } from '@jupyterlab/ui-components';
 import { filledStarIcon, starIcon } from './icons';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { MySTMarkdownCell } from 'jupyterlab-myst/lib/MySTMarkdownCell';
 
 const INPUT_PROMPT_CLASS = 'jp-InputPrompt';
 const INPUT_PROMPT_NUMBER_CLASS = 'jp-Favorites-InputPromptNumber';
@@ -75,5 +81,15 @@ export class StarredNotebookContentFactory extends NotebookPanel.ContentFactory 
 
   createInputPrompt(): StarredInputPrompt {
     return new StarredInputPrompt(this._app);
+  }
+
+  createMarkdownCell(options: MarkdownCell.IOptions): MarkdownCell {
+    if (!this._app.hasPlugin('jupyterlab-myst:content-factory')) {
+      return new MarkdownCell(options).initializeState();
+    }
+    if (!options.contentFactory) {
+      options.contentFactory = this;
+    }
+    return new MySTMarkdownCell(options as any).initializeState() as any;
   }
 }
