@@ -115,7 +115,12 @@
     "jupyterlab": {
         "extension": true,
         "outputDir": "jupyterlab_favorites/labextension",
-        "schemaDir": "schema"
+        "schemaDir": "schema",
+        "sharedPackages": {
+            "jupyterlab-myst": {
+                "bundled": false
+            }
+        }
     },
     "styleModule": "style/index.js",
     "prettier": {

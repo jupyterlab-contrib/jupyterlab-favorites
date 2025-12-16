@@ -48,6 +48,7 @@ import {
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 import { IEditorServices } from '@jupyterlab/codeeditor';
 import { StarredNotebookContentFactory } from './starPrompt';
+import mystPlugins from 'jupyterlab-myst';
 
 export { IFavorites, FAVORITE_TAG } from './token';
 
@@ -483,12 +484,35 @@ export const notebookFactoryPlugin: JupyterFrontEndPlugin<NotebookPanel.IContent
     provides: NotebookPanel.IContentFactory,
     requires: [IEditorServices],
     autoStart: true,
-    activate: (app: JupyterFrontEnd, editorServices: IEditorServices) => {
+    activate: async (app: JupyterFrontEnd, editorServices: IEditorServices) => {
+      let mystFactory: NotebookPanel.IContentFactory | undefined;
+      if (app.hasPlugin('jupyterlab-myst:content-factory')) {
+        const mystPlugin = mystPlugins.filter(
+          plugin => plugin.provides === NotebookPanel.IContentFactory
+        )[0];
+        if (mystPlugin) {
+          const dependencies = await Promise.all([
+            ...(mystPlugin.requires ?? []).map(token =>
+              app.resolveRequiredService(token)
+            ),
+            ...(mystPlugin.optional ?? []).map(token =>
+              app.resolveOptionalService(token)
+            )
+          ]);
+          mystFactory = (await mystPlugin.activate(app, ...dependencies))!;
+        } else {
+          console.error(
+            'jupyterlab-favorites found jupyterlab-myst:content-factory plugin, but could not activate content factory for compatibility fix'
+          );
+        }
+      }
+
       const editorFactory = editorServices.factoryService.newInlineEditor;
 
       const factory = new StarredNotebookContentFactory({
         editorFactory,
-        app
+        app,
+        mystFactory
       });
 
       return factory;

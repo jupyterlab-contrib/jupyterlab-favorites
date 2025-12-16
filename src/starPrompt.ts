@@ -10,7 +10,6 @@ import {
 import { ToolbarButton } from '@jupyterlab/ui-components';
 import { filledStarIcon, starIcon } from './icons';
 import { NotebookPanel } from '@jupyterlab/notebook';
-import { MySTMarkdownCell } from 'jupyterlab-myst/lib/MySTMarkdownCell';
 
 const INPUT_PROMPT_CLASS = 'jp-InputPrompt';
 const INPUT_PROMPT_NUMBER_CLASS = 'jp-Favorites-InputPromptNumber';
@@ -68,17 +67,17 @@ export class StarredInputPrompt extends Widget implements IInputPrompt {
 export namespace StarredNotebookContentFactory {
   export interface IOptions extends Cell.ContentFactory.IOptions {
     app: JupyterFrontEnd;
+    mystFactory?: NotebookPanel.IContentFactory;
   }
 }
 
 export class StarredNotebookContentFactory
   extends NotebookPanel.ContentFactory
 {
-  private _app: JupyterFrontEnd;
-
   constructor(options: StarredNotebookContentFactory.IOptions) {
     super(options);
     this._app = options.app;
+    this._mystFactory = options.mystFactory;
   }
 
   createInputPrompt(): StarredInputPrompt {
@@ -86,12 +85,12 @@ export class StarredNotebookContentFactory
   }
 
   createMarkdownCell(options: MarkdownCell.IOptions): MarkdownCell {
-    if (!this._app.hasPlugin('jupyterlab-myst:content-factory')) {
-      return new MarkdownCell(options).initializeState();
+    if (this._mystFactory) {
+      return this._mystFactory.createMarkdownCell(options);
     }
-    if (!options.contentFactory) {
-      options.contentFactory = this;
-    }
-    return new MySTMarkdownCell(options as any).initializeState() as any;
+    return new MarkdownCell(options).initializeState();
   }
+
+  private _app: JupyterFrontEnd;
+  private _mystFactory?: NotebookPanel.IContentFactory;
 }
