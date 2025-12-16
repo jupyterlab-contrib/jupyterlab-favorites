@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.3.1
+
+([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.3.0...850e2e3781469ce9918a8997d0f895f82ec3073c))
+
+### Bugs fixed
+
+- Fix content factory conflict with `jupyterlab-myst` [#37](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/37) ([@Darshan808](https://github.com/Darshan808), [@agoose77](https://github.com/agoose77), [@krassowski](https://github.com/krassowski))
+
+### Maintenance and upkeep improvements
+
+- Drop `NPM_TOKEN` (no longer needed with trusted publishers) [#38](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/38) ([@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2025-11-24&to=2025-12-16&type=c))
+
+@agoose77 ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Aagoose77+updated%3A2025-11-24..2025-12-16&type=Issues)) | @Darshan808 ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3ADarshan808+updated%3A2025-11-24..2025-12-16&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2025-11-24..2025-12-16&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.3.0
 
 ([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.2.2...8398e8401df2605b8d92ec3b018f2b142adb0aa2))
@@ -24,8 +47,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2024-03-21&to=2025-11-24&type=c))
 
 [@Darshan808](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3ADarshan808+updated%3A2024-03-21..2025-11-24&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Agithub-actions+updated%3A2024-03-21..2025-11-24&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2024-03-21..2025-11-24&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.2.2
 
