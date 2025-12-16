@@ -48,7 +48,6 @@ import {
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 import { IEditorServices } from '@jupyterlab/codeeditor';
 import { StarredNotebookContentFactory } from './starPrompt';
-import mystPlugins from 'jupyterlab-myst';
 
 export { IFavorites, FAVORITE_TAG } from './token';
 
@@ -487,6 +486,7 @@ export const notebookFactoryPlugin: JupyterFrontEndPlugin<NotebookPanel.IContent
     activate: async (app: JupyterFrontEnd, editorServices: IEditorServices) => {
       let mystFactory: NotebookPanel.IContentFactory | undefined;
       if (app.hasPlugin('jupyterlab-myst:content-factory')) {
+        const mystPlugins = (await import('jupyterlab-myst')).default;
         const mystPlugin = mystPlugins.filter(
           plugin => plugin.provides === NotebookPanel.IContentFactory
         )[0];
