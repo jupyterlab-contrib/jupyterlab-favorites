@@ -1,7 +1,12 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { BoxLayout, Widget } from '@lumino/widgets';
 import { CommandIDs } from './token';
-import { Cell, IInputPrompt, InputPrompt } from '@jupyterlab/cells';
+import {
+  Cell,
+  IInputPrompt,
+  InputPrompt,
+  MarkdownCell
+} from '@jupyterlab/cells';
 import { ToolbarButton } from '@jupyterlab/ui-components';
 import { filledStarIcon, starIcon } from './icons';
 import { NotebookPanel } from '@jupyterlab/notebook';
@@ -62,18 +67,30 @@ export class StarredInputPrompt extends Widget implements IInputPrompt {
 export namespace StarredNotebookContentFactory {
   export interface IOptions extends Cell.ContentFactory.IOptions {
     app: JupyterFrontEnd;
+    mystFactory?: NotebookPanel.IContentFactory;
   }
 }
 
-export class StarredNotebookContentFactory extends NotebookPanel.ContentFactory {
-  private _app: JupyterFrontEnd;
-
+export class StarredNotebookContentFactory
+  extends NotebookPanel.ContentFactory
+{
   constructor(options: StarredNotebookContentFactory.IOptions) {
     super(options);
     this._app = options.app;
+    this._mystFactory = options.mystFactory;
   }
 
   createInputPrompt(): StarredInputPrompt {
     return new StarredInputPrompt(this._app);
   }
+
+  createMarkdownCell(options: MarkdownCell.IOptions): MarkdownCell {
+    if (this._mystFactory) {
+      return this._mystFactory.createMarkdownCell(options);
+    }
+    return new MarkdownCell(options).initializeState();
+  }
+
+  private _app: JupyterFrontEnd;
+  private _mystFactory?: NotebookPanel.IContentFactory;
 }
