@@ -165,15 +165,20 @@ function FavoritesContainer({
 
   const handleMouseMove = React.useCallback(
     (e: MouseEvent) => {
-      if (!isResizing) return;
+      if (!isResizing) {
+        return;
+      }
 
       const container = containerRef.current;
-      if (!container) return;
+      if (!container) {
+        return;
+      }
 
       const rect = container.getBoundingClientRect();
       const newHeight = e.clientY - rect.top;
 
-      if (newHeight > 120) { // Minimum height
+      if (newHeight > 120) {
+        // Minimum height
         container.style.height = newHeight + 'px';
       }
     },
@@ -249,7 +254,10 @@ export class FavoritesWidget extends ReactWidget {
                 isVisible && (
                   <>
                     <div className={FAVORITE_HEADER_CLASS}>Favorites</div>
-                    <FavoritesContainer visibleFavorites={visibleFavorites} manager={manager} />
+                    <FavoritesContainer
+                      visibleFavorites={visibleFavorites}
+                      manager={manager}
+                    />
                     <div className={FILEBROWSER_HEADER_CLASS}>File Browser</div>
                   </>
                 )
