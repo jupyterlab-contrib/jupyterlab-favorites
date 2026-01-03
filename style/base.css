@@ -42,7 +42,22 @@
 
 .jp-Favorites-container {
   overflow: auto;
-  max-height: 120px;
+  height: 120px;
+  scrollbar-width: none;
+}
+
+.resize-handle {
+  height: 4px;
+  background: transparent;
+  cursor: ns-resize;
+}
+
+.resize-handle:hover {
+  background: var(--jp-border-color1);
+}
+
+.jp-Favorites-container::-webkit-scrollbar {
+  display: none;
 }
 
 .jp-Favorites {
