@@ -7,6 +7,8 @@ export namespace PluginIDs {
 
 export type ShowStarsTypes = 'allCells' | 'onlyFavoriteCells' | 'never';
 
+export type SortOrder = 'unsorted' | 'name' | 'path';
+
 export namespace CommandIDs {
   export const addOrRemoveFavorite = `${PluginIDs.favorites}:add-or-remove-favorite`;
   export const removeFavorite = `${PluginIDs.favorites}:remove-favorite`;
@@ -39,6 +41,8 @@ export namespace IFavorites {
   export type FavoritesSettings = {
     favorites?: Array<IFavorites.Favorite>;
     showWidget?: boolean;
+    sortOrder?: SortOrder;
+    groupByType?: boolean;
   };
 }
 
