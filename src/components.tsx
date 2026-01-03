@@ -147,6 +147,70 @@ export const FavoritesBreadCrumbs: React.FunctionComponent<
   );
 };
 
+interface IFavoritesContainerProps {
+  visibleFavorites?: Array<IFavorites.Favorite>;
+  manager?: FavoritesManager;
+}
+
+function FavoritesContainer({
+  visibleFavorites,
+  manager
+}: IFavoritesContainerProps) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [isResizing, setIsResizing] = React.useState(false);
+
+  const handleMouseDown = () => {
+    setIsResizing(true);
+  };
+
+  const handleMouseMove = React.useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const container = containerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      const newHeight = e.clientY - rect.top;
+
+      if (newHeight > 120) { // Minimum height
+        container.style.height = newHeight + 'px';
+      }
+    },
+    [isResizing]
+  );
+
+  const handleMouseUp = React.useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isResizing, handleMouseMove, handleMouseUp]);
+
+  return (
+    <>
+      <div ref={containerRef} className={FAVORITE_CONTAINER_CLASS}>
+        {(visibleFavorites ?? []).map(f => (
+          <FavoriteComponent
+            key={`favorites-item-${f.path}`}
+            favorite={f}
+            handleClick={manager!.handleClick.bind(manager)}
+          />
+        ))}
+      </div>
+      <div className="resize-handle" onMouseDown={handleMouseDown}></div>
+    </>
+  );
+}
 export class FavoritesWidget extends ReactWidget {
   private manager: FavoritesManager;
   private filebrowser: FileBrowser;
@@ -185,15 +249,7 @@ export class FavoritesWidget extends ReactWidget {
                 isVisible && (
                   <>
                     <div className={FAVORITE_HEADER_CLASS}>Favorites</div>
-                    <div className={FAVORITE_CONTAINER_CLASS}>
-                      {(visibleFavorites ?? []).map(f => (
-                        <FavoriteComponent
-                          key={`favorites-item-${f.path}`}
-                          favorite={f}
-                          handleClick={manager!.handleClick.bind(manager)}
-                        />
-                      ))}
-                    </div>
+                    <FavoritesContainer visibleFavorites={visibleFavorites} manager={manager} />
                     <div className={FILEBROWSER_HEADER_CLASS}>File Browser</div>
                   </>
                 )
