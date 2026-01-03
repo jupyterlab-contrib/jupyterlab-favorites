@@ -105,7 +105,7 @@
       "default": "name",
       "oneOf": [
         { "const": "unsorted", "title": "Unsorted (creation order)" },
-        { "const": "name", "title": "By Name" },
+        { "const": "name", "title": "By Display Name" },
         { "const": "path", "title": "By Path" }
       ]
     },

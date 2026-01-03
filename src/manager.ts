@@ -175,8 +175,9 @@ export class FavoritesManager {
 
       // Sort by selected criterion
       if (this._sortOrder === 'name') {
-        const nameA = getName(a.path)[0].toLowerCase();
-        const nameB = getName(b.path)[0].toLowerCase();
+        // Use custom display name if set, otherwise fall back to basename
+        const nameA = (a.name || getName(a.path)[0]).toLowerCase();
+        const nameB = (b.name || getName(b.path)[0]).toLowerCase();
         return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
       } else {
         // sortOrder === 'path'
