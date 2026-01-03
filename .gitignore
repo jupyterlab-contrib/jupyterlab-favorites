@@ -4,6 +4,9 @@ node_modules/
 *.log
 .eslintcache
 .stylelintcache
+
+# Claude Code configuration
+.claude/
 *.egg-info/
 .ipynb_checkpoints
 *.tsbuildinfo

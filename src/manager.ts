@@ -3,7 +3,7 @@ import { Signal } from '@lumino/signaling';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { CommandRegistry } from '@lumino/commands';
 import { Contents } from '@jupyterlab/services';
-import { IFavorites, SettingIDs, CommandIDs } from './token';
+import { IFavorites, SettingIDs, CommandIDs, SortOrder } from './token';
 import { getName, Optional } from './utils';
 
 export class FavoritesManager {
@@ -163,14 +163,26 @@ export class FavoritesManager {
 
   visibleFavorites(sort: boolean = true): IFavorites.Favorite[] {
     const filtered = this.favorites.filter(f => !f.hidden);
-    if (!sort) {
+    if (!sort || this._sortOrder === 'unsorted') {
       return filtered;
     }
+
     return filtered.sort((a, b) => {
-      if (a.contentType === b.contentType) {
-        return getName(a.path) <= getName(b.path) ? -1 : 1;
-      } else {
+      // Group by content type first if enabled
+      if (this._groupByType && a.contentType !== b.contentType) {
         return a.contentType < b.contentType ? -1 : 1;
+      }
+
+      // Sort by selected criterion
+      if (this._sortOrder === 'name') {
+        const nameA = getName(a.path)[0].toLowerCase();
+        const nameB = getName(b.path)[0].toLowerCase();
+        return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+      } else {
+        // sortOrder === 'path'
+        const pathA = a.path.toLowerCase();
+        const pathB = b.path.toLowerCase();
+        return pathA < pathB ? -1 : pathA > pathB ? 1 : 0;
       }
     });
   }
@@ -196,6 +208,20 @@ export class FavoritesManager {
       IFavorites.Favorite,
       'root'
     >[];
+
+    // Load sort settings
+    const sortOrderSetting = await this._settingsRegistry.get(
+      SettingIDs.favorites,
+      'sortOrder'
+    );
+    this._sortOrder = (sortOrderSetting.composite ?? 'name') as SortOrder;
+
+    const groupByTypeSetting = await this._settingsRegistry.get(
+      SettingIDs.favorites,
+      'groupByType'
+    );
+    this._groupByType = (groupByTypeSetting.composite ?? true) as boolean;
+
     this.favorites = favorites.map(favorite => {
       return { ...favorite, root: favorite.root ?? this.serverRoot };
     });
@@ -240,4 +266,6 @@ export class FavoritesManager {
   private _favorites: IFavorites.Favorite[] = [];
   private _serverRoot: string;
   private _showWidget = false;
+  private _sortOrder: SortOrder = 'name';
+  private _groupByType = true;
 }
