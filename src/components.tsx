@@ -225,7 +225,10 @@ function FavoritesContainer({
           />
         ))}
       </div>
-      <div className="jp-Favorites-resize-handle" onMouseDown={handleMouseDown}></div>
+      <div
+        className="jp-Favorites-resize-handle"
+        onMouseDown={handleMouseDown}
+      ></div>
     </>
   );
 }
