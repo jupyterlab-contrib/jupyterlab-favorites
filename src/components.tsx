@@ -16,6 +16,8 @@ import {
   getPinnerActionDescription,
   mergePaths
 } from './utils';
+import { Drag } from '@lumino/dragdrop';
+import { IDisposable } from '@lumino/disposable';
 
 /**
  * The parent node class for Favorites content.
@@ -158,9 +160,11 @@ function FavoritesContainer({
 }: IFavoritesContainerProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = React.useState(false);
+  const cursorDisposableRef = React.useRef<IDisposable | null>(null);
 
   const handleMouseDown = () => {
     setIsResizing(true);
+    cursorDisposableRef.current = Drag.overrideCursor('ns-resize');
   };
 
   const handleMouseMove = React.useCallback(
@@ -173,12 +177,19 @@ function FavoritesContainer({
       if (!container) {
         return;
       }
+      // Height of filebrowser widget
+      const parentRect =
+        container.parentElement?.parentElement?.parentElement?.getBoundingClientRect();
+      if (!parentRect) {
+        return;
+      }
 
       const rect = container.getBoundingClientRect();
       const newHeight = e.clientY - rect.top;
+      const maxHeight = parentRect.height - 100;
 
-      if (newHeight > 120) {
-        // Minimum height
+      if (newHeight > 24 && newHeight < maxHeight) {
+        container.style.maxHeight = maxHeight + 'px'; // To ensure default max-height of css is overridden
         container.style.height = newHeight + 'px';
       }
     },
@@ -187,6 +198,8 @@ function FavoritesContainer({
 
   const handleMouseUp = React.useCallback(() => {
     setIsResizing(false);
+    cursorDisposableRef.current?.dispose();
+    cursorDisposableRef.current = null;
   }, []);
 
   React.useEffect(() => {
@@ -212,7 +225,7 @@ function FavoritesContainer({
           />
         ))}
       </div>
-      <div className="resize-handle" onMouseDown={handleMouseDown}></div>
+      <div className="jp-Favorites-resize-handle" onMouseDown={handleMouseDown}></div>
     </>
   );
 }

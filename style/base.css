@@ -42,17 +42,17 @@
 
 .jp-Favorites-container {
   overflow: auto;
-  height: 120px;
   scrollbar-width: none;
+  max-height: 120px;
 }
 
-.resize-handle {
+.jp-Favorites-resize-handle {
   height: 4px;
   background: transparent;
   cursor: ns-resize;
 }
 
-.resize-handle:hover {
+.jp-Favorites-resize-handle:hover {
   background: var(--jp-border-color1);
 }
 
