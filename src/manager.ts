@@ -173,17 +173,21 @@ export class FavoritesManager {
         return a.contentType < b.contentType ? -1 : 1;
       }
 
-      // Sort by selected criterion
+      // Sort by selected criterion using locale-aware comparison
       if (this._sortOrder === 'name') {
         // Use custom display name if set, otherwise fall back to basename
-        const nameA = (a.name || getName(a.path)[0]).toLowerCase();
-        const nameB = (b.name || getName(b.path)[0]).toLowerCase();
-        return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+        const nameA = a.name || getName(a.path)[0];
+        const nameB = b.name || getName(b.path)[0];
+        return nameA.localeCompare(nameB, undefined, {
+          numeric: true,
+          sensitivity: 'base'
+        });
       } else {
         // sortOrder === 'path'
-        const pathA = a.path.toLowerCase();
-        const pathB = b.path.toLowerCase();
-        return pathA < pathB ? -1 : pathA > pathB ? 1 : 0;
+        return a.path.localeCompare(b.path, undefined, {
+          numeric: true,
+          sensitivity: 'base'
+        });
       }
     });
   }

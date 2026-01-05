@@ -104,7 +104,7 @@
       "description": "How to sort favorites in the list.",
       "default": "name",
       "oneOf": [
-        { "const": "unsorted", "title": "Unsorted (creation order)" },
+        { "const": "unsorted", "title": "By Creation Order" },
         { "const": "name", "title": "By Display Name" },
         { "const": "path", "title": "By Path" }
       ]
