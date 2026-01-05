@@ -178,16 +178,10 @@ export class FavoritesManager {
         // Use custom display name if set, otherwise fall back to basename
         const nameA = a.name || getName(a.path)[0];
         const nameB = b.name || getName(b.path)[0];
-        return nameA.localeCompare(nameB, undefined, {
-          numeric: true,
-          sensitivity: 'base'
-        });
+        return nameA.localeCompare(nameB);
       } else {
         // sortOrder === 'path'
-        return a.path.localeCompare(b.path, undefined, {
-          numeric: true,
-          sensitivity: 'base'
-        });
+        return a.path.localeCompare(b.path);
       }
     });
   }
