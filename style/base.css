@@ -50,6 +50,7 @@
   height: 4px;
   background: transparent;
   cursor: ns-resize;
+  user-select: none;
 }
 
 .jp-Favorites-resize-handle:hover {

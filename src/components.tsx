@@ -63,6 +63,11 @@ const FILEBROWSER_HEADER_CLASS = 'jp-FileBrowser-header';
  */
 const FAVORITE_BREADCRUMB_ICON_CLASS = 'jp-Favorites-BreadCrumbs-Icon';
 
+/**
+ * The spacing from the bottom of the FileBrowser to leave when resizing the Favorites container.
+ */
+const BOTTOM_SPACING = 100;
+
 namespace types {
   export type FavoriteComponentProps = {
     favorite: IFavorites.Favorite;
@@ -178,15 +183,15 @@ function FavoritesContainer({
         return;
       }
       // Height of filebrowser widget
-      const parentRect =
-        container.parentElement?.parentElement?.parentElement?.getBoundingClientRect();
+      const parentElement = container.closest('.jp-FileBrowser');
+      const parentRect = parentElement?.getBoundingClientRect();
       if (!parentRect) {
         return;
       }
 
       const rect = container.getBoundingClientRect();
       const newHeight = e.clientY - rect.top;
-      const maxHeight = parentRect.height - 100;
+      const maxHeight = parentRect.height - BOTTOM_SPACING;
 
       if (newHeight > 24 && newHeight < maxHeight) {
         container.style.maxHeight = maxHeight + 'px'; // To ensure default max-height of css is overridden
@@ -213,6 +218,12 @@ function FavoritesContainer({
       };
     }
   }, [isResizing, handleMouseMove, handleMouseUp]);
+
+  React.useEffect(() => {
+    return () => {
+      cursorDisposableRef.current?.dispose();
+    };
+  }, []);
 
   return (
     <>
