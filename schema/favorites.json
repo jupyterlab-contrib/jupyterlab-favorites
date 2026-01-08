@@ -97,6 +97,23 @@
         { "const": "onlyFavoriteCells", "title": "Only favorite Cells" },
         { "const": "never", "title": "Never" }
       ]
+    },
+    "sortOrder": {
+      "type": "string",
+      "title": "Sort Order",
+      "description": "How to sort favorites in the list.",
+      "default": "name",
+      "oneOf": [
+        { "const": "unsorted", "title": "By Creation Order" },
+        { "const": "name", "title": "By Display Name" },
+        { "const": "path", "title": "By Path" }
+      ]
+    },
+    "groupByType": {
+      "type": "boolean",
+      "title": "Group by Type",
+      "description": "Group directories before files when sorting.",
+      "default": true
     }
   },
   "title": "Favorites",

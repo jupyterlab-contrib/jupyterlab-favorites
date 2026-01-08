@@ -21,7 +21,10 @@ test('should add a file as favorite', async ({ page }) => {
 });
 
 test('should add a folder as favorite', async ({ page }) => {
-  await page.getByText('Untitled Folder').click({ button: 'right' });
+  await page
+    .locator('.jp-DirListing-item')
+    .getByText('Untitled Folder')
+    .click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Add Favorite' }).click();
 
   await expect(
@@ -46,11 +49,17 @@ test('should remove a favorite from widget', async ({ page }) => {
 
 test('should remove a favorite from breadcrumb', async ({ page }) => {
   // Set folder as favorite
-  await page.getByText('Untitled Folder').click({ button: 'right' });
+  await page
+    .locator('.jp-DirListing-item')
+    .getByText('Untitled Folder')
+    .click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Add Favorite' }).click();
 
   // Open folder such that the star icon is visible
-  await page.getByText('Untitled Folder').dblclick();
+  await page
+    .locator('.jp-DirListing-item')
+    .getByText('Untitled Folder')
+    .dblclick();
 
   await page.getByTitle('Remove Favorite').click();
 
