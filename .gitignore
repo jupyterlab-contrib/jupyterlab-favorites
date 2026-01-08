@@ -126,3 +126,5 @@ dmypy.json
 
 # Yarn cache
 .yarn/
+package-lock.json
+Makefile
