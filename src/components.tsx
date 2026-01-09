@@ -16,6 +16,8 @@ import {
   getPinnerActionDescription,
   mergePaths
 } from './utils';
+import { Drag } from '@lumino/dragdrop';
+import { IDisposable } from '@lumino/disposable';
 
 /**
  * The parent node class for Favorites content.
@@ -60,6 +62,11 @@ const FILEBROWSER_HEADER_CLASS = 'jp-FileBrowser-header';
  * This icon is overlaid on top of the FileBrowser content via CSS.
  */
 const FAVORITE_BREADCRUMB_ICON_CLASS = 'jp-Favorites-BreadCrumbs-Icon';
+
+/**
+ * The spacing from the bottom of the FileBrowser to leave when resizing the Favorites container.
+ */
+const BOTTOM_SPACING = 100;
 
 namespace types {
   export type FavoriteComponentProps = {
@@ -147,6 +154,95 @@ export const FavoritesBreadCrumbs: React.FunctionComponent<
   );
 };
 
+interface IFavoritesContainerProps {
+  visibleFavorites?: Array<IFavorites.Favorite>;
+  manager?: FavoritesManager;
+}
+
+function FavoritesContainer({
+  visibleFavorites,
+  manager
+}: IFavoritesContainerProps) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [isResizing, setIsResizing] = React.useState(false);
+  const cursorDisposableRef = React.useRef<IDisposable | null>(null);
+
+  const handleMouseDown = () => {
+    setIsResizing(true);
+    cursorDisposableRef.current = Drag.overrideCursor('ns-resize');
+  };
+
+  const handleMouseMove = React.useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) {
+        return;
+      }
+
+      const container = containerRef.current;
+      if (!container) {
+        return;
+      }
+      // Height of filebrowser widget
+      const parentElement = container.closest('.jp-FileBrowser');
+      const parentRect = parentElement?.getBoundingClientRect();
+      if (!parentRect) {
+        return;
+      }
+
+      const rect = container.getBoundingClientRect();
+      const newHeight = e.clientY - rect.top;
+      const maxHeight = parentRect.height - BOTTOM_SPACING;
+
+      if (newHeight > 24 && newHeight < maxHeight) {
+        container.style.maxHeight = maxHeight + 'px'; // To ensure default max-height of css is overridden
+        container.style.height = newHeight + 'px';
+      }
+    },
+    [isResizing]
+  );
+
+  const handleMouseUp = React.useCallback(() => {
+    setIsResizing(false);
+    cursorDisposableRef.current?.dispose();
+    cursorDisposableRef.current = null;
+  }, []);
+
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isResizing, handleMouseMove, handleMouseUp]);
+
+  React.useEffect(() => {
+    return () => {
+      cursorDisposableRef.current?.dispose();
+    };
+  }, []);
+
+  return (
+    <>
+      <div ref={containerRef} className={FAVORITE_CONTAINER_CLASS}>
+        {(visibleFavorites ?? []).map(f => (
+          <FavoriteComponent
+            key={`favorites-item-${f.path}`}
+            favorite={f}
+            handleClick={manager!.handleClick.bind(manager)}
+          />
+        ))}
+      </div>
+      <div
+        className="jp-Favorites-resize-handle"
+        onMouseDown={handleMouseDown}
+      ></div>
+    </>
+  );
+}
 export class FavoritesWidget extends ReactWidget {
   private manager: FavoritesManager;
   private filebrowser: FileBrowser;
@@ -185,15 +281,10 @@ export class FavoritesWidget extends ReactWidget {
                 isVisible && (
                   <>
                     <div className={FAVORITE_HEADER_CLASS}>Favorites</div>
-                    <div className={FAVORITE_CONTAINER_CLASS}>
-                      {(visibleFavorites ?? []).map(f => (
-                        <FavoriteComponent
-                          key={`favorites-item-${f.path}`}
-                          favorite={f}
-                          handleClick={manager!.handleClick.bind(manager)}
-                        />
-                      ))}
-                    </div>
+                    <FavoritesContainer
+                      visibleFavorites={visibleFavorites}
+                      manager={manager}
+                    />
                     <div className={FILEBROWSER_HEADER_CLASS}>File Browser</div>
                   </>
                 )
