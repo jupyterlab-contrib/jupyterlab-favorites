@@ -42,7 +42,6 @@
 
 .jp-Favorites-container {
   overflow: auto;
-  scrollbar-width: none;
   max-height: 120px;
 }
 
@@ -55,10 +54,6 @@
 
 .jp-Favorites-resize-handle:hover {
   background: var(--jp-border-color1);
-}
-
-.jp-Favorites-container::-webkit-scrollbar {
-  display: none;
 }
 
 .jp-Favorites {
