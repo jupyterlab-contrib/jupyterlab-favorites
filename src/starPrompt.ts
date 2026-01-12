@@ -116,6 +116,15 @@ class FavoritesNotebook extends Notebook {
     if (nearestFavoriteIndex !== -1) {
       super.activeCellIndex = nearestFavoriteIndex;
       return;
+    } else {
+      // At the edges, stick the nearest favourite cell in any direction;
+      // this also helps when the favorite cell is moved around as it will
+      // snap back to it, rather than leaving the index on a now hidden cell.
+      const alternative = this._findNearestFavoriteCell(
+        newValue,
+        direction > 0 ? -1 : 1
+      );
+      super.activeCellIndex = alternative;
     }
   }
 
