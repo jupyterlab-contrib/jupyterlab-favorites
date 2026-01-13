@@ -1,6 +1,6 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { BoxLayout, Widget } from '@lumino/widgets';
-import { CommandIDs } from './token';
+import { CommandIDs, FAVORITE_FILTER_CLASS, FAVORITE_TAG } from './token';
 import {
   Cell,
   IInputPrompt,
@@ -9,7 +9,7 @@ import {
 } from '@jupyterlab/cells';
 import { ToolbarButton } from '@jupyterlab/ui-components';
 import { filledStarIcon, starIcon } from './icons';
-import { NotebookPanel } from '@jupyterlab/notebook';
+import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
 
 const INPUT_PROMPT_CLASS = 'jp-InputPrompt';
 const INPUT_PROMPT_NUMBER_CLASS = 'jp-Favorites-InputPromptNumber';
@@ -71,6 +71,105 @@ export namespace StarredNotebookContentFactory {
   }
 }
 
+class FavoritesNotebook extends Notebook {
+  constructor(options: Notebook.IOptions) {
+    super(options);
+  }
+
+  get activeCellIndex(): number {
+    if (!this.model) {
+      return -1;
+    }
+    return this.widgets.length ? super.activeCellIndex : -1;
+  }
+
+  set activeCellIndex(newValue: number) {
+    const oldValue = super.activeCellIndex;
+
+    // Validate bounds
+    if (!this.model || !this.widgets.length) {
+      newValue = -1;
+    } else {
+      newValue = Math.max(newValue, 0);
+      newValue = Math.min(newValue, this.widgets.length - 1);
+    }
+
+    // If favorites filter is not active, use default behavior
+    if (!this._isFavoritesFilterActive()) {
+      super.activeCellIndex = newValue;
+      return;
+    }
+
+    // If target cell is favorite, use default behavior
+    if (this._isCellFavorite(newValue)) {
+      super.activeCellIndex = newValue;
+      return;
+    }
+
+    // Target cell is not a favorite, find nearest favorite
+    const direction: 1 | -1 = newValue > oldValue ? 1 : -1;
+    const nearestFavoriteIndex = this._findNearestFavoriteCell(
+      newValue,
+      direction
+    );
+
+    if (nearestFavoriteIndex !== -1) {
+      super.activeCellIndex = nearestFavoriteIndex;
+      return;
+    } else {
+      // At the edges, stick the nearest favourite cell in any direction;
+      // this also helps when the favorite cell is moved around as it will
+      // snap back to it, rather than leaving the index on a now hidden cell.
+      const alternative = this._findNearestFavoriteCell(
+        newValue,
+        direction > 0 ? -1 : 1
+      );
+      super.activeCellIndex = alternative;
+    }
+  }
+
+  /**
+   * Check if a cell at the given index is marked as favorite
+   */
+  private _isCellFavorite(cellIndex: number): boolean {
+    if (cellIndex < 0 || cellIndex >= this.widgets.length) {
+      return false;
+    }
+
+    const cell = this.widgets[cellIndex];
+    const tags = cell.model.getMetadata('tags');
+    return Array.isArray(tags) && tags.includes(FAVORITE_TAG);
+  }
+
+  /**
+   * Check if the favorites filter is currently active
+   */
+  private _isFavoritesFilterActive(): boolean {
+    return this.node.classList.contains(FAVORITE_FILTER_CLASS);
+  }
+
+  /**
+   * Find the nearest favorite cell in a given direction
+   * @param startIndex - Index to start searching from
+   * @param direction - 1 for down, -1 for up
+   */
+  private _findNearestFavoriteCell(
+    startIndex: number,
+    direction: 1 | -1
+  ): number {
+    let currentIndex = startIndex + direction;
+
+    while (currentIndex >= 0 && currentIndex < this.widgets.length) {
+      if (this._isCellFavorite(currentIndex)) {
+        return currentIndex;
+      }
+      currentIndex += direction;
+    }
+
+    return -1;
+  }
+}
+
 export class StarredNotebookContentFactory
   extends NotebookPanel.ContentFactory
 {
@@ -89,6 +188,10 @@ export class StarredNotebookContentFactory
       return this._mystFactory.createMarkdownCell(options);
     }
     return new MarkdownCell(options).initializeState();
+  }
+
+  createNotebook(options: Notebook.IOptions): Notebook {
+    return new FavoritesNotebook(options);
   }
 
   private _app: JupyterFrontEnd;

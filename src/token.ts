@@ -58,3 +58,8 @@ export interface IFavorites {
  * Cell tag used to mark cell as favorite
  */
 export const FAVORITE_TAG = 'favorite';
+
+/**
+ * Class set to notebook when filtering cells by favorite is enabled
+ */
+export const FAVORITE_FILTER_CLASS = 'jp-favorites-filter-active';
