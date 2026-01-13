@@ -45,6 +45,17 @@
   max-height: 120px;
 }
 
+.jp-Favorites-resize-handle {
+  height: 4px;
+  background: transparent;
+  cursor: ns-resize;
+  user-select: none;
+}
+
+.jp-Favorites-resize-handle:hover {
+  background: var(--jp-border-color1);
+}
+
 .jp-Favorites {
   flex: 0 0 auto;
   overflow: visible;
