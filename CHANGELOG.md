@@ -2,6 +2,30 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.4.0
+
+([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.3.1...13b8625f490ffadd1101aadbb25bbd86067e39d9))
+
+### Enhancements made
+
+- Add configurable sort order for favorites [#40](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/40) ([@stellarshenson](https://github.com/stellarshenson), [@krassowski](https://github.com/krassowski))
+- Make Favorite Section resizable via a handle [#39](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/39) ([@Darshan808](https://github.com/Darshan808), [@krassowski](https://github.com/krassowski))
+
+### Bugs fixed
+
+- Fix navigation between cells via keyboard [#42](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/42) ([@Darshan808](https://github.com/Darshan808), [@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2025-12-16&to=2026-01-13&type=c))
+
+@Darshan808 ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3ADarshan808+updated%3A2025-12-16..2026-01-13&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2025-12-16..2026-01-13&type=Issues)) | @stellarshenson ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Astellarshenson+updated%3A2025-12-16..2026-01-13&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.3.1
 
 ([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.3.0...850e2e3781469ce9918a8997d0f895f82ec3073c))
@@ -22,8 +46,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2025-11-24&to=2025-12-16&type=c))
 
 @agoose77 ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Aagoose77+updated%3A2025-11-24..2025-12-16&type=Issues)) | @Darshan808 ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3ADarshan808+updated%3A2025-11-24..2025-12-16&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2025-11-24..2025-12-16&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.3.0
 
