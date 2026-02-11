@@ -56,6 +56,10 @@
   background: var(--jp-border-color1);
 }
 
+.jp-Favorites-resize-handle.jp-mod-active {
+  background: var(--jp-brand-color1);
+}
+
 .jp-Favorites {
   flex: 0 0 auto;
   overflow: visible;

@@ -237,7 +237,9 @@ function FavoritesContainer({
         ))}
       </div>
       <div
-        className="jp-Favorites-resize-handle"
+        className={
+          'jp-Favorites-resize-handle' + (isResizing ? ' jp-mod-active' : '')
+        }
         onMouseDown={handleMouseDown}
       ></div>
     </>
