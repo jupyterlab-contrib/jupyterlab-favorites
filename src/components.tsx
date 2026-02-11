@@ -198,8 +198,8 @@ function FavoritesContainer({
     }
   }, []);
 
-  // Apply persisted height when it's loaded
-  React.useEffect(() => {
+  // Apply persisted height when it's loaded (before paint to avoid flicker)
+  React.useLayoutEffect(() => {
     if (persistedHeight !== undefined) {
       applyHeight(persistedHeight);
     }
@@ -352,12 +352,15 @@ function usePersistedHeight(
   const [height, setHeightState] = React.useState<number | undefined>(
     undefined
   );
+  const initializedRef = React.useRef(false);
 
-  // Load initial value from stateDB
-  React.useEffect(() => {
-    if (!stateDB) {
+  // Load initial value from stateDB before first paint
+  React.useLayoutEffect(() => {
+    if (!stateDB || initializedRef.current) {
       return;
     }
+    initializedRef.current = true;
+
     stateDB.fetch(STATE_DB_KEY).then(result => {
       const persistedHeight = (result as IPersistedState)?.height;
       if (typeof persistedHeight === 'number') {
