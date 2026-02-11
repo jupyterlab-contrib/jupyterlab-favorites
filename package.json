@@ -80,6 +80,7 @@
         "@jupyterlab/notebook": "^4.0.5",
         "@jupyterlab/services": "^7.0.5",
         "@jupyterlab/settingregistry": "^4.0.5",
+        "@jupyterlab/statedb": "^4.0.5",
         "@jupyterlab/ui-components": "^4.0.5",
         "@lumino/commands": "^2.0.1",
         "@lumino/coreutils": "^2.0.1",

@@ -48,6 +48,7 @@ import {
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 import { IEditorServices } from '@jupyterlab/codeeditor';
 import { StarredNotebookContentFactory } from './starPrompt';
+import { IStateDB } from '@jupyterlab/statedb';
 
 export { IFavorites, FAVORITE_TAG } from './token';
 
@@ -85,7 +86,8 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     IDefaultFileBrowser,
     IMainMenu,
     IToolbarWidgetRegistry,
-    ICommandPalette
+    ICommandPalette,
+    IStateDB
   ],
   activate: async (
     app: JupyterFrontEnd,
@@ -96,7 +98,8 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     filebrowser: IDefaultFileBrowser | null,
     mainMenu: IMainMenu | null,
     toolbarRegistry: IToolbarWidgetRegistry | null,
-    palette: ICommandPalette | null
+    palette: ICommandPalette | null,
+    stateDB: IStateDB | null
   ): Promise<IFavorites> => {
     console.log('JupyterLab extension jupyterlab-favorites is activated!');
     const trans = (translator ?? nullTranslator).load('jupyterlab');
@@ -114,7 +117,8 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
     if (filebrowser) {
       const favoritesWidget = new FavoritesWidget(
         favoritesManager,
-        filebrowser
+        filebrowser,
+        stateDB
       );
       const layout = filebrowser.layout as PanelLayout;
       layout.insertWidget(0, favoritesWidget);

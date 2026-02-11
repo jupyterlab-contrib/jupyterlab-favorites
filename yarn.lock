@@ -617,6 +617,7 @@ __metadata:
     "@jupyterlab/notebook": ^4.0.5
     "@jupyterlab/services": ^7.0.5
     "@jupyterlab/settingregistry": ^4.0.5
+    "@jupyterlab/statedb": ^4.0.5
     "@jupyterlab/ui-components": ^4.0.5
     "@lumino/commands": ^2.0.1
     "@lumino/coreutils": ^2.0.1
@@ -1292,6 +1293,19 @@ __metadata:
   peerDependencies:
     react: ">=16"
   checksum: acae2d98e368b0537ffb08d20ecaf3326b1c31e196887ff63c82459dc7ec01d1dc20deec0a48990670ccf2bf4c6760908169665c1e38cd99f2b1da2b050d0d76
+  languageName: node
+  linkType: hard
+
+"@jupyterlab/statedb@npm:^4.0.5":
+  version: 4.5.4
+  resolution: "@jupyterlab/statedb@npm:4.5.4"
+  dependencies:
+    "@lumino/commands": ^2.3.3
+    "@lumino/coreutils": ^2.2.2
+    "@lumino/disposable": ^2.1.5
+    "@lumino/properties": ^2.0.4
+    "@lumino/signaling": ^2.1.5
+  checksum: 40af034c3c29cf8a93e2819a9fabcb7758d473c8ef517c6fd8d7a9841a026b58346ec7ec34ed66bb9dc67e3a3a48cff95962c7bebd597a0f8128701fbba44ebb
   languageName: node
   linkType: hard
 
