@@ -72,7 +72,7 @@ const BOTTOM_SPACING = 100;
 
 /**
  * The key in State DB.
- * In JupyterLab the value will be stored per layout.
+ * In JupyterLab the value will be stored per workspace.
  */
 const STATE_DB_KEY = 'favorites';
 
