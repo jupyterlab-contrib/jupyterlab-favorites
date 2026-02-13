@@ -18,6 +18,8 @@ import {
 } from './utils';
 import { Drag } from '@lumino/dragdrop';
 import { IDisposable } from '@lumino/disposable';
+import { IStateDB } from '@jupyterlab/statedb';
+import { ReadonlyPartialJSONValue } from '@lumino/coreutils';
 
 /**
  * The parent node class for Favorites content.
@@ -67,6 +69,12 @@ const FAVORITE_BREADCRUMB_ICON_CLASS = 'jp-Favorites-BreadCrumbs-Icon';
  * The spacing from the bottom of the FileBrowser to leave when resizing the Favorites container.
  */
 const BOTTOM_SPACING = 100;
+
+/**
+ * The key in State DB.
+ * In JupyterLab the value will be stored per workspace.
+ */
+const STATE_DB_KEY = 'favorites';
 
 namespace types {
   export type FavoriteComponentProps = {
@@ -157,15 +165,45 @@ export const FavoritesBreadCrumbs: React.FunctionComponent<
 interface IFavoritesContainerProps {
   visibleFavorites?: Array<IFavorites.Favorite>;
   manager?: FavoritesManager;
+  stateDB?: IStateDB;
 }
 
 function FavoritesContainer({
   visibleFavorites,
-  manager
+  manager,
+  stateDB
 }: IFavoritesContainerProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = React.useState(false);
   const cursorDisposableRef = React.useRef<IDisposable | null>(null);
+  const [persistedHeight, setPersistedHeight] = usePersistedHeight(stateDB);
+
+  const applyHeight = React.useCallback((height: number) => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    // Height of filebrowser widget
+    const parentElement = container.closest('.jp-FileBrowser');
+    const parentRect = parentElement?.getBoundingClientRect();
+    if (!parentRect) {
+      return;
+    }
+
+    const maxHeight = parentRect.height - BOTTOM_SPACING;
+    if (height > 24 && height < maxHeight) {
+      container.style.maxHeight = maxHeight + 'px'; // To ensure default max-height of css is overridden
+      container.style.height = height + 'px';
+    }
+  }, []);
+
+  // Apply persisted height when it's loaded (before paint to avoid flicker)
+  React.useLayoutEffect(() => {
+    if (persistedHeight !== undefined) {
+      applyHeight(persistedHeight);
+    }
+  }, [persistedHeight, applyHeight]);
 
   const handleMouseDown = () => {
     setIsResizing(true);
@@ -182,23 +220,16 @@ function FavoritesContainer({
       if (!container) {
         return;
       }
-      // Height of filebrowser widget
-      const parentElement = container.closest('.jp-FileBrowser');
-      const parentRect = parentElement?.getBoundingClientRect();
-      if (!parentRect) {
-        return;
-      }
 
       const rect = container.getBoundingClientRect();
       const newHeight = e.clientY - rect.top;
-      const maxHeight = parentRect.height - BOTTOM_SPACING;
 
-      if (newHeight > 24 && newHeight < maxHeight) {
-        container.style.maxHeight = maxHeight + 'px'; // To ensure default max-height of css is overridden
-        container.style.height = newHeight + 'px';
-      }
+      // Apply height immediately for visual feedback
+      applyHeight(newHeight);
+      // Persist to stateDB
+      setPersistedHeight(newHeight);
     },
-    [isResizing]
+    [isResizing, applyHeight, setPersistedHeight]
   );
 
   const handleMouseUp = React.useCallback(() => {
@@ -249,11 +280,17 @@ export class FavoritesWidget extends ReactWidget {
   private manager: FavoritesManager;
   private filebrowser: FileBrowser;
   private pathChanged = new Signal<this, string>(this);
+  private _stateDB?: IStateDB;
 
-  constructor(manager: FavoritesManager, filebrowser: FileBrowser) {
+  constructor(
+    manager: FavoritesManager,
+    filebrowser: FileBrowser,
+    stateDB: IStateDB | null
+  ) {
     super();
     this.manager = manager;
     this.filebrowser = filebrowser;
+    this._stateDB = stateDB ?? undefined;
     this.addClass(FAVORITE_MAIN_CLASS);
 
     this.filebrowser.model.pathChanged.connect((_, changedArgs) => {
@@ -286,6 +323,7 @@ export class FavoritesWidget extends ReactWidget {
                     <FavoritesContainer
                       visibleFavorites={visibleFavorites}
                       manager={manager}
+                      stateDB={this._stateDB}
                     />
                     <div className={FILEBROWSER_HEADER_CLASS}>File Browser</div>
                   </>
@@ -297,4 +335,53 @@ export class FavoritesWidget extends ReactWidget {
       </UseSignal>
     );
   }
+}
+
+/**
+ * Information persisted in StateDB.
+ */
+export interface IPersistedState {
+  height?: number;
+}
+
+/**
+ * Custom hook to manage persisted state in stateDB.
+ * Similar to useState but automatically persists to stateDB.
+ */
+function usePersistedHeight(
+  stateDB?: IStateDB
+): [number | undefined, (height: number) => void] {
+  const [height, setHeightState] = React.useState<number | undefined>(
+    undefined
+  );
+  const initializedRef = React.useRef(false);
+
+  // Load initial value from stateDB before first paint
+  React.useLayoutEffect(() => {
+    if (!stateDB || initializedRef.current) {
+      return;
+    }
+    initializedRef.current = true;
+
+    stateDB.fetch(STATE_DB_KEY).then(result => {
+      const persistedHeight = (result as IPersistedState)?.height;
+      if (typeof persistedHeight === 'number') {
+        setHeightState(persistedHeight);
+      }
+    });
+  }, [stateDB]);
+
+  // Setter that updates both state and stateDB
+  const setPersistedHeight = React.useCallback(
+    (newHeight: number) => {
+      setHeightState(newHeight);
+      if (stateDB) {
+        const state: IPersistedState = { height: newHeight };
+        stateDB.save(STATE_DB_KEY, state as ReadonlyPartialJSONValue);
+      }
+    },
+    [stateDB]
+  );
+
+  return [height, setPersistedHeight];
 }
