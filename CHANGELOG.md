@@ -2,6 +2,25 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.5.1
+
+([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.5.0...b32bfd62397c1e2e40209634d415a2949dcd5cf6))
+
+### Bugs fixed
+
+- Refresh breadcrumb favorite icon [#49](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/49) ([@MUFFANUJ](https://github.com/MUFFANUJ), [@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2026-02-13&to=2026-06-30&type=c))
+
+@krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2026-02-13..2026-06-30&type=Issues)) | @MUFFANUJ ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3AMUFFANUJ+updated%3A2026-02-13..2026-06-30&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.5.0
 
 ([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.4.0...fd922c27b5728034b65b46b51bd992719b244bd6))
@@ -25,8 +44,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2026-01-13&to=2026-02-13&type=c))
 
 @Darshan808 ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3ADarshan808+updated%3A2026-01-13..2026-02-13&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2026-01-13..2026-02-13&type=Issues)) | @martinRenou ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3AmartinRenou+updated%3A2026-01-13..2026-02-13&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.4.0
 
