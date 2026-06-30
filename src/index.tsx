@@ -134,7 +134,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
           filebrowser.model.pathChanged.disconnect(initializeBreadcrumbsIcon);
           const favoriteIcon = ReactWidget.create(
             <UseSignal
-              signal={filebrowser.model.pathChanged}
+              signal={filebrowser.model.refreshed}
               initialSender={filebrowser.model}
             >
               {model => (
