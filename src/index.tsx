@@ -132,6 +132,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
             return;
           }
           filebrowser.model.pathChanged.disconnect(initializeBreadcrumbsIcon);
+          filebrowser.model.refreshed.disconnect(initializeBreadcrumbsIcon);
           const favoriteIcon = ReactWidget.create(
             <UseSignal
               signal={filebrowser.model.refreshed}
@@ -166,6 +167,7 @@ const favorites: JupyterFrontEndPlugin<IFavorites> = {
         };
 
         filebrowser.model.pathChanged.connect(initializeBreadcrumbsIcon);
+        filebrowser.model.refreshed.connect(initializeBreadcrumbsIcon);
         initializeBreadcrumbsIcon();
       }
     }
