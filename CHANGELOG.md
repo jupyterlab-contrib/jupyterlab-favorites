@@ -2,6 +2,25 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.5.2
+
+([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.5.1...109622b26029cfcad9d548e563db0a86b12d5056))
+
+### Bugs fixed
+
+- Fix breadcrumb icon on preferred directory load [#50](https://github.com/jupyterlab-contrib/jupyterlab-favorites/pull/50) ([@MUFFANUJ](https://github.com/MUFFANUJ), [@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2026-06-30&to=2026-07-01&type=c))
+
+@krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2026-06-30..2026-07-01&type=Issues)) | @MUFFANUJ ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3AMUFFANUJ+updated%3A2026-06-30..2026-07-01&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.5.1
 
 ([Full Changelog](https://github.com/jupyterlab-contrib/jupyterlab-favorites/compare/v3.5.0...b32bfd62397c1e2e40209634d415a2949dcd5cf6))
@@ -18,8 +37,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab-contrib/jupyterlab-favorites/graphs/contributors?from=2026-02-13&to=2026-06-30&type=c))
 
 @krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3Akrassowski+updated%3A2026-02-13..2026-06-30&type=Issues)) | @MUFFANUJ ([activity](https://github.com/search?q=repo%3Ajupyterlab-contrib%2Fjupyterlab-favorites+involves%3AMUFFANUJ+updated%3A2026-02-13..2026-06-30&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.5.0
 
